@@ -1,15 +1,19 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookOpen, Mail, Lock, User, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 
 const Login = () => {
+  const { signIn, signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
+  
   const [loginData, setLoginData] = useState({
     email: "",
     password: ""
@@ -22,6 +26,13 @@ const Login = () => {
     password: "",
     confirmPassword: ""
   });
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (user && !loading) {
+      navigate('/');
+    }
+  }, [user, loading, navigate]);
 
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -39,21 +50,40 @@ const Login = () => {
     }));
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", loginData);
-    alert("Login functionality will be implemented with authentication system");
+    const { error } = await signIn(loginData.email, loginData.password);
+    
+    if (error) {
+      toast.error(error.message || "Login failed");
+    } else {
+      toast.success("Login successful!");
+      navigate('/');
+    }
   };
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (signupData.password !== signupData.confirmPassword) {
-      alert("Passwords don't match!");
+      toast.error("Passwords don't match!");
       return;
     }
-    console.log("Signup attempt:", signupData);
-    alert("Signup functionality will be implemented with authentication system");
+
+    const { error } = await signUp(signupData.email, signupData.password, signupData.name);
+    
+    if (error) {
+      toast.error(error.message || "Signup failed");
+    } else {
+      toast.success("Account created successfully! Please check your email to verify your account.");
+    }
   };
+
+  if (loading) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">Loading...</div>
+    </div>;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

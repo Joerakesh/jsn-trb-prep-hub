@@ -1,4 +1,4 @@
-
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,79 +6,36 @@ import { Clock, FileText, Users, ExternalLink, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Test {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  duration: string;
+  questions: string;
+  difficulty: string;
+  participants_count: number;
+  google_form_url: string;
+}
 
 const Tests = () => {
-  const mockTests = [
-    {
-      id: 1,
-      title: "UG TRB Tamil Mock Test - 1",
-      description: "Comprehensive test covering Tamil grammar, literature, and pedagogy",
-      duration: "2 hours",
-      questions: "150 questions",
-      category: "UG TRB",
-      difficulty: "Moderate",
-      participants: "1,250+",
-      googleFormUrl: "https://forms.google.com/mock-test-1"
-    },
-    {
-      id: 2, 
-      title: "UG TRB English Practice Test",
-      description: "English language proficiency and teaching methodology assessment",
-      duration: "2 hours",
-      questions: "150 questions", 
-      category: "UG TRB",
-      difficulty: "Moderate",
-      participants: "980+",
-      googleFormUrl: "https://forms.google.com/mock-test-2"
-    },
-    {
-      id: 3,
-      title: "UG TRB Mathematics Mock Test",
-      description: "Mathematical concepts and problem-solving skills evaluation",
-      duration: "2.5 hours",
-      questions: "150 questions",
-      category: "UG TRB", 
-      difficulty: "Challenging",
-      participants: "756+",
-      googleFormUrl: "https://forms.google.com/mock-test-3"
-    },
-    {
-      id: 4,
-      title: "PG TRB Educational Psychology Test",
-      description: "Advanced psychology concepts and educational theories",
-      duration: "2 hours",
-      questions: "100 questions",
-      category: "PG TRB",
-      difficulty: "Advanced",
-      participants: "432+",
-      googleFormUrl: "https://forms.google.com/mock-test-4"
-    },
-    {
-      id: 5,
-      title: "PG TRB Research Methodology Test",
-      description: "Research methods, statistics, and data analysis assessment",
-      duration: "1.5 hours", 
-      questions: "75 questions",
-      category: "PG TRB",
-      difficulty: "Advanced",
-      participants: "298+",
-      googleFormUrl: "https://forms.google.com/mock-test-5"
-    },
-    {
-      id: 6,
-      title: "General TRB Aptitude Test",
-      description: "Reasoning, general knowledge, and aptitude assessment",
-      duration: "1 hour",
-      questions: "100 questions",
-      category: "General",
-      difficulty: "Easy",
-      participants: "2,100+",
-      googleFormUrl: "https://forms.google.com/mock-test-6"
+  const { data: tests = [], isLoading } = useQuery({
+    queryKey: ['tests'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tests')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as Test[];
     }
-  ];
+  });
 
   const handleStartTest = (testUrl: string, testTitle: string) => {
-    // Open Google Form in new tab
     window.open(testUrl, '_blank');
     console.log(`Starting test: ${testTitle}`);
   };
@@ -92,6 +49,22 @@ const Tests = () => {
       default: return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const formatCategory = (category: string) => {
+    return category.replace('_', ' ');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="text-lg">Loading tests...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -145,11 +118,11 @@ const Tests = () => {
       <section className="container mx-auto px-4 pb-16">
         <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Available Mock Tests</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockTests.map((test) => (
+          {tests.map((test) => (
             <Card key={test.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start mb-2">
-                  <Badge variant="outline">{test.category}</Badge>
+                  <Badge variant="outline">{formatCategory(test.category)}</Badge>
                   <Badge className={getDifficultyColor(test.difficulty)}>
                     {test.difficulty}
                   </Badge>
@@ -170,13 +143,13 @@ const Tests = () => {
                     </div>
                     <div className="flex items-center col-span-2">
                       <Users className="h-4 w-4 mr-1" />
-                      {test.participants} participants
+                      {test.participants_count.toLocaleString()}+ participants
                     </div>
                   </div>
 
                   <Button 
                     className="w-full bg-blue-600 hover:bg-blue-700"
-                    onClick={() => handleStartTest(test.googleFormUrl, test.title)}
+                    onClick={() => handleStartTest(test.google_form_url, test.title)}
                   >
                     <ExternalLink className="h-4 w-4 mr-2" />
                     Start Test

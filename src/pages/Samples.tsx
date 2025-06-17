@@ -1,82 +1,68 @@
-
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download, FileText, BookOpen, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { supabase } from "@/integrations/supabase/client";
+
+interface SampleMaterial {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pages: number;
+  format: string;
+  download_url: string;
+}
 
 const Samples = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // This would be managed by auth context
+  const { user } = useAuth();
 
-  const sampleMaterials = [
-    {
-      id: 1,
-      title: "UG TRB Tamil Sample Chapter",
-      description: "Sample chapter covering Tamil grammar fundamentals",
-      category: "UG TRB",
-      pages: "25 pages",
-      format: "PDF",
-      downloadUrl: "/samples/ug-tamil-sample.pdf"
-    },
-    {
-      id: 2,
-      title: "UG TRB English Practice Questions",
-      description: "Sample question bank with detailed solutions",
-      category: "UG TRB", 
-      pages: "20 pages",
-      format: "PDF",
-      downloadUrl: "/samples/ug-english-questions.pdf"
-    },
-    {
-      id: 3,
-      title: "PG TRB Educational Psychology Preview",
-      description: "Introduction to learning theories and child development",
-      category: "PG TRB",
-      pages: "30 pages",
-      format: "PDF", 
-      downloadUrl: "/samples/pg-psychology-preview.pdf"
-    },
-    {
-      id: 4,
-      title: "Mathematics Problem Solving Techniques",
-      description: "Sample mathematical concepts and problem-solving methods",
-      category: "UG TRB",
-      pages: "35 pages",
-      format: "PDF",
-      downloadUrl: "/samples/math-techniques.pdf"
-    },
-    {
-      id: 5,
-      title: "Research Methodology Sample",
-      description: "Introduction to research design and methodology",
-      category: "PG TRB",
-      pages: "28 pages", 
-      format: "PDF",
-      downloadUrl: "/samples/research-methodology.pdf"
-    },
-    {
-      id: 6,
-      title: "Previous Year Questions Sample",
-      description: "Collection of previous year TRB questions with solutions",
-      category: "General",
-      pages: "40 pages",
-      format: "PDF",
-      downloadUrl: "/samples/previous-questions.pdf"
+  const { data: sampleMaterials = [], isLoading } = useQuery({
+    queryKey: ['sample_materials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sample_materials')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as SampleMaterial[];
     }
-  ];
+  });
 
   const handleDownload = (downloadUrl: string, title: string) => {
-    if (!isLoggedIn) {
-      alert("Please login to download sample materials");
+    if (!user) {
+      toast.error("Please login to download sample materials");
       return;
     }
+    
     // Simulate download
     console.log(`Downloading: ${title}`);
-    alert(`Downloading: ${title}`);
+    toast.success(`Downloading: ${title}`);
   };
+
+  const formatCategory = (category: string) => {
+    return category.replace('_', ' ');
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="text-lg">Loading sample materials...</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -93,7 +79,7 @@ const Samples = () => {
       </section>
 
       {/* Login Notice */}
-      {!isLoggedIn && (
+      {!user && (
         <section className="container mx-auto px-4 py-8">
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="text-center py-8">
@@ -120,7 +106,7 @@ const Samples = () => {
                   <Badge variant="secondary" className="bg-green-100 text-green-800">
                     Free Sample
                   </Badge>
-                  <Badge variant="outline">{material.category}</Badge>
+                  <Badge variant="outline">{formatCategory(material.category)}</Badge>
                 </div>
                 <CardTitle className="text-lg">{material.title}</CardTitle>
                 <CardDescription>{material.description}</CardDescription>
@@ -130,7 +116,7 @@ const Samples = () => {
                   <div className="flex justify-between text-sm text-gray-600">
                     <span className="flex items-center">
                       <FileText className="h-4 w-4 mr-1" />
-                      {material.pages}
+                      {material.pages} pages
                     </span>
                     <span className="flex items-center">
                       <BookOpen className="h-4 w-4 mr-1" />
@@ -139,12 +125,12 @@ const Samples = () => {
                   </div>
 
                   <Button 
-                    className={`w-full ${isLoggedIn ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                    onClick={() => handleDownload(material.downloadUrl, material.title)}
-                    disabled={!isLoggedIn}
+                    className={`w-full ${user ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                    onClick={() => handleDownload(material.download_url, material.title)}
+                    disabled={!user}
                   >
                     <Download className="h-4 w-4 mr-2" />
-                    {isLoggedIn ? 'Download Sample' : 'Login Required'}
+                    {user ? 'Download Sample' : 'Login Required'}
                   </Button>
                 </div>
               </CardContent>

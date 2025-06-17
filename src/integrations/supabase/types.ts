@@ -9,7 +9,239 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      materials: {
+        Row: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at: string | null
+          description: string | null
+          format: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          pages: number | null
+          price: number
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          format?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          pages?: number | null
+          price: number
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          format?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          pages?: number | null
+          price?: number
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          material_id: string
+          order_id: string
+          price: number
+          quantity: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          material_id: string
+          order_id: string
+          price: number
+          quantity?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          material_id?: string
+          order_id?: string
+          price?: number
+          quantity?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          phone: string | null
+          shipping_address: string | null
+          status: Database["public"]["Enums"]["order_status"] | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"] | null
+          total_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          shipping_address?: string | null
+          status?: Database["public"]["Enums"]["order_status"] | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      sample_materials: {
+        Row: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at: string | null
+          description: string | null
+          download_url: string | null
+          format: string | null
+          id: string
+          is_active: boolean | null
+          pages: number | null
+          title: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          format?: string | null
+          id?: string
+          is_active?: boolean | null
+          pages?: number | null
+          title: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          download_url?: string | null
+          format?: string | null
+          id?: string
+          is_active?: boolean | null
+          pages?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      tests: {
+        Row: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          duration: string | null
+          google_form_url: string | null
+          id: string
+          is_active: boolean | null
+          participants_count: number | null
+          questions: string | null
+          title: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration?: string | null
+          google_form_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          participants_count?: number | null
+          questions?: string | null
+          title: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["material_category"]
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration?: string | null
+          google_form_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          participants_count?: number | null
+          questions?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +250,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      material_category: "UG_TRB" | "PG_TRB" | "General"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +371,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      material_category: ["UG_TRB", "PG_TRB", "General"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
+    },
   },
 } as const
