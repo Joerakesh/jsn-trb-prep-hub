@@ -1,9 +1,9 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, User, LogOut, Settings, ShoppingCart } from "lucide-react";
+import { BookOpen, Menu, X, User, LogOut, Settings, ShoppingCart, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,8 @@ import { toast } from "sonner";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, isAdmin, signOut } = useAuth();
+  const { cartCount } = useCart();
   const navigate = useNavigate();
 
   const publicNavItems = [
@@ -66,10 +67,15 @@ const Navigation = () => {
             
             {user ? (
               <div className="flex items-center space-x-4">
-                <Button asChild variant="outline" size="sm">
+                <Button asChild variant="outline" size="sm" className="relative">
                   <Link to="/cart">
                     <ShoppingCart className="h-4 w-4 mr-1" />
                     Cart
+                    {cartCount > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {cartCount}
+                      </span>
+                    )}
                   </Link>
                 </Button>
                 
@@ -87,6 +93,17 @@ const Navigation = () => {
                         Profile Settings
                       </Link>
                     </DropdownMenuItem>
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem asChild>
+                          <Link to="/admin" className="flex items-center">
+                            <Shield className="h-4 w-4 mr-2" />
+                            Admin Panel
+                          </Link>
+                        </DropdownMenuItem>
+                      </>
+                    )}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                       <LogOut className="h-4 w-4 mr-2" />
@@ -133,7 +150,7 @@ const Navigation = () => {
                     className="text-gray-600 hover:text-blue-600 transition-colors py-2"
                     onClick={() => setIsOpen(false)}
                   >
-                    Cart
+                    Cart {cartCount > 0 && `(${cartCount})`}
                   </Link>
                   <Link
                     to="/profile"
@@ -142,6 +159,15 @@ const Navigation = () => {
                   >
                     Profile Settings
                   </Link>
+                  {isAdmin && (
+                    <Link
+                      to="/admin"
+                      className="text-gray-600 hover:text-blue-600 transition-colors py-2"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       handleSignOut();

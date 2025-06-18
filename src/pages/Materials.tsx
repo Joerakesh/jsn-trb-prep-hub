@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -7,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ShoppingCart, BookOpen, Filter, Search } from "lucide-react";
-import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Material {
@@ -26,6 +25,7 @@ interface Material {
 const Materials = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const { addToCart } = useCart();
 
   const { data: materials = [], isLoading } = useQuery({
     queryKey: ['materials'],
@@ -49,8 +49,7 @@ const Materials = () => {
   });
 
   const handleAddToCart = (materialId: string, title: string) => {
-    console.log(`Adding to cart: ${title}`);
-    // TODO: Implement cart functionality
+    addToCart(materialId, title);
   };
 
   const getCategoryColor = (category: string) => {
