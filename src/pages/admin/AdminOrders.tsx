@@ -11,6 +11,9 @@ import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Database } from "@/integrations/supabase/types";
+
+type OrderStatus = Database['public']['Enums']['order_status'];
 
 const AdminOrders = () => {
   const { isAdmin } = useAuth();
@@ -38,7 +41,7 @@ const AdminOrders = () => {
   });
 
   const updateOrderStatus = useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
       const { error } = await supabase
         .from('orders')
         .update({ status, updated_at: new Date().toISOString() })
@@ -56,7 +59,7 @@ const AdminOrders = () => {
     }
   });
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: OrderStatus) => {
     switch (status) {
       case 'pending': return <Package className="h-4 w-4" />;
       case 'confirmed': return <CheckCircle className="h-4 w-4" />;
@@ -67,7 +70,7 @@ const AdminOrders = () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: OrderStatus) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'confirmed': return 'bg-blue-100 text-blue-800';
@@ -127,8 +130,8 @@ const AdminOrders = () => {
                     <div>
                       <CardTitle className="flex items-center gap-2">
                         Order #{order.id.slice(0, 8)}
-                        <Badge className={getStatusColor(order.status)}>
-                          {getStatusIcon(order.status)}
+                        <Badge className={getStatusColor(order.status!)}>
+                          {getStatusIcon(order.status!)}
                           <span className="ml-1 capitalize">{order.status}</span>
                         </Badge>
                       </CardTitle>
@@ -140,8 +143,8 @@ const AdminOrders = () => {
                     </div>
                     
                     <Select
-                      value={order.status}
-                      onValueChange={(status) => updateOrderStatus.mutate({ orderId: order.id, status })}
+                      value={order.status || 'pending'}
+                      onValueChange={(status: OrderStatus) => updateOrderStatus.mutate({ orderId: order.id, status })}
                     >
                       <SelectTrigger className="w-40">
                         <SelectValue />
