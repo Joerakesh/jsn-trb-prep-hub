@@ -65,6 +65,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setCartItems(data || []);
     } catch (error) {
       console.error('Error fetching cart items:', error);
+      toast.error('Failed to load cart items');
     } finally {
       setLoading(false);
     }
@@ -77,9 +78,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
+      // Check if item already exists in cart
+      const existingItem = cartItems.find(item => item.material_id === materialId);
+      
+      if (existingItem) {
+        // Update quantity if item exists
+        await updateQuantity(existingItem.id, existingItem.quantity + 1);
+        toast.success(`${title} quantity updated in cart`);
+        return;
+      }
+
+      // Add new item to cart
       const { error } = await supabase
         .from('cart_items')
-        .upsert({
+        .insert({
           user_id: user.id,
           material_id: materialId,
           quantity: 1
@@ -145,8 +157,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       setCartItems([]);
+      toast.success('Cart cleared');
     } catch (error) {
       console.error('Error clearing cart:', error);
+      toast.error('Failed to clear cart');
     }
   };
 

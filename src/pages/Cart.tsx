@@ -13,12 +13,6 @@ import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-declare global {
-  interface Window {
-    Razorpay: any;
-  }
-}
-
 const Cart = () => {
   const { user } = useAuth();
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -39,16 +33,6 @@ const Cart = () => {
     removeFromCart(cartItemId);
   };
 
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
-  };
-
   const handlePayment = async () => {
     if (!user || cartItems.length === 0) return;
     
@@ -60,14 +44,7 @@ const Cart = () => {
     setLoading(true);
 
     try {
-      // Load Razorpay script
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        toast.error("Payment gateway failed to load");
-        return;
-      }
-
-      // Create order in database
+      // Create order in database first
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
@@ -97,45 +74,24 @@ const Cart = () => {
 
       if (itemsError) throw itemsError;
 
-      // Configure Razorpay options
-      const options = {
-        key: "rzp_test_9999999999", // Replace with your Razorpay key
-        amount: totalAmount * 100, // Amount in paise
-        currency: "INR",
-        name: "JSN Academy",
-        description: "Study Materials Purchase",
-        order_id: order.id,
-        handler: async (response: any) => {
-          // Payment successful
-          const { error } = await supabase
-            .from('orders')
-            .update({ 
-              status: 'confirmed',
-              notes: `${notes}\nPayment ID: ${response.razorpay_payment_id}`
-            })
-            .eq('id', order.id);
+      // For now, we'll simulate a successful payment
+      // In production, you would integrate with a real payment gateway
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({ 
+          status: 'confirmed',
+          notes: `${notes}\nPayment Method: Demo Payment (Replace with actual payment gateway)`
+        })
+        .eq('id', order.id);
 
-          if (!error) {
-            await clearCart();
-            toast.success("Payment successful! Order confirmed.");
-          }
-        },
-        prefill: {
-          name: user.user_metadata?.full_name || "",
-          email: user.email || "",
-          contact: phone
-        },
-        theme: {
-          color: "#2563eb"
-        }
-      };
-
-      const razorpay = new window.Razorpay(options);
-      razorpay.open();
+      if (!updateError) {
+        await clearCart();
+        toast.success("Order placed successfully! This is a demo - no actual payment was processed.");
+      }
 
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error("Failed to process payment");
+      console.error('Order creation error:', error);
+      toast.error("Failed to place order");
     } finally {
       setLoading(false);
     }
@@ -273,13 +229,19 @@ const Cart = () => {
                     </div>
                   </div>
 
+                  <div className="bg-yellow-50 p-3 rounded border border-yellow-200">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Demo Mode:</strong> This is a demonstration. No actual payment will be processed.
+                    </p>
+                  </div>
+
                   <Button 
                     onClick={handlePayment}
                     disabled={loading || !shippingAddress.trim()}
                     className="w-full bg-blue-600 hover:bg-blue-700"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
-                    {loading ? "Processing..." : `Pay ₹${totalAmount}`}
+                    {loading ? "Processing..." : `Place Order ₹${totalAmount}`}
                   </Button>
                 </CardContent>
               </Card>

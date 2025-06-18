@@ -1,8 +1,9 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, FileText, BookOpen, Lock } from "lucide-react";
+import { Download, FileText, BookOpen, Lock, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -37,15 +38,25 @@ const Samples = () => {
     }
   });
 
+  const handleView = (title: string) => {
+    // Anyone can view samples - no login required
+    console.log(`Viewing: ${title}`);
+    toast.success(`Opening sample: ${title}`);
+    // Here you would typically open the PDF in a new tab or modal
+    // For demo purposes, we'll just show a success message
+  };
+
   const handleDownload = (downloadUrl: string, title: string) => {
     if (!user) {
       toast.error("Please login to download sample materials");
       return;
     }
     
-    // Simulate download
+    // Simulate download for logged-in users
     console.log(`Downloading: ${title}`);
     toast.success(`Downloading: ${title}`);
+    // Here you would typically trigger the actual download
+    // window.open(downloadUrl, '_blank');
   };
 
   const formatCategory = (category: string) => {
@@ -78,23 +89,23 @@ const Samples = () => {
         </div>
       </section>
 
-      {/* Login Notice */}
-      {!user && (
-        <section className="container mx-auto px-4 py-8">
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="text-center py-8">
-              <Lock className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-blue-900 mb-2">Login Required</h3>
-              <p className="text-blue-700 mb-4">
-                Please login to your account to download free sample materials
-              </p>
-              <Button asChild className="bg-blue-600 hover:bg-blue-700">
+      {/* Access Info */}
+      <section className="container mx-auto px-4 py-8">
+        <Card className="bg-green-50 border-green-200">
+          <CardContent className="text-center py-8">
+            <Eye className="h-12 w-12 text-green-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-green-900 mb-2">Free Sample Access</h3>
+            <p className="text-green-700 mb-4">
+              Anyone can view sample materials. Login is only required to download them.
+            </p>
+            {!user && (
+              <Button asChild className="bg-green-600 hover:bg-green-700">
                 <Link to="/login">Login to Download Samples</Link>
               </Button>
-            </CardContent>
-          </Card>
-        </section>
-      )}
+            )}
+          </CardContent>
+        </Card>
+      </section>
 
       {/* Sample Materials Grid */}
       <section className="container mx-auto px-4 pb-16">
@@ -124,14 +135,32 @@ const Samples = () => {
                     </span>
                   </div>
 
-                  <Button 
-                    className={`w-full ${user ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
-                    onClick={() => handleDownload(material.download_url, material.title)}
-                    disabled={!user}
-                  >
-                    <Download className="h-4 w-4 mr-2" />
-                    {user ? 'Download Sample' : 'Login Required'}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleView(material.title)}
+                    >
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Sample
+                    </Button>
+                    
+                    <Button 
+                      className={`flex-1 ${user ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-400 cursor-not-allowed'}`}
+                      onClick={() => handleDownload(material.download_url, material.title)}
+                      disabled={!user}
+                    >
+                      <Download className="h-4 w-4 mr-2" />
+                      {user ? 'Download' : 'Login Required'}
+                    </Button>
+                  </div>
+
+                  {!user && (
+                    <p className="text-xs text-gray-500 text-center">
+                      <Lock className="h-3 w-3 inline mr-1" />
+                      Login required for downloads
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -160,10 +189,10 @@ const Samples = () => {
             </div>
             <div>
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Download className="h-8 w-8 text-green-600" />
+                <Eye className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Free Access</h3>
-              <p className="text-gray-600">Completely free samples available to all registered users</p>
+              <h3 className="text-xl font-semibold mb-2">Free Viewing</h3>
+              <p className="text-gray-600">View samples without registration, download with free account</p>
             </div>
           </div>
         </div>
