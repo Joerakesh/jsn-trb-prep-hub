@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useCart } from "@/contexts/CartContext";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Material {
   id: string;
@@ -27,16 +29,22 @@ const Materials = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const { addToCart } = useCart();
 
-  const { data: materials = [], isLoading } = useQuery({
+  const { data: materials = [], isLoading, error } = useQuery({
     queryKey: ['materials'],
     queryFn: async () => {
+      console.log('Fetching materials...');
       const { data, error } = await supabase
         .from('materials')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching materials:', error);
+        throw error;
+      }
+      
+      console.log('Materials fetched:', data);
       return data as Material[];
     }
   });
@@ -49,7 +57,13 @@ const Materials = () => {
   });
 
   const handleAddToCart = (materialId: string, title: string) => {
-    addToCart(materialId, title);
+    try {
+      addToCart(materialId, title);
+      toast.success(`${title} added to cart!`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart');
+    }
   };
 
   const getCategoryColor = (category: string) => {
@@ -64,6 +78,18 @@ const Materials = () => {
   const formatCategory = (category: string) => {
     return category.replace('_', ' ');
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="text-lg text-red-600">Error loading materials. Please try again later.</div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
