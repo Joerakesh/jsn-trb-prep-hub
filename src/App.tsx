@@ -13,7 +13,6 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
 import Contact from "./pages/Contact";
-import Samples from "./pages/Samples";
 import Tests from "./pages/Tests";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMaterials from "./pages/admin/AdminMaterials";
@@ -41,7 +40,6 @@ function App() {
                 <Route path="/orders" element={<Orders />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/samples" element={<Samples />} />
                 <Route path="/tests" element={<Tests />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
