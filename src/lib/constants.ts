@@ -8,7 +8,7 @@ export const RAZORPAY_CONFIG = {
 };
 
 export const COMPANY_INFO = {
-  NAME: "JSN Academy",
+  NAME: "JSN English Academy",
   LOGO: "/placeholder.svg",
   THEME_COLOR: "#2563eb",
 };
