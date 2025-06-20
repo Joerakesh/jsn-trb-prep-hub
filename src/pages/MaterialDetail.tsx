@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -6,8 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import OrderForm, { OrderFormData } from "@/components/OrderForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,7 +30,8 @@ const MaterialDetail = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [previewPages] = useState(3); // Number of preview pages to show
+  const [showOrderForm, setShowOrderForm] = useState(false);
+  const [previewPages] = useState(3);
 
   const { data: material, isLoading } = useQuery({
     queryKey: ['material', id],
@@ -49,91 +51,119 @@ const MaterialDetail = () => {
     enabled: !!id
   });
 
-  const handlePurchase = async () => {
-    if (!user) {
-      toast.error("Please login to purchase materials");
-      navigate('/login');
-      return;
-    }
-
+  const handleFormSubmit = async (formData: OrderFormData) => {
     if (!material) return;
 
     setIsProcessing(true);
 
     try {
-      const script = document.createElement('script');
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-      document.body.appendChild(script);
+      // Check if Razorpay script is loaded
+      if (!(window as any).Razorpay) {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        document.body.appendChild(script);
 
-      script.onload = () => {
-        const options = {
-          key: RAZORPAY_CONFIG.KEY_ID,
-          amount: material.price * 100,
-          currency: 'INR',
-          name: COMPANY_INFO.NAME,
-          description: material.title,
-          image: COMPANY_INFO.LOGO,
-          handler: async (response: any) => {
-            try {
-              const { data: order, error: orderError } = await supabase
-                .from('orders')
-                .insert({
-                  user_id: user.id,
-                  total_amount: material.price,
-                  status: 'confirmed',
-                  notes: `Razorpay Payment ID: ${response.razorpay_payment_id}`
-                })
-                .select()
-                .single();
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = () => reject(new Error('Failed to load Razorpay script'));
+        });
+      }
 
-              if (orderError) throw orderError;
+      const options = {
+        key: RAZORPAY_CONFIG.KEY_ID,
+        amount: material.price * 100,
+        currency: 'INR',
+        name: COMPANY_INFO.NAME,
+        description: material.title,
+        image: COMPANY_INFO.LOGO,
+        prefill: {
+          name: formData.fullName,
+          email: formData.email,
+          contact: formData.phone
+        },
+        notes: {
+          address: formData.address,
+          city: formData.city,
+          state: formData.state,
+          pincode: formData.pincode
+        },
+        theme: {
+          color: COMPANY_INFO.THEME_COLOR
+        },
+        handler: async (response: any) => {
+          try {
+            console.log('Payment successful:', response);
+            
+            // Create order in database
+            const orderData = {
+              user_id: user?.id,
+              total_amount: material.price,
+              status: 'confirmed',
+              phone: formData.phone,
+              shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
+              notes: `Payment ID: ${response.razorpay_payment_id}, Customer: ${formData.fullName}, Email: ${formData.email}`
+            };
 
-              const { error: itemError } = await supabase
-                .from('order_items')
-                .insert({
-                  order_id: order.id,
-                  material_id: material.id,
-                  quantity: 1,
-                  price: material.price
-                });
+            const { data: order, error: orderError } = await supabase
+              .from('orders')
+              .insert(orderData)
+              .select()
+              .single();
 
-              if (itemError) throw itemError;
+            if (orderError) throw orderError;
 
-              toast.success("Payment successful! Material purchased successfully.");
-              navigate('/orders');
-            } catch (error) {
-              console.error('Order creation error:', error);
-              toast.error("Payment successful but order creation failed. Please contact support.");
-            }
-          },
-          prefill: {
-            name: user.email,
-            email: user.email,
-          },
-          theme: {
-            color: COMPANY_INFO.THEME_COLOR
-          },
-          modal: {
-            ondismiss: () => {
-              setIsProcessing(false);
-            }
+            // Create order item
+            const { error: itemError } = await supabase
+              .from('order_items')
+              .insert({
+                order_id: order.id,
+                material_id: material.id,
+                quantity: 1,
+                price: material.price
+              });
+
+            if (itemError) throw itemError;
+
+            toast.success("Payment successful! Your order has been confirmed.");
+            setShowOrderForm(false);
+            navigate('/orders');
+          } catch (error) {
+            console.error('Order creation error:', error);
+            toast.error("Payment successful but order creation failed. Please contact support.");
           }
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-        setIsProcessing(false);
+        },
+        modal: {
+          ondismiss: () => {
+            setIsProcessing(false);
+            console.log('Payment modal dismissed');
+          }
+        }
       };
 
-      script.onerror = () => {
-        toast.error("Failed to load payment gateway");
+      const rzp = new (window as any).Razorpay(options);
+      
+      rzp.on('payment.failed', (response: any) => {
+        console.error('Payment failed:', response.error);
+        toast.error(`Payment failed: ${response.error.description}`);
         setIsProcessing(false);
-      };
+      });
+
+      rzp.open();
+      setIsProcessing(false);
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error("Failed to initiate payment");
+      console.error('Payment initialization error:', error);
+      toast.error("Failed to initialize payment. Please check your Razorpay configuration.");
       setIsProcessing(false);
     }
+  };
+
+  const handlePurchaseClick = () => {
+    if (!user) {
+      toast.error("Please login to purchase materials");
+      navigate('/login');
+      return;
+    }
+    setShowOrderForm(true);
   };
 
   const getCategoryColor = (category: string) => {
@@ -291,14 +321,30 @@ const MaterialDetail = () => {
                 </div>
 
                 {user ? (
-                  <Button 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
-                    onClick={handlePurchase}
-                    disabled={isProcessing}
-                  >
-                    <ShoppingCart className="h-5 w-5 mr-2" />
-                    {isProcessing ? "Processing..." : "Buy Now with Razorpay"}
-                  </Button>
+                  <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
+                        onClick={handlePurchaseClick}
+                      >
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        Buy Now
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                      <DialogHeader>
+                        <DialogTitle>Complete Your Purchase</DialogTitle>
+                        <DialogDescription>
+                          Please provide your details to proceed with the payment
+                        </DialogDescription>
+                      </DialogHeader>
+                      <OrderForm
+                        material={material}
+                        onSubmit={handleFormSubmit}
+                        isProcessing={isProcessing}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 ) : (
                   <div className="space-y-3">
                     <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
