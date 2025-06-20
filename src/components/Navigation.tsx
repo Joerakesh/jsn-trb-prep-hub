@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,6 @@ const Navigation = () => {
   const publicNavItems = [
     { name: "Home", path: "/" },
     { name: "Study Materials", path: "/materials" },
-    { name: "Sample Materials", path: "/samples" },
     { name: "Online Tests", path: "/tests" },
     { name: "Contact", path: "/contact" },
   ];
@@ -31,7 +31,6 @@ const Navigation = () => {
     { name: "Dashboard", path: "/dashboard" },
     { name: "My Orders", path: "/orders" },
     { name: "Study Materials", path: "/materials" },
-    { name: "Sample Materials", path: "/samples" },
     { name: "Online Tests", path: "/tests" },
   ];
 
