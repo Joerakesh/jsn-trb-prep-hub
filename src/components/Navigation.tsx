@@ -24,6 +24,9 @@ const Navigation = () => {
     { name: "Home", path: "/" },
     { name: "Study Materials", path: "/materials" },
     { name: "Online Tests", path: "/tests" },
+    { name: "YouTube", path: "/youtube" },
+    { name: "About", path: "/about" },
+    { name: "Our Works", path: "/works" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -32,6 +35,7 @@ const Navigation = () => {
     { name: "My Orders", path: "/orders" },
     { name: "Study Materials", path: "/materials" },
     { name: "Online Tests", path: "/tests" },
+    { name: "YouTube", path: "/youtube" },
   ];
 
   const handleSignOut = async () => {
