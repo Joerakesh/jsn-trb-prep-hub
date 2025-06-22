@@ -134,7 +134,7 @@ const AdminVideos = () => {
     setEditingVideo(video);
     setFormData({
       title: video.title,
-      description: video.description,
+      description: video.description || "",
       youtube_url: video.youtube_url
     });
     setIsDialogOpen(true);

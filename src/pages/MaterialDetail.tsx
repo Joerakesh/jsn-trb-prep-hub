@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -94,11 +95,11 @@ const MaterialDetail = () => {
           try {
             console.log('Payment successful:', response);
             
-            // Create order in database
+            // Create order in database with proper enum type
             const orderData = {
               user_id: user?.id,
               total_amount: material.price,
-              status: 'confirmed',
+              status: 'confirmed' as const, // Explicitly type as const to match enum
               phone: formData.phone,
               shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
               notes: `Payment ID: ${response.razorpay_payment_id}, Customer: ${formData.fullName}, Email: ${formData.email}`
