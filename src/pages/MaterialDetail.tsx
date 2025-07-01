@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X } from "lucide-react";
+import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X, ExternalLink } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -23,6 +24,8 @@ interface Material {
   pages: number;
   format: string;
   image_url: string;
+  preview_url: string;
+  preview_pages: number;
 }
 
 const MaterialDetail = () => {
@@ -31,7 +34,6 @@ const MaterialDetail = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
-  const [previewPages] = useState(3);
 
   const { data: material, isLoading } = useQuery({
     queryKey: ['material', id],
@@ -51,16 +53,23 @@ const MaterialDetail = () => {
     enabled: !!id
   });
 
+  const extractGoogleDriveId = (url: string) => {
+    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    return match ? match[1] : null;
+  };
+
+  const getGoogleDriveEmbedUrl = (url: string) => {
+    const fileId = extractGoogleDriveId(url);
+    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : null;
+  };
+
   const handleFormSubmit = async (formData: OrderFormData) => {
     if (!material) return;
 
     setIsProcessing(true);
-    
-    // Close the dialog first
     setShowOrderForm(false);
 
     try {
-      // Check if Razorpay script is loaded
       if (!(window as any).Razorpay) {
         const script = document.createElement('script');
         script.src = 'https://checkout.razorpay.com/v1/checkout.js';
@@ -97,7 +106,6 @@ const MaterialDetail = () => {
           try {
             console.log('Payment successful:', response);
             
-            // Create order in database with proper enum type
             const orderData = {
               user_id: user?.id,
               total_amount: material.price,
@@ -115,7 +123,6 @@ const MaterialDetail = () => {
 
             if (orderError) throw orderError;
 
-            // Create order item
             const { error: itemError } = await supabase
               .from('order_items')
               .insert({
@@ -208,6 +215,8 @@ const MaterialDetail = () => {
     );
   }
 
+  const embedUrl = material.preview_url ? getGoogleDriveEmbedUrl(material.preview_url) : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
@@ -241,7 +250,7 @@ const MaterialDetail = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Material Preview - Enhanced */}
+          {/* Material Preview */}
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -249,34 +258,66 @@ const MaterialDetail = () => {
                 Material Preview
               </CardTitle>
               <CardDescription>
-                Sample pages from this {material.pages}-page material
+                {material.preview_pages ? `Preview ${material.preview_pages} pages` : 'Sample pages'} from this {material.pages}-page material
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8 text-center min-h-96 flex flex-col justify-center border border-blue-200">
-                <BookOpen className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                  Complete {material.pages}-Page Study Material
-                </h3>
-                <div className="grid grid-cols-3 gap-3 mb-6">
-                  {Array.from({ length: Math.min(6, material.pages) }).map((_, index) => (
-                    <div key={index} className="bg-white rounded border-2 aspect-[3/4] flex items-center justify-center text-sm text-gray-600 shadow-sm">
-                      Page {index + 1}
-                    </div>
-                  ))}
+              {embedUrl ? (
+                <div className="space-y-4">
+                  <div className="aspect-[3/4] w-full border rounded-lg overflow-hidden bg-white">
+                    <iframe
+                      src={embedUrl}
+                      className="w-full h-full"
+                      allow="autoplay"
+                      title="Material Preview"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-gray-600">
+                    <span>Preview: {material.preview_pages || 3} pages</span>
+                    {material.preview_url && (
+                      <Button variant="outline" size="sm" asChild>
+                        <a href={material.preview_url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Open in Drive
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-4">
+                    <p className="text-blue-800 font-medium text-sm">
+                      📚 Complete {material.pages} pages available after purchase
+                    </p>
+                    <p className="text-blue-700 text-xs mt-1">
+                      Full material includes detailed explanations, examples, and practice questions
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-blue-100 rounded-lg p-4 mb-4">
-                  <p className="text-blue-800 font-medium text-sm">
-                    📚 Full {material.pages} pages of comprehensive content
-                  </p>
-                  <p className="text-blue-700 text-xs mt-1">
-                    Includes detailed explanations, examples, and practice questions
+              ) : (
+                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8 text-center min-h-96 flex flex-col justify-center border border-blue-200">
+                  <BookOpen className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                    Complete {material.pages}-Page Study Material
+                  </h3>
+                  <div className="grid grid-cols-3 gap-3 mb-6">
+                    {Array.from({ length: Math.min(6, material.pages) }).map((_, index) => (
+                      <div key={index} className="bg-white rounded border-2 aspect-[3/4] flex items-center justify-center text-sm text-gray-600 shadow-sm">
+                        Page {index + 1}
+                      </div>
+                    ))}
+                  </div>
+                  <div className="bg-blue-100 rounded-lg p-4 mb-4">
+                    <p className="text-blue-800 font-medium text-sm">
+                      📚 Full {material.pages} pages of comprehensive content
+                    </p>
+                    <p className="text-blue-700 text-xs mt-1">
+                      Includes detailed explanations, examples, and practice questions
+                    </p>
+                  </div>
+                  <p className="text-gray-600 text-sm">
+                    Purchase to unlock the complete material with all {material.pages} pages
                   </p>
                 </div>
-                <p className="text-gray-600 text-sm">
-                  Purchase to unlock the complete material with all {material.pages} pages
-                </p>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -305,7 +346,7 @@ const MaterialDetail = () => {
                     <li>• Topic-wise coverage</li>
                     <li>• Practice questions</li>
                     <li>• Previous year analysis</li>
-                    <li>• Expert explanations</li>
+                    <li>• Expert explanations by Dr. Nathan</li>
                     <li>• Model test papers</li>
                   </ul>
                 </div>

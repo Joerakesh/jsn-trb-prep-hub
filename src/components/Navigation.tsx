@@ -68,19 +68,19 @@ const Navigation = () => {
             {user ? (
               <div className="flex items-center space-x-4">
                 {isAdmin && (
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-200">
                     {adminItems.map((item) => (
                       <Link
                         key={item.name}
                         to={item.path}
                         className={`text-sm font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded ${
                           isActive(item.path)
-                            ? "bg-blue-100 text-blue-600"
-                            : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "text-blue-600 hover:bg-blue-100"
                         }`}
                       >
                         {item.icon}
-                        {item.name}
+                        <span className="hidden lg:inline">{item.name}</span>
                       </Link>
                     ))}
                   </div>
@@ -135,7 +135,7 @@ const Navigation = () => {
                 {user && isAdmin && (
                   <>
                     <div className="border-t pt-4 mt-4">
-                      <p className="text-sm font-medium text-gray-500 px-4 mb-2">Admin</p>
+                      <p className="text-sm font-medium text-gray-500 px-4 mb-2">Admin Panel</p>
                       {adminItems.map((item) => (
                         <Link
                           key={item.name}

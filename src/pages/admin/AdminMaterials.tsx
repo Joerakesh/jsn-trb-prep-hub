@@ -8,13 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Package } from "lucide-react";
+import { Plus, Edit, Trash2, Package, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Material {
   id: string;
@@ -25,6 +26,8 @@ interface Material {
   pages: number;
   format: string;
   is_active: boolean;
+  preview_url: string;
+  preview_pages: number;
 }
 
 const AdminMaterials = () => {
@@ -38,7 +41,9 @@ const AdminMaterials = () => {
     category: "UG_TRB",
     price: 0,
     pages: 0,
-    format: "PDF"
+    format: "PDF",
+    preview_url: "",
+    preview_pages: 3
   });
 
   const { data: materials = [], isLoading } = useQuery({
@@ -81,7 +86,9 @@ const AdminMaterials = () => {
         category: "UG_TRB",
         price: 0,
         pages: 0,
-        format: "PDF"
+        format: "PDF",
+        preview_url: "",
+        preview_pages: 3
       });
       toast.success(editingMaterial ? "Material updated successfully" : "Material created successfully");
     },
@@ -123,15 +130,15 @@ const AdminMaterials = () => {
       category: material.category,
       price: material.price,
       pages: material.pages || 0,
-      format: material.format || "PDF"
+      format: material.format || "PDF",
+      preview_url: material.preview_url || "",
+      preview_pages: material.preview_pages || 3
     });
     setIsDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this material?")) {
-      deleteMaterial.mutate(id);
-    }
+    deleteMaterial.mutate(id);
   };
 
   if (!isAdmin) {
@@ -155,11 +162,11 @@ const AdminMaterials = () => {
       <Navigation />
       
       {/* Header Section */}
-      <section className="bg-blue-600 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-bold mb-4">Manage Materials</h1>
-            <p className="text-xl text-blue-100">Add, edit, and manage study materials</p>
+            <h1 className="text-3xl font-bold mb-2">Study Materials</h1>
+            <p className="text-blue-100">Add, edit, and manage study materials with Google Drive previews</p>
           </div>
           
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -169,11 +176,11 @@ const AdminMaterials = () => {
                 Add Material
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingMaterial ? "Edit Material" : "Add New Material"}</DialogTitle>
                 <DialogDescription>
-                  {editingMaterial ? "Update the material details" : "Create a new study material"}
+                  {editingMaterial ? "Update the material details" : "Create a new study material with Google Drive preview"}
                 </DialogDescription>
               </DialogHeader>
               
@@ -189,6 +196,7 @@ const AdminMaterials = () => {
                   placeholder="Description"
                   value={formData.description}
                   onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  rows={3}
                 />
                 
                 <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
@@ -204,7 +212,7 @@ const AdminMaterials = () => {
                 
                 <Input
                   type="number"
-                  placeholder="Price"
+                  placeholder="Price (₹)"
                   value={formData.price}
                   onChange={(e) => setFormData({...formData, price: Number(e.target.value)})}
                   required
@@ -212,9 +220,10 @@ const AdminMaterials = () => {
                 
                 <Input
                   type="number"
-                  placeholder="Number of pages"
+                  placeholder="Total number of pages"
                   value={formData.pages}
                   onChange={(e) => setFormData({...formData, pages: Number(e.target.value)})}
+                  required
                 />
                 
                 <Input
@@ -223,8 +232,29 @@ const AdminMaterials = () => {
                   onChange={(e) => setFormData({...formData, format: e.target.value})}
                 />
                 
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Google Drive Preview Link</label>
+                  <Input
+                    placeholder="https://drive.google.com/file/d/your-file-id/view"
+                    value={formData.preview_url}
+                    onChange={(e) => setFormData({...formData, preview_url: e.target.value})}
+                  />
+                  <p className="text-xs text-gray-500">
+                    Upload sample pages to Google Drive and paste the shareable link here
+                  </p>
+                </div>
+                
+                <Input
+                  type="number"
+                  placeholder="Number of preview pages"
+                  value={formData.preview_pages}
+                  onChange={(e) => setFormData({...formData, preview_pages: Number(e.target.value)})}
+                  min={1}
+                  max={10}
+                />
+                
                 <Button type="submit" className="w-full" disabled={saveMaterial.isPending}>
-                  {saveMaterial.isPending ? "Saving..." : editingMaterial ? "Update" : "Create"}
+                  {saveMaterial.isPending ? "Saving..." : editingMaterial ? "Update Material" : "Create Material"}
                 </Button>
               </form>
             </DialogContent>
@@ -232,43 +262,78 @@ const AdminMaterials = () => {
         </div>
       </section>
 
-      {/* Materials List */}
-      <section className="container mx-auto px-4 py-16">
-        {isLoading ? (
-          <div className="text-center">Loading materials...</div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {materials.map((material) => (
-              <Card key={material.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <Badge variant={material.is_active ? "default" : "secondary"}>
-                      {material.is_active ? "Active" : "Inactive"}
-                    </Badge>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(material)}>
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDelete(material.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  <CardTitle>{material.title}</CardTitle>
-                  <CardDescription>{material.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <p><strong>Category:</strong> {material.category.replace('_', ' ')}</p>
-                    <p><strong>Price:</strong> ₹{material.price}</p>
-                    <p><strong>Pages:</strong> {material.pages}</p>
-                    <p><strong>Format:</strong> {material.format}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+      {/* Materials Grid */}
+      <section className="container mx-auto px-4 py-8">
+        <Card className="bg-white shadow-sm">
+          <CardHeader>
+            <CardTitle>Study Materials ({materials.length})</CardTitle>
+            <CardDescription>Manage all study materials and their previews</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isLoading ? (
+              <div className="text-center py-8">Loading materials...</div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {materials.map((material) => (
+                  <Card key={material.id} className="relative">
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2">
+                        <Badge variant={material.is_active ? "default" : "secondary"}>
+                          {material.is_active ? "Active" : "Inactive"}
+                        </Badge>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(material)}>
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                                  Delete Material
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{material.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(material.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                      <CardTitle className="text-lg">{material.title}</CardTitle>
+                      <CardDescription>{material.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2 text-sm">
+                        <p><span className="font-medium">Category:</span> {material.category.replace('_', ' ')}</p>
+                        <p><span className="font-medium">Price:</span> ₹{material.price}</p>
+                        <p><span className="font-medium">Pages:</span> {material.pages}</p>
+                        <p><span className="font-medium">Format:</span> {material.format}</p>
+                        {material.preview_url && (
+                          <p><span className="font-medium">Preview:</span> {material.preview_pages} pages</p>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </section>
 
       <Footer />
