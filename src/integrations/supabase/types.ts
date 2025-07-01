@@ -58,6 +58,8 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           pages: number | null
+          preview_pages: number | null
+          preview_url: string | null
           price: number
           title: string
           updated_at: string | null
@@ -71,6 +73,8 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           pages?: number | null
+          preview_pages?: number | null
+          preview_url?: string | null
           price: number
           title: string
           updated_at?: string | null
@@ -84,6 +88,8 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           pages?: number | null
+          preview_pages?: number | null
+          preview_url?: string | null
           price?: number
           title?: string
           updated_at?: string | null
