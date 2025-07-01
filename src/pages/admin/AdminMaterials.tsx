@@ -26,8 +26,8 @@ interface Material {
   pages: number;
   format: string;
   is_active: boolean;
-  preview_url: string;
-  preview_pages: number;
+  preview_url: string | null;
+  preview_pages: number | null;
 }
 
 const AdminMaterials = () => {
@@ -51,7 +51,7 @@ const AdminMaterials = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('materials')
-        .select('*')
+        .select('id, title, description, category, price, pages, format, is_active, preview_url, preview_pages')
         .order('created_at', { ascending: false });
       
       if (error) throw error;

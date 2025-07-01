@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -24,8 +23,8 @@ interface Material {
   pages: number;
   format: string;
   image_url: string;
-  preview_url: string;
-  preview_pages: number;
+  preview_url: string | null;
+  preview_pages: number | null;
 }
 
 const MaterialDetail = () => {
@@ -42,7 +41,7 @@ const MaterialDetail = () => {
       
       const { data, error } = await supabase
         .from('materials')
-        .select('*')
+        .select('id, title, description, category, price, pages, format, image_url, preview_url, preview_pages')
         .eq('id', id)
         .eq('is_active', true)
         .single();
