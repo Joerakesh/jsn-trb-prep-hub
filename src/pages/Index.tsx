@@ -1,59 +1,46 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BookOpen, Users, Award, Star, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-
 const Index = () => {
-  const features = [
-    {
-      icon: <BookOpen className="h-8 w-8 text-blue-600" />,
-      title: "Comprehensive Study Materials",
-      description: "Complete TRB exam preparation materials with latest syllabus coverage",
-      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      icon: <Users className="h-8 w-8 text-blue-600" />,
-      title: "Expert Guidance",
-      description: "Learn from experienced faculty with proven track records",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-    },
-    {
-      icon: <Award className="h-8 w-8 text-blue-600" />,
-      title: "Proven Results",
-      description: "500+ successful candidates with 85% success rate",
-      image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-    }
-  ];
-
-  const testimonials = [
-    {
-      name: "Priya Sharma",
-      role: "UG TRB - English (2023)",
-      content: "JSN Academy's study materials were exactly what I needed. The comprehensive coverage and expert guidance helped me clear the exam in my first attempt.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-    },
-    {
-      name: "Rajesh Kumar",
-      role: "PG TRB - Mathematics (2023)",
-      content: "The quality of materials and online test series provided by JSN Academy is outstanding. Highly recommend for serious TRB aspirants.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-    },
-    {
-      name: "Kavitha Menon",
-      role: "UG TRB - Tamil (2022)",
-      content: "Excellent study materials with detailed explanations. The delivery was prompt and the quality exceeded my expectations.",
-      rating: 5,
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-white">
+  const features = [{
+    icon: <BookOpen className="h-8 w-8 text-blue-600" />,
+    title: "Comprehensive Study Materials",
+    description: "Complete TRB exam preparation materials with latest syllabus coverage",
+    image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+  }, {
+    icon: <Users className="h-8 w-8 text-blue-600" />,
+    title: "Expert Guidance",
+    description: "Learn from experienced faculty with proven track records",
+    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+  }, {
+    icon: <Award className="h-8 w-8 text-blue-600" />,
+    title: "Proven Results",
+    description: "500+ successful candidates with 85% success rate",
+    image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+  }];
+  const testimonials = [{
+    name: "Priya Sharma",
+    role: "UG TRB - English (2023)",
+    content: "JSN Academy's study materials were exactly what I needed. The comprehensive coverage and expert guidance helped me clear the exam in my first attempt.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+  }, {
+    name: "Rajesh Kumar",
+    role: "PG TRB - Mathematics (2023)",
+    content: "The quality of materials and online test series provided by JSN Academy is outstanding. Highly recommend for serious TRB aspirants.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+  }, {
+    name: "Kavitha Menon",
+    role: "UG TRB - Tamil (2022)",
+    content: "Excellent study materials with detailed explanations. The delivery was prompt and the quality exceeded my expectations.",
+    rating: 5,
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
+  }];
+  return <div className="min-h-screen bg-white">
       <Navigation />
       
       {/* Hero Section */}
@@ -91,11 +78,7 @@ const Index = () => {
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent rounded-lg"></div>
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                alt="Students studying together" 
-                className="rounded-lg shadow-2xl w-full"
-              />
+              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Students studying together" className="rounded-lg shadow-2xl w-full" />
             </div>
           </div>
         </div>
@@ -112,15 +95,10 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 bg-white">
+            {features.map((feature, index) => <Card key={index} className="hover:shadow-xl transition-all duration-300 border-0 bg-white">
                 <CardHeader className="text-center">
                   <div className="relative mb-4">
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title}
-                      className="w-full h-48 object-cover rounded-lg"
-                    />
+                    <img src={feature.image} alt={feature.title} className="w-full h-48 object-cover rounded-lg" />
                     <div className="absolute inset-0 bg-blue-900/10 rounded-lg"></div>
                     <div className="absolute bottom-4 left-4 bg-white p-3 rounded-full shadow-lg">
                       {feature.icon}
@@ -131,8 +109,7 @@ const Index = () => {
                     {feature.description}
                   </CardDescription>
                 </CardHeader>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -198,16 +175,8 @@ const Index = () => {
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <img 
-                src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                alt="Study books" 
-                className="rounded-lg shadow-lg"
-              />
-              <img 
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                alt="Educational materials" 
-                className="rounded-lg shadow-lg mt-8"
-              />
+              <img src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Study books" className="rounded-lg shadow-lg" />
+              <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" alt="Educational materials" className="rounded-lg shadow-lg mt-8" />
             </div>
           </div>
         </div>
@@ -222,29 +191,21 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-0 shadow-lg">
+            {testimonials.map((testimonial, index) => <Card key={index} className="border-0 shadow-lg">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
-                    <img 
-                      src={testimonial.image} 
-                      alt={testimonial.name}
-                      className="w-12 h-12 rounded-full object-cover mr-4"
-                    />
+                    <img src={testimonial.image} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover mr-4" />
                     <div>
                       <h4 className="font-semibold">{testimonial.name}</h4>
                       <p className="text-sm text-gray-600">{testimonial.role}</p>
                     </div>
                   </div>
                   <div className="flex mb-4">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />
-                    ))}
+                    {[...Array(testimonial.rating)].map((_, i) => <Star key={i} className="h-4 w-4 text-yellow-400 fill-current" />)}
                   </div>
                   <p className="text-gray-600 italic">"{testimonial.content}"</p>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -261,15 +222,13 @@ const Index = () => {
               <Link to="/materials">Start Shopping Now</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-900">
-              <Link to="/contact">Contact Us</Link>
+              <Link to="/contact" className="text-black ">Contact Us</Link>
             </Button>
           </div>
         </div>
       </section>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
