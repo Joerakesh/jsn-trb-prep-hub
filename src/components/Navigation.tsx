@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const { user, logout, isAdmin } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -31,7 +31,7 @@ const Navigation = () => {
   ];
 
   const handleLogout = () => {
-    logout();
+    signOut();
     setIsOpen(false);
   };
 

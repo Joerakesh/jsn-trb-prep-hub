@@ -118,7 +118,7 @@ const AdminTests = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveSample.mutate(formData);
+    saveTest.mutate(formData);
   };
 
   const handleEdit = (test: Test) => {
