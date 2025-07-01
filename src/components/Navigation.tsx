@@ -3,7 +3,14 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { BookOpen, Menu, User, LogOut, Settings, FileText, Play, Youtube } from "lucide-react";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import { BookOpen, Menu, User, LogOut, Settings, FileText, Play, Youtube, ChevronDown } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
@@ -34,6 +41,11 @@ const Navigation = () => {
     signOut();
     setIsOpen(false);
   };
+
+  // Scroll to top when route changes
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   return (
     <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
@@ -68,22 +80,39 @@ const Navigation = () => {
             {user ? (
               <div className="flex items-center space-x-4">
                 {isAdmin && (
-                  <div className="flex items-center space-x-2 px-3 py-1 bg-blue-50 rounded-lg border border-blue-200">
-                    {adminItems.map((item) => (
-                      <Link
-                        key={item.name}
-                        to={item.path}
-                        className={`text-sm font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded ${
-                          isActive(item.path)
-                            ? "bg-blue-600 text-white shadow-sm"
-                            : "text-blue-600 hover:bg-blue-100"
-                        }`}
-                      >
-                        {item.icon}
-                        <span className="hidden lg:inline">{item.name}</span>
-                      </Link>
-                    ))}
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" className="bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Admin Portal
+                        <ChevronDown className="h-4 w-4 ml-2" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent 
+                      align="end" 
+                      className="w-56 bg-white border shadow-lg z-[100]"
+                      sideOffset={5}
+                    >
+                      {adminItems.map((item, index) => (
+                        <div key={item.name}>
+                          {index === 1 && <DropdownMenuSeparator />}
+                          <DropdownMenuItem asChild>
+                            <Link
+                              to={item.path}
+                              className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
+                                isActive(item.path)
+                                  ? "bg-blue-100 text-blue-600 font-medium"
+                                  : "text-gray-700 hover:bg-gray-100"
+                              }`}
+                            >
+                              {item.icon}
+                              {item.name}
+                            </Link>
+                          </DropdownMenuItem>
+                        </div>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 )}
                 <Link to="/profile">
                   <Button variant="ghost" size="sm">
@@ -112,7 +141,7 @@ const Navigation = () => {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80">
+            <SheetContent side="right" className="w-80 bg-white">
               <div className="flex flex-col space-y-4 mt-8">
                 {/* Mobile Navigation Items */}
                 {navigationItems.map((item) => (
