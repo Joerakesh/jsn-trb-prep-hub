@@ -102,7 +102,7 @@ const Navigation = () => {
                         <DropdownMenuItem asChild>
                           <Link to="/admin" className="flex items-center">
                             <Shield className="h-4 w-4 mr-2" />
-                            Admin Panel
+                            Admin Portal
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -168,7 +168,7 @@ const Navigation = () => {
                       className="text-gray-600 hover:text-blue-600 transition-colors py-2"
                       onClick={() => setIsOpen(false)}
                     >
-                      Admin Panel
+                      Admin Portal
                     </Link>
                   )}
                   <button

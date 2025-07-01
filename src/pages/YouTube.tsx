@@ -4,7 +4,8 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Search, Play, ExternalLink, Users, Video, Eye } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -67,14 +68,66 @@ const YouTube = () => {
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Hero Section */}
-      <section className="bg-blue-600 text-white py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6">JSN Academy YouTube Channel</h1>
-          <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-            Access our comprehensive video library with expert guidance, tips, and educational content for TRB exam preparation.
-          </p>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-md mx-auto">
+      {/* Channel Header Section */}
+      <section className="bg-gradient-to-r from-red-600 to-red-700 text-white py-16">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col lg:flex-row items-center gap-8">
+            <div className="flex-shrink-0">
+              <div className="w-32 h-32 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                <Video className="h-16 w-16 text-white" />
+              </div>
+            </div>
+            <div className="flex-1 text-center lg:text-left">
+              <h1 className="text-4xl lg:text-5xl font-bold mb-4">JSN Academy</h1>
+              <p className="text-xl text-red-100 mb-6 max-w-2xl">
+                Your trusted partner for TRB exam preparation. Subscribe to our channel for expert guidance, 
+                study materials, and exam strategies that lead to success.
+              </p>
+              <div className="flex flex-wrap gap-6 justify-center lg:justify-start mb-6">
+                <div className="flex items-center">
+                  <Users className="h-5 w-5 mr-2" />
+                  <span>1000+ Subscribers</span>
+                </div>
+                <div className="flex items-center">
+                  <Video className="h-5 w-5 mr-2" />
+                  <span>{videos.length} Videos</span>
+                </div>
+                <div className="flex items-center">
+                  <Eye className="h-5 w-5 mr-2" />
+                  <span>50K+ Views</span>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
+                <Button 
+                  asChild
+                  className="bg-white text-red-600 hover:bg-gray-100"
+                >
+                  <a 
+                    href="https://www.youtube.com/@jsnacademy" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Visit YouTube Channel
+                  </a>
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="border-white text-white hover:bg-white/10"
+                >
+                  Subscribe Now
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Search Section */}
+      <section className="py-8 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-md mx-auto">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <Input
@@ -82,7 +135,7 @@ const YouTube = () => {
                 placeholder="Search videos..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white text-gray-900"
+                className="pl-10"
               />
             </div>
           </div>

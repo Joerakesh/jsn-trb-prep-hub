@@ -2,7 +2,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Target, Award, BookOpen } from "lucide-react";
+import { Users, Target, Award, BookOpen, Mail, Phone, Globe, GraduationCap, FileText, Trophy } from "lucide-react";
 
 const About = () => {
   const features = [
@@ -63,6 +63,166 @@ const About = () => {
                 className="rounded-lg shadow-2xl"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Professor Profile Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Founder</h2>
+            <p className="text-lg text-gray-600">Distinguished educator and researcher</p>
+          </div>
+          
+          <div className="max-w-6xl mx-auto">
+            <Card className="shadow-lg">
+              <CardContent className="p-8">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                  <div className="lg:col-span-1 text-center">
+                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-6">
+                      <GraduationCap className="h-24 w-24 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Dr. S. Jerald Sagaya Nathan</h3>
+                    <p className="text-lg text-blue-600 mb-4">Ph.D., Assistant Professor of English</p>
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex items-center justify-center">
+                        <Mail className="h-4 w-4 mr-2" />
+                        <a href="mailto:jsnathan1981@gmail.com" className="hover:text-blue-600">jsnathan1981@gmail.com</a>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <Phone className="h-4 w-4 mr-2" />
+                        <span>+91 98432 87913 / 96292 87913</span>
+                      </div>
+                      <div className="flex items-center justify-center">
+                        <Globe className="h-4 w-4 mr-2" />
+                        <span>ORCID: 0000-0003-4905-7465</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="lg:col-span-2">
+                    <div className="space-y-8">
+                      {/* Educational Qualifications */}
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <GraduationCap className="h-5 w-5 mr-2 text-blue-600" />
+                          Educational Qualifications
+                        </h4>
+                        <div className="space-y-3 text-gray-700">
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h5 className="font-semibold">Ph.D. in English Literature</h5>
+                            <p className="text-sm">St. Joseph's College, Trichy (2011–2018)</p>
+                            <p className="text-sm italic">Thesis: A Comparative Study of Mystical Thoughts in Thirumular and Hopkins</p>
+                          </div>
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h5 className="font-semibold">M.Phil, M.A., B.A. in English Literature</h5>
+                            <p className="text-sm">St. Joseph's College, Trichy – First Rank Holder in All Degrees</p>
+                          </div>
+                          <div className="bg-gray-50 p-4 rounded-lg">
+                            <h5 className="font-semibold">Professional Qualifications</h5>
+                            <p className="text-sm">UGC-NET (2012), SET (2011) Qualified</p>
+                            <p className="text-sm">M.A. in Mass Communication & Journalism (2018)</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Professional Experience */}
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <Target className="h-5 w-5 mr-2 text-blue-600" />
+                          Academic & Professional Experience
+                        </h4>
+                        <div className="space-y-3 text-gray-700">
+                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h5 className="font-semibold">Assistant Professor, Department of English</h5>
+                            <p className="text-sm">St. Joseph's College (Autonomous), Trichy – Since 2011 (Aided since 2013)</p>
+                          </div>
+                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <h5 className="font-semibold">Resource Person & Trainer</h5>
+                            <p className="text-sm">IAS Academy, UGC NET Coaching, TRB Training, Soft Skills & Competitive English Trainer</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Research Interests */}
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+                          Research Interests
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-green-50 p-3 rounded-lg text-sm">Comparative Literature & Translation Studies</div>
+                          <div className="bg-green-50 p-3 rounded-lg text-sm">Literary Theory & Criticism</div>
+                          <div className="bg-green-50 p-3 rounded-lg text-sm">Indian Writing in English</div>
+                          <div className="bg-green-50 p-3 rounded-lg text-sm">Media, Communication & Soft Skills</div>
+                        </div>
+                      </div>
+
+                      {/* Publications */}
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <FileText className="h-5 w-5 mr-2 text-blue-600" />
+                          Research Publications & Editorial Roles
+                        </h4>
+                        <div className="space-y-3 text-gray-700">
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <p className="font-semibold">15+ Research Papers</p>
+                            <p className="text-sm">Published in UGC-approved & peer-reviewed journals</p>
+                          </div>
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <p className="font-semibold">Editorial Board Member</p>
+                            <p className="text-sm">South Asia Journal, IJELLH, IJCRT, IJRAR, IJPBS, IJMDRR, etc.</p>
+                          </div>
+                          <div className="bg-yellow-50 p-4 rounded-lg">
+                            <p className="font-semibold">Edited Books:</p>
+                            <ul className="text-sm list-disc list-inside space-y-1">
+                              <li>Cultural Pluralism in Indian Literature (2025)</li>
+                              <li>MERGEN Anthology (2023, 2025)</li>
+                              <li>Societal and Altruistic Concerns in Asian Literature (2024)</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Achievements */}
+                      <div>
+                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
+                          <Trophy className="h-5 w-5 mr-2 text-blue-600" />
+                          Achievements & Contributions
+                        </h4>
+                        <div className="space-y-3 text-gray-700">
+                          <div className="bg-purple-50 p-4 rounded-lg">
+                            <p className="font-semibold">Academic Excellence</p>
+                            <p className="text-sm">First Rank in UG, PG & M.Phil. English</p>
+                          </div>
+                          <div className="bg-purple-50 p-4 rounded-lg">
+                            <p className="font-semibold">Professional Contributions</p>
+                            <p className="text-sm">30+ Guest Lectures & Inaugural Talks across Tamil Nadu colleges</p>
+                            <p className="text-sm">Resource Person in Workshops, FDPs, and National Seminars</p>
+                          </div>
+                          <div className="bg-purple-50 p-4 rounded-lg">
+                            <p className="font-semibold">Editorial Leadership</p>
+                            <p className="text-sm">Active member of editorial and review boards for national and international journals</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Contact Information */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Contact Address</h4>
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <p className="text-sm text-gray-700">
+                      245/8, Astalakshmi Avenue, First Main Road, Vasan Valley,<br />
+                      Rettaivaikal Post, Tiruchirappalli – 620102, Tamil Nadu, India
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

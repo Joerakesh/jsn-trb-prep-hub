@@ -1,48 +1,34 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Users, Package, ShoppingCart, TrendingUp, FileText, BookOpen, Plus, Eye, Edit, Trash2 } from "lucide-react";
+import { BookOpen, ShoppingCart, Users, FileText, Play, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 const AdminDashboard = () => {
-  const { isAdmin, loading } = useAuth();
-
-  const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin_dashboard_stats'],
+  const { data: stats } = useQuery({
+    queryKey: ['admin-stats'],
     queryFn: async () => {
-      console.log('Fetching admin dashboard stats...');
-      
-      const [materialsResult, samplesResult, ordersResult, usersResult, testsResult] = await Promise.all([
-        supabase.from('materials').select('count', { count: 'exact' }),
-        supabase.from('sample_materials').select('count', { count: 'exact' }),
-        supabase.from('orders').select('count, total_amount', { count: 'exact' }),
-        supabase.from('profiles').select('count', { count: 'exact' }),
-        supabase.from('tests').select('count', { count: 'exact' })
+      const [materialsRes, ordersRes, videosRes, testsRes] = await Promise.all([
+        supabase.from('materials').select('*', { count: 'exact' }),
+        supabase.from('orders').select('*', { count: 'exact' }),
+        supabase.from('youtube_videos').select('*', { count: 'exact' }),
+        supabase.from('tests').select('*', { count: 'exact' })
       ]);
 
-      const totalRevenue = ordersResult.data?.reduce((sum, order) => sum + (order.total_amount || 0), 0) || 0;
-
       return {
-        materials: materialsResult.count || 0,
-        samples: samplesResult.count || 0,
-        orders: ordersResult.count || 0,
-        users: usersResult.count || 0,
-        tests: testsResult.count || 0,
-        revenue: totalRevenue
+        materials: materialsRes.count || 0,
+        orders: ordersRes.count || 0,
+        videos: videosRes.count || 0,
+        tests: testsRes.count || 0
       };
     },
-    enabled: isAdmin && !loading
   });
 
   const { data: recentOrders = [] } = useQuery({
-    queryKey: ['admin_recent_orders'],
+    queryKey: ['admin-recent-orders'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
@@ -56,331 +42,228 @@ const AdminDashboard = () => {
       if (error) throw error;
       return data;
     },
-    enabled: isAdmin && !loading
   });
-
-  const { data: recentMaterials = [] } = useQuery({
-    queryKey: ['admin_recent_materials'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('materials')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(5);
-      
-      if (error) throw error;
-      return data;
-    },
-    enabled: isAdmin && !loading
-  });
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <div className="text-lg">Loading...</div>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">You don't have permission to access the admin panel.</p>
-          <Button asChild>
-            <Link to="/login">Go to Login</Link>
-          </Button>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Header Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-12">
+      {/* Header */}
+      <section className="bg-blue-600 text-white py-12">
         <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-blue-100">Manage your JSN Academy platform</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-blue-100">Total Revenue</p>
-              <p className="text-2xl font-bold">₹{stats?.revenue || 0}</p>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold mb-2">Admin Portal</h1>
+          <p className="text-blue-100">
+            Manage your academy's content, orders, and users
+          </p>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Materials</CardTitle>
-              <Package className="h-5 w-5 text-blue-600" />
+      {/* Statistics Cards */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
+                Study Materials
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.materials || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">Study materials</p>
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {stats?.materials || 0}
+              </div>
+              <p className="text-sm text-gray-600">Total materials</p>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Samples</CardTitle>
-              <FileText className="h-5 w-5 text-green-600" />
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <ShoppingCart className="h-5 w-5 mr-2 text-green-600" />
+                Orders
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.samples || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">Sample materials</p>
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {stats?.orders || 0}
+              </div>
+              <p className="text-sm text-gray-600">Total orders</p>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Orders</CardTitle>
-              <ShoppingCart className="h-5 w-5 text-purple-600" />
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <Play className="h-5 w-5 mr-2 text-red-600" />
+                YouTube Videos
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.orders || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">Total orders</p>
+              <div className="text-3xl font-bold text-red-600 mb-2">
+                {stats?.videos || 0}
+              </div>
+              <p className="text-sm text-gray-600">Total videos</p>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Users</CardTitle>
-              <Users className="h-5 w-5 text-orange-600" />
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                <Award className="h-5 w-5 mr-2 text-purple-600" />
+                Online Tests
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.users || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">Registered users</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600">Tests</CardTitle>
-              <BookOpen className="h-5 w-5 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats?.tests || 0}</div>
-              <p className="text-xs text-gray-500 mt-1">Online tests</p>
+              <div className="text-3xl font-bold text-purple-600 mb-2">
+                {stats?.tests || 0}
+              </div>
+              <p className="text-sm text-gray-600">Total tests</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">Study Materials</CardTitle>
-              <CardDescription>Manage study materials</CardDescription>
+              <CardTitle className="flex items-center">
+                <BookOpen className="h-5 w-5 mr-2" />
+                Study Materials
+              </CardTitle>
+              <CardDescription>Manage study materials and uploads</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/admin/materials">
-                  <Package className="h-4 w-4 mr-2" />
-                  Manage Materials
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" size="sm">
-                <Link to="/admin/materials/new">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Material
-                </Link>
-              </Button>
+            <CardContent>
+              <Link 
+                to="/admin/materials" 
+                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Manage Materials
+              </Link>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">Sample Materials</CardTitle>
-              <CardDescription>Manage free samples</CardDescription>
+              <CardTitle className="flex items-center">
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Orders
+              </CardTitle>
+              <CardDescription>View and manage customer orders</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/admin/samples">
-                  <FileText className="h-4 w-4 mr-2" />
-                  Manage Samples
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" size="sm">
-                <Link to="/admin/samples/new">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Sample
-                </Link>
-              </Button>
+            <CardContent>
+              <Link 
+                to="/admin/orders" 
+                className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                View Orders
+              </Link>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">Orders</CardTitle>
-              <CardDescription>View and manage orders</CardDescription>
+              <CardTitle className="flex items-center">
+                <Play className="h-5 w-5 mr-2" />
+                YouTube Videos
+              </CardTitle>
+              <CardDescription>Manage YouTube channel videos</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/admin/orders">
-                  <ShoppingCart className="h-4 w-4 mr-2" />
-                  Manage Orders
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" size="sm">
-                <Link to="/admin/analytics">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  View Analytics
-                </Link>
-              </Button>
+            <CardContent>
+              <Link 
+                to="/admin/videos" 
+                className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Manage Videos
+              </Link>
             </CardContent>
           </Card>
-          
-          <Card className="bg-white shadow-sm hover:shadow-md transition-shadow">
+
+          <Card className="hover:shadow-lg transition-shadow">
             <CardHeader>
-              <CardTitle className="text-lg">Online Tests</CardTitle>
-              <CardDescription>Manage tests and quizzes</CardDescription>
+              <CardTitle className="flex items-center">
+                <FileText className="h-5 w-5 mr-2" />
+                Sample Materials
+              </CardTitle>
+              <CardDescription>Manage free sample downloads</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-              <Button asChild className="w-full" size="sm">
-                <Link to="/admin/tests">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Manage Tests
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full" size="sm">
-                <Link to="/admin/tests/new">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create Test
-                </Link>
-              </Button>
+            <CardContent>
+              <Link 
+                to="/admin/samples" 
+                className="inline-flex items-center px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+              >
+                Manage Samples
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Award className="h-5 w-5 mr-2" />
+                Online Tests
+              </CardTitle>
+              <CardDescription>Manage online tests and quizzes</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Link 
+                to="/admin/tests" 
+                className="inline-flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Manage Tests
+              </Link>
             </CardContent>
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Recent Orders */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Recent Orders</CardTitle>
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/admin/orders">View All</Link>
-                </Button>
+        {/* Recent Orders */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center">
+              <ShoppingCart className="h-5 w-5 mr-2" />
+              Recent Orders
+            </CardTitle>
+            <CardDescription>Latest customer orders</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {recentOrders.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-600">No orders yet</p>
               </div>
-            </CardHeader>
-            <CardContent>
-              {recentOrders.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No recent orders</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentOrders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{order.profiles?.full_name}</p>
-                            <p className="text-sm text-gray-500">{order.profiles?.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>₹{order.total_amount}</TableCell>
-                        <TableCell>
-                          <Badge variant={order.status === 'delivered' ? 'default' : 'secondary'}>
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Button asChild variant="outline" size="sm">
-                            <Link to={`/admin/orders/${order.id}`}>
-                              <Eye className="h-3 w-3" />
-                            </Link>
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Materials */}
-          <Card className="bg-white shadow-sm">
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg">Recent Materials</CardTitle>
-                <Button asChild variant="outline" size="sm">
-                  <Link to="/admin/materials">View All</Link>
-                </Button>
+            ) : (
+              <div className="space-y-4">
+                {recentOrders.map((order) => (
+                  <div key={order.id} className="flex justify-between items-center p-4 border rounded-lg">
+                    <div>
+                      <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
+                      <p className="text-sm text-gray-600">
+                        {order.profiles?.full_name || 'Unknown Customer'} • ₹{order.total_amount}
+                      </p>
+                      <Badge 
+                        variant={order.status === 'delivered' ? 'default' : 'secondary'}
+                        className="mt-1"
+                      >
+                        {order.status}
+                      </Badge>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">
+                        {new Date(order.created_at).toLocaleDateString()}
+                      </p>
+                      <Link 
+                        to="/admin/orders"
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        View Details →
+                      </Link>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </CardHeader>
-            <CardContent>
-              {recentMaterials.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No materials found</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Title</TableHead>
-                      <TableHead>Category</TableHead>
-                      <TableHead>Price</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {recentMaterials.map((material) => (
-                      <TableRow key={material.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{material.title}</p>
-                            <p className="text-sm text-gray-500">{material.pages} pages</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline">
-                            {material.category.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>₹{material.price}</TableCell>
-                        <TableCell>
-                          <div className="flex gap-1">
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <Footer />
+            )}
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 };
