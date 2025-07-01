@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye } from "lucide-react";
+import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -56,6 +55,9 @@ const MaterialDetail = () => {
     if (!material) return;
 
     setIsProcessing(true);
+    
+    // Close the dialog first
+    setShowOrderForm(false);
 
     try {
       // Check if Razorpay script is loaded
@@ -99,7 +101,7 @@ const MaterialDetail = () => {
             const orderData = {
               user_id: user?.id,
               total_amount: material.price,
-              status: 'confirmed' as const, // Explicitly type as const to match enum
+              status: 'confirmed' as const,
               phone: formData.phone,
               shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
               notes: `Payment ID: ${response.razorpay_payment_id}, Customer: ${formData.fullName}, Email: ${formData.email}`
@@ -126,7 +128,6 @@ const MaterialDetail = () => {
             if (itemError) throw itemError;
 
             toast.success("Payment successful! Your order has been confirmed.");
-            setShowOrderForm(false);
             navigate('/orders');
           } catch (error) {
             console.error('Order creation error:', error);
@@ -240,7 +241,7 @@ const MaterialDetail = () => {
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Material Preview */}
+          {/* Material Preview - Enhanced */}
           <Card className="shadow-lg">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -248,24 +249,32 @@ const MaterialDetail = () => {
                 Material Preview
               </CardTitle>
               <CardDescription>
-                Preview of first {previewPages} pages - Full material contains {material.pages} pages
+                Sample pages from this {material.pages}-page material
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-gray-100 rounded-lg p-8 text-center min-h-96 flex flex-col justify-center">
-                <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">
-                  High-quality study material preview
-                </p>
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  {Array.from({ length: previewPages }).map((_, index) => (
-                    <div key={index} className="bg-white rounded border aspect-[3/4] flex items-center justify-center text-sm text-gray-500">
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8 text-center min-h-96 flex flex-col justify-center border border-blue-200">
+                <BookOpen className="h-16 w-16 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                  Complete {material.pages}-Page Study Material
+                </h3>
+                <div className="grid grid-cols-3 gap-3 mb-6">
+                  {Array.from({ length: Math.min(6, material.pages) }).map((_, index) => (
+                    <div key={index} className="bg-white rounded border-2 aspect-[3/4] flex items-center justify-center text-sm text-gray-600 shadow-sm">
                       Page {index + 1}
                     </div>
                   ))}
                 </div>
-                <p className="text-sm text-gray-500">
-                  + {material.pages - previewPages} more pages in full version
+                <div className="bg-blue-100 rounded-lg p-4 mb-4">
+                  <p className="text-blue-800 font-medium text-sm">
+                    📚 Full {material.pages} pages of comprehensive content
+                  </p>
+                  <p className="text-blue-700 text-xs mt-1">
+                    Includes detailed explanations, examples, and practice questions
+                  </p>
+                </div>
+                <p className="text-gray-600 text-sm">
+                  Purchase to unlock the complete material with all {material.pages} pages
                 </p>
               </div>
             </CardContent>
@@ -318,34 +327,46 @@ const MaterialDetail = () => {
               <CardContent className="p-6">
                 <div className="text-center mb-6">
                   <div className="text-4xl font-bold text-blue-600 mb-2">₹{material.price}</div>
-                  <p className="text-gray-600">One-time purchase • Lifetime access</p>
+                  <p className="text-gray-600">One-time purchase • {material.pages} pages • Lifetime access</p>
                 </div>
 
                 {user ? (
-                  <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
-                    <DialogTrigger asChild>
-                      <Button 
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6"
-                        onClick={handlePurchaseClick}
-                      >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        Buy Now
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>Complete Your Purchase</DialogTitle>
-                        <DialogDescription>
-                          Please provide your details to proceed with the payment
-                        </DialogDescription>
-                      </DialogHeader>
-                      <OrderForm
-                        material={material}
-                        onSubmit={handleFormSubmit}
-                        isProcessing={isProcessing}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                  <>
+                    <Button 
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6 mb-4"
+                      onClick={handlePurchaseClick}
+                      disabled={isProcessing}
+                    >
+                      <ShoppingCart className="h-5 w-5 mr-2" />
+                      {isProcessing ? "Processing..." : "Buy Now"}
+                    </Button>
+                    
+                    <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
+                      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                        <DialogHeader>
+                          <div className="flex items-center justify-between">
+                            <DialogTitle>Complete Your Purchase</DialogTitle>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              onClick={() => setShowOrderForm(false)}
+                              className="h-6 w-6 p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <DialogDescription>
+                            Please provide your details to proceed with the payment
+                          </DialogDescription>
+                        </DialogHeader>
+                        <OrderForm
+                          material={material}
+                          onSubmit={handleFormSubmit}
+                          isProcessing={isProcessing}
+                        />
+                      </DialogContent>
+                    </Dialog>
+                  </>
                 ) : (
                   <div className="space-y-3">
                     <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">

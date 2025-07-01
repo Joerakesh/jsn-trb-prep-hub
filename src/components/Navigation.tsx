@@ -1,194 +1,194 @@
 
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Menu, X, User, LogOut, Settings, ShoppingCart, Shield } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { BookOpen, Menu, User, LogOut, Settings, FileText, Play, Youtube } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { toast } from "sonner";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, isAdmin, signOut } = useAuth();
-  const { cartCount } = useCart();
-  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, logout, isAdmin } = useAuth();
 
-  const publicNavItems = [
-    { name: "Home", path: "/" },
-    { name: "Study Materials", path: "/materials" },
-    { name: "Online Tests", path: "/tests" },
-    { name: "YouTube", path: "/youtube" },
-    { name: "About", path: "/about" },
-    { name: "Our Works", path: "/works" },
-    { name: "Contact", path: "/contact" },
+  const isActive = (path: string) => location.pathname === path;
+
+  const navigationItems = [
+    { name: "Home", path: "/", icon: null },
+    { name: "Study Materials", path: "/materials", icon: <BookOpen className="h-4 w-4" /> },
+    { name: "Online Tests", path: "/tests", icon: <Play className="h-4 w-4" /> },
+    { name: "YouTube", path: "/youtube", icon: <Youtube className="h-4 w-4" /> },
+    { name: "About", path: "/about", icon: null },
+    { name: "Contact", path: "/contact", icon: null },
   ];
 
-  const userNavItems = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "My Orders", path: "/orders" },
-    { name: "Study Materials", path: "/materials" },
-    { name: "Online Tests", path: "/tests" },
-    { name: "YouTube", path: "/youtube" },
+  const adminItems = [
+    { name: "Admin Portal", path: "/admin", icon: <Settings className="h-4 w-4" /> },
+    { name: "Materials", path: "/admin/materials", icon: <BookOpen className="h-4 w-4" /> },
+    { name: "Tests", path: "/admin/tests", icon: <Play className="h-4 w-4" /> },
+    { name: "Orders", path: "/admin/orders", icon: <FileText className="h-4 w-4" /> },
+    { name: "Videos", path: "/admin/videos", icon: <Youtube className="h-4 w-4" /> },
   ];
 
-  const handleSignOut = async () => {
-    await signOut();
-    toast.success("Logged out successfully");
-    navigate("/");
+  const handleLogout = () => {
+    logout();
+    setIsOpen(false);
   };
 
-  const navItems = user ? userNavItems : publicNavItems;
-
   return (
-    <nav className="bg-white shadow-sm border-b">
+    <nav className="bg-white shadow-sm border-b sticky top-0 z-50">
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">JSN Academy</span>
+            <span className="text-xl font-bold text-gray-900">JSN English Academy</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4">
-            {navItems.map((item) => (
+          <div className="hidden md:flex items-center space-x-8">
+            {navigationItems.map((item) => (
               <Link
                 key={item.name}
                 to={item.path}
-                className="text-gray-600 hover:text-blue-600 transition-colors px-3 py-2"
+                className={`text-sm font-medium transition-colors flex items-center gap-2 ${
+                  isActive(item.path)
+                    ? "text-blue-600"
+                    : "text-gray-600 hover:text-blue-600"
+                }`}
               >
+                {item.icon}
                 {item.name}
               </Link>
             ))}
-            
+          </div>
+
+          {/* Auth Section */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Button asChild variant="outline" size="sm" className="relative">
-                  <Link to="/cart">
-                    <ShoppingCart className="h-4 w-4 mr-1" />
-                    Cart
-                    {cartCount > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                        {cartCount}
-                      </span>
-                    )}
-                  </Link>
-                </Button>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="border-blue-600 text-blue-600">
-                      <User className="h-4 w-4 mr-1" />
-                      Account
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link to="/profile" className="flex items-center">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Profile Settings
+                {isAdmin && (
+                  <div className="flex items-center space-x-2">
+                    {adminItems.map((item) => (
+                      <Link
+                        key={item.name}
+                        to={item.path}
+                        className={`text-sm font-medium transition-colors flex items-center gap-1 px-2 py-1 rounded ${
+                          isActive(item.path)
+                            ? "bg-blue-100 text-blue-600"
+                            : "text-gray-600 hover:text-blue-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        {item.icon}
+                        {item.name}
                       </Link>
-                    </DropdownMenuItem>
-                    {isAdmin && (
-                      <>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                          <Link to="/admin" className="flex items-center">
-                            <Shield className="h-4 w-4 mr-2" />
-                            Admin Portal
-                          </Link>
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    ))}
+                  </div>
+                )}
+                <Link to="/profile">
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               </div>
             ) : (
-              <Button asChild variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                <Link to="/login">Login</Link>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button asChild variant="ghost">
+                  <Link to="/login">Login</Link>
+                </Button>
+              </div>
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
+          {/* Mobile menu trigger */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="ghost" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-80">
+              <div className="flex flex-col space-y-4 mt-8">
+                {/* Mobile Navigation Items */}
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    onClick={() => setIsOpen(false)}
+                    className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                      isActive(item.path)
+                        ? "bg-blue-100 text-blue-600"
+                        : "text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {item.icon}
+                    {item.name}
+                  </Link>
+                ))}
 
-        {/* Mobile Navigation */}
-        {isOpen && (
-          <div className="md:hidden py-4 border-t">
-            <div className="flex flex-col space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="text-gray-600 hover:text-blue-600 transition-colors py-2"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              
-              {user ? (
-                <>
-                  <Link
-                    to="/cart"
-                    className="text-gray-600 hover:text-blue-600 transition-colors py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Cart {cartCount > 0 && `(${cartCount})`}
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="text-gray-600 hover:text-blue-600 transition-colors py-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    Profile Settings
-                  </Link>
-                  {isAdmin && (
+                {/* Mobile Admin Items */}
+                {user && isAdmin && (
+                  <>
+                    <div className="border-t pt-4 mt-4">
+                      <p className="text-sm font-medium text-gray-500 px-4 mb-2">Admin</p>
+                      {adminItems.map((item) => (
+                        <Link
+                          key={item.name}
+                          to={item.path}
+                          onClick={() => setIsOpen(false)}
+                          className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
+                            isActive(item.path)
+                              ? "bg-blue-100 text-blue-600"
+                              : "text-gray-600 hover:bg-gray-100"
+                          }`}
+                        >
+                          {item.icon}
+                          {item.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Mobile Auth Section */}
+                <div className="border-t pt-4 mt-4">
+                  {user ? (
+                    <>
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                      >
+                        <User className="h-4 w-4" />
+                        Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg w-full text-left"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
                     <Link
-                      to="/admin"
-                      className="text-gray-600 hover:text-blue-600 transition-colors py-2"
+                      to="/login"
                       onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
                     >
-                      Admin Portal
+                      Login
                     </Link>
                   )}
-                  <button
-                    onClick={() => {
-                      handleSignOut();
-                      setIsOpen(false);
-                    }}
-                    className="text-red-600 text-left py-2"
-                  >
-                    Sign Out
-                  </button>
-                </>
-              ) : (
-                <Button asChild variant="outline" className="w-fit border-blue-600 text-blue-600 hover:bg-blue-50 mt-2">
-                  <Link to="/login" onClick={() => setIsOpen(false)}>Login</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </nav>
   );

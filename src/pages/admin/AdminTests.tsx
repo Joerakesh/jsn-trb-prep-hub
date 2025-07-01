@@ -9,13 +9,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, BookOpen, Users, ExternalLink } from "lucide-react";
+import { Plus, Edit, Trash2, Users, ExternalLink, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Test {
   id: string;
@@ -76,6 +77,7 @@ const AdminTests = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin_tests'] });
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
       setIsDialogOpen(false);
       setEditingTest(null);
       setFormData({
@@ -105,6 +107,7 @@ const AdminTests = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin_tests'] });
+      queryClient.invalidateQueries({ queryKey: ['tests'] });
       toast.success("Test deleted successfully");
     },
     onError: (error) => {
@@ -115,7 +118,7 @@ const AdminTests = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveTest.mutate(formData);
+    saveSample.mutate(formData);
   };
 
   const handleEdit = (test: Test) => {
@@ -133,9 +136,7 @@ const AdminTests = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Are you sure you want to delete this test?")) {
-      deleteTest.mutate(id);
-    }
+    deleteTest.mutate(id);
   };
 
   if (!isAdmin) {
@@ -314,9 +315,33 @@ const AdminTests = () => {
                           <Button variant="outline" size="sm" onClick={() => handleEdit(test)}>
                             <Edit className="h-3 w-3" />
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDelete(test.id)}>
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle className="flex items-center gap-2">
+                                  <AlertTriangle className="h-5 w-5 text-red-500" />
+                                  Delete Test
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete "{test.title}"? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={() => handleDelete(test.id)}
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </TableCell>
                     </TableRow>

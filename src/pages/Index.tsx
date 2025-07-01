@@ -1,9 +1,11 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, BookOpen, Users, Award, Star, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+
 const Index = () => {
   const features = [{
     icon: <BookOpen className="h-8 w-8 text-blue-600" />,
@@ -13,7 +15,7 @@ const Index = () => {
   }, {
     icon: <Users className="h-8 w-8 text-blue-600" />,
     title: "Expert Guidance",
-    description: "Learn from experienced faculty with proven track records",
+    description: "Learn from Dr. S. Jerald Sagaya Nathan with proven academic excellence",
     image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
   }, {
     icon: <Award className="h-8 w-8 text-blue-600" />,
@@ -21,25 +23,27 @@ const Index = () => {
     description: "500+ successful candidates with 85% success rate",
     image: "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
   }];
+
   const testimonials = [{
     name: "Priya Sharma",
     role: "UG TRB - English (2023)",
-    content: "JSN Academy's study materials were exactly what I needed. The comprehensive coverage and expert guidance helped me clear the exam in my first attempt.",
+    content: "JSN English Academy's study materials were exactly what I needed. Dr. Nathan's expert guidance helped me clear the exam in my first attempt.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
   }, {
     name: "Rajesh Kumar",
     role: "PG TRB - Mathematics (2023)",
-    content: "The quality of materials and online test series provided by JSN Academy is outstanding. Highly recommend for serious TRB aspirants.",
+    content: "The quality of materials and online test series provided by JSN English Academy is outstanding. Highly recommend for serious TRB aspirants.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
   }, {
     name: "Kavitha Menon",
     role: "UG TRB - Tamil (2022)",
-    content: "Excellent study materials with detailed explanations. The delivery was prompt and the quality exceeded my expectations.",
+    content: "Excellent study materials with detailed explanations by Dr. Nathan. The delivery was prompt and the quality exceeded my expectations.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=100&q=80"
   }];
+
   return <div className="min-h-screen bg-white">
       <Navigation />
       
@@ -52,7 +56,7 @@ const Index = () => {
                 Excel in Your <span className="text-yellow-300">TRB Exam</span> Journey
               </h1>
               <p className="text-xl text-blue-100 mb-8 leading-relaxed">
-                Join thousands of successful candidates who achieved their teaching dreams with JSN Academy's comprehensive study materials and expert guidance.
+                Join thousands of successful candidates who achieved their teaching dreams with JSN English Academy's comprehensive study materials and expert guidance from Dr. S. Jerald Sagaya Nathan.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 mb-8">
                 <Button asChild size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold">
@@ -62,7 +66,7 @@ const Index = () => {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="border-white text-white hover:bg-white hover:text-blue-900">
-                  <Link to="/about">Learn More About Us</Link>
+                  <Link to="/about">Learn About Dr. Nathan</Link>
                 </Button>
               </div>
               <div className="flex items-center space-x-6 text-blue-100">
@@ -88,9 +92,9 @@ const Index = () => {
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose JSN Academy?</h2>
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Why Choose JSN English Academy?</h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Discover what makes us Tamil Nadu's most trusted TRB coaching center
+              Discover what makes us Tamil Nadu's most trusted TRB coaching center with academic excellence
             </p>
           </div>
           
@@ -147,7 +151,7 @@ const Index = () => {
                 Premium Study Materials for TRB Success
               </h2>
               <p className="text-lg text-gray-600 mb-8">
-                Our carefully curated study materials cover the complete TRB syllabus with detailed explanations, practice questions, and exam strategies. All materials are regularly updated to match the latest exam patterns.
+                Our carefully curated study materials are developed by Dr. S. Jerald Sagaya Nathan, covering the complete TRB syllabus with detailed explanations, practice questions, and exam strategies. All materials are regularly updated to match the latest exam patterns.
               </p>
               <div className="space-y-4 mb-8">
                 <div className="flex items-center">
@@ -215,7 +219,7 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl lg:text-4xl font-bold mb-6">Ready to Start Your TRB Journey?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful candidates and take the first step towards your teaching career today.
+            Join thousands of successful candidates and take the first step towards your teaching career with JSN English Academy today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-yellow-500 hover:bg-yellow-600 text-blue-900 font-semibold">
@@ -231,4 +235,5 @@ const Index = () => {
       <Footer />
     </div>;
 };
+
 export default Index;
