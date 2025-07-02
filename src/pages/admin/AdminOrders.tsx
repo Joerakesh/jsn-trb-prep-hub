@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -36,12 +35,15 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import type { Database } from "@/integrations/supabase/types";
+
+type OrderStatus = Database["public"]["Enums"]["order_status"];
 
 interface Order {
   id: string;
   user_id: string;
   total_amount: number;
-  status: string;
+  status: OrderStatus;
   created_at: string;
   updated_at: string;
   shipping_address: string;
@@ -101,7 +103,7 @@ const AdminOrders = () => {
   });
 
   const updateOrderStatus = useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: string }) => {
+    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -187,7 +189,7 @@ const AdminOrders = () => {
   };
 
   const handleStatusUpdate = (orderId: string, newStatus: string) => {
-    updateOrderStatus.mutate({ orderId, status: newStatus });
+    updateOrderStatus.mutate({ orderId, status: newStatus as OrderStatus });
   };
 
   const handleViewDetails = (order: Order) => {
