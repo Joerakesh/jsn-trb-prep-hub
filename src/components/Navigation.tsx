@@ -30,7 +30,7 @@ const Navigation = () => {
   ];
 
   const adminItems = [
-    { name: "Admin Portal", path: "/admin", icon: <Settings className="h-4 w-4" /> },
+    { name: "Dashboard", path: "/admin", icon: <Settings className="h-4 w-4" /> },
     { name: "Materials", path: "/admin/materials", icon: <BookOpen className="h-4 w-4" /> },
     { name: "Tests", path: "/admin/tests", icon: <Play className="h-4 w-4" /> },
     { name: "Orders", path: "/admin/orders", icon: <FileText className="h-4 w-4" /> },
@@ -82,15 +82,15 @@ const Navigation = () => {
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100">
+                      <Button variant="outline" className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100">
                         <Settings className="h-4 w-4 mr-2" />
-                        Admin Portal
+                        Admin
                         <ChevronDown className="h-4 w-4 ml-2" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent 
                       align="end" 
-                      className="w-56 bg-white border shadow-lg z-[100]"
+                      className="w-56 bg-white border shadow-lg z-[60]"
                       sideOffset={5}
                     >
                       {adminItems.map((item, index) => (
@@ -99,9 +99,9 @@ const Navigation = () => {
                           <DropdownMenuItem asChild>
                             <Link
                               to={item.path}
-                              className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer ${
+                              className={`flex items-center gap-2 px-3 py-2 text-sm cursor-pointer w-full ${
                                 isActive(item.path)
-                                  ? "bg-blue-100 text-blue-600 font-medium"
+                                  ? "bg-red-100 text-red-600 font-medium"
                                   : "text-gray-700 hover:bg-gray-100"
                               }`}
                             >
@@ -114,18 +114,18 @@ const Navigation = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/dashboard">
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
-                  </Button>
-                </Link>
-                <Link to="/profile">
-                  <Button variant="ghost" size="sm">
+                  </Link>
+                </Button>
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/profile">
                     <User className="h-4 w-4 mr-2" />
                     Profile
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
                   <LogOut className="h-4 w-4 mr-2" />
                   Logout
@@ -170,7 +170,7 @@ const Navigation = () => {
                 {user && isAdmin && (
                   <>
                     <div className="border-t pt-4 mt-4">
-                      <p className="text-sm font-medium text-gray-500 px-4 mb-2">Admin Panel</p>
+                      <p className="text-sm font-medium text-red-600 px-4 mb-2">Admin Panel</p>
                       {adminItems.map((item) => (
                         <Link
                           key={item.name}
@@ -178,7 +178,7 @@ const Navigation = () => {
                           onClick={() => setIsOpen(false)}
                           className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
                             isActive(item.path)
-                              ? "bg-blue-100 text-blue-600"
+                              ? "bg-red-100 text-red-600"
                               : "text-gray-600 hover:bg-gray-100"
                           }`}
                         >

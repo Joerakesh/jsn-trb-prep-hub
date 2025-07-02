@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X, ExternalLink } from "lucide-react";
+import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X, ExternalLink, AlertCircle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -34,22 +34,34 @@ const MaterialDetail = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOrderForm, setShowOrderForm] = useState(false);
 
-  const { data: material, isLoading } = useQuery({
+  const { data: material, isLoading, error } = useQuery({
     queryKey: ['material', id],
     queryFn: async () => {
       if (!id) throw new Error('Material ID is required');
+      
+      console.log('Fetching material with ID:', id);
       
       const { data, error } = await supabase
         .from('materials')
         .select('id, title, description, category, price, pages, format, image_url, preview_url, preview_pages')
         .eq('id', id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching material:', error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.log('No material found with ID:', id);
+        throw new Error('Material not found');
+      }
+      
       return data as Material;
     },
-    enabled: !!id
+    enabled: !!id,
+    retry: 1
   });
 
   const extractGoogleDriveId = (url: string) => {
@@ -134,7 +146,7 @@ const MaterialDetail = () => {
             if (itemError) throw itemError;
 
             toast.success("Payment successful! Your order has been confirmed.");
-            navigate('/orders');
+            navigate('/dashboard');
           } catch (error) {
             console.error('Order creation error:', error);
             toast.error("Payment successful but order creation failed. Please contact support.");
@@ -199,15 +211,26 @@ const MaterialDetail = () => {
     );
   }
 
-  if (!material) {
+  if (error || !material) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
-          <div className="text-lg text-red-600">Material not found</div>
-          <Button asChild className="mt-4">
-            <Link to="/materials">Back to Materials</Link>
-          </Button>
+          <div className="max-w-md mx-auto">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Material Not Found</h2>
+            <p className="text-gray-600 mb-6">
+              The material you're looking for doesn't exist or has been removed.
+            </p>
+            <div className="space-y-3">
+              <Button asChild className="w-full">
+                <Link to="/materials">Browse All Materials</Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link to="/">Back to Home</Link>
+              </Button>
+            </div>
+          </div>
         </div>
         <Footer />
       </div>

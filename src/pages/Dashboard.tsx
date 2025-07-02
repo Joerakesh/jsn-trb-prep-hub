@@ -5,9 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Package, Search, Filter, Eye, Download, ShoppingBag, CreditCard, Truck, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { CalendarDays, Package, Search, Filter, ShoppingBag, CreditCard, Truck, CheckCircle2, Clock, XCircle, User } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -137,7 +136,7 @@ const Dashboard = () => {
               My Orders
             </TabsTrigger>
             <TabsTrigger value="profile" className="flex items-center gap-2">
-              <CreditCard className="h-4 w-4" />
+              <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
           </TabsList>
@@ -295,37 +294,37 @@ const Dashboard = () => {
                                 ₹{order.total_amount.toLocaleString()}
                               </p>
                             </div>
-                            <div className="flex flex-col sm:flex-row gap-2">
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                              {order.status === 'delivered' && (
-                                <Button variant="outline" size="sm">
-                                  <Download className="h-4 w-4 mr-2" />
-                                  Download
-                                </Button>
-                              )}
-                            </div>
                           </div>
                           
-                          {/* Order Items */}
+                          {/* Order Items - Show material names instead of generic items */}
                           <div className="mt-4 pt-4 border-t">
-                            <h4 className="font-medium mb-2">Items Ordered:</h4>
+                            <h4 className="font-medium mb-2">Materials Purchased:</h4>
                             <div className="space-y-2">
                               {order.order_items.map((item) => (
-                                <div key={item.id} className="flex justify-between items-center text-sm">
+                                <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-3 rounded">
                                   <div>
-                                    <span className="font-medium">{item.materials.title}</span>
-                                    <span className="text-gray-500 ml-2">
-                                      ({item.materials.category.replace('_', ' ')}) × {item.quantity}
-                                    </span>
+                                    <span className="font-medium text-blue-600">{item.materials.title}</span>
+                                    <div className="text-gray-500 text-xs mt-1">
+                                      Category: {item.materials.category.replace('_', ' ')} • Format: {item.materials.format}
+                                      {item.quantity > 1 && ` • Quantity: ${item.quantity}`}
+                                    </div>
                                   </div>
-                                  <span className="font-medium">₹{(item.price * item.quantity).toLocaleString()}</span>
+                                  <span className="font-medium text-green-600">₹{(item.price * item.quantity).toLocaleString()}</span>
                                 </div>
                               ))}
                             </div>
                           </div>
+
+                          {/* Order Status Info */}
+                          {order.shipping_address && (
+                            <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
+                              <h5 className="font-medium text-blue-900 text-sm">Shipping Address:</h5>
+                              <p className="text-blue-800 text-sm">{order.shipping_address}</p>
+                              {order.phone && (
+                                <p className="text-blue-800 text-sm">Contact: {order.phone}</p>
+                              )}
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
