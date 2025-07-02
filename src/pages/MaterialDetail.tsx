@@ -33,8 +33,7 @@ const MaterialDetail = () => {
     queryKey: ['material', id],
     queryFn: async () => {
       if (!id) {
-        const error = new Error('Material ID is required');
-        throw error;
+        throw new Error('Material ID is required');
       }
 
       console.log('Fetching material with ID:', id);
@@ -48,12 +47,11 @@ const MaterialDetail = () => {
       
       if (supabaseError) {
         console.error('Error fetching material:', supabaseError);
-        throw supabaseError;
+        throw new Error(supabaseError.message);
       }
       
       if (!data) {
-        const notFoundError = new Error('Material not found');
-        throw notFoundError;
+        throw new Error('Material not found');
       }
       
       console.log('Material fetched:', data);
