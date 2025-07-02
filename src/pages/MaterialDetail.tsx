@@ -1,18 +1,15 @@
-import { useState } from "react";
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Star, FileText, ShoppingCart, ArrowLeft, LogIn, Eye, X, ExternalLink, AlertCircle } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, ShoppingCart, FileText, BookOpen, Star, AlertCircle } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import OrderForm, { OrderFormData } from "@/components/OrderForm";
 import { supabase } from "@/integrations/supabase/client";
+import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
-import { RAZORPAY_CONFIG, COMPANY_INFO } from "@/lib/constants";
 
 interface Material {
   id: string;
@@ -23,27 +20,27 @@ interface Material {
   pages: number;
   format: string;
   image_url: string;
-  preview_url: string | null;
-  preview_pages: number | null;
+  preview_url: string;
+  preview_pages: number;
 }
 
 const MaterialDetail = () => {
-  const { id } = useParams();
-  const { user } = useAuth();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [showOrderForm, setShowOrderForm] = useState(false);
+  const { addToCart } = useCart();
 
   const { data: material, isLoading, error } = useQuery({
     queryKey: ['material', id],
     queryFn: async () => {
-      if (!id) throw new Error('Material ID is required');
-      
+      if (!id) {
+        throw new Error('Material ID is required');
+      }
+
       console.log('Fetching material with ID:', id);
       
       const { data, error } = await supabase
         .from('materials')
-        .select('id, title, description, category, price, pages, format, image_url, preview_url, preview_pages')
+        .select('*')
         .eq('id', id)
         .eq('is_active', true)
         .maybeSingle();
@@ -54,136 +51,21 @@ const MaterialDetail = () => {
       }
       
       if (!data) {
-        console.log('No material found with ID:', id);
         throw new Error('Material not found');
       }
       
+      console.log('Material fetched:', data);
       return data as Material;
     },
     enabled: !!id,
     retry: 1
   });
 
-  const extractGoogleDriveId = (url: string) => {
-    const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
-    return match ? match[1] : null;
-  };
-
-  const getGoogleDriveEmbedUrl = (url: string) => {
-    const fileId = extractGoogleDriveId(url);
-    return fileId ? `https://drive.google.com/file/d/${fileId}/preview` : null;
-  };
-
-  const handleFormSubmit = async (formData: OrderFormData) => {
+  const handleAddToCart = () => {
     if (!material) return;
-
-    setIsProcessing(true);
-    setShowOrderForm(false);
-
-    try {
-      if (!(window as any).Razorpay) {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        document.body.appendChild(script);
-
-        await new Promise((resolve, reject) => {
-          script.onload = resolve;
-          script.onerror = () => reject(new Error('Failed to load Razorpay script'));
-        });
-      }
-
-      const options = {
-        key: RAZORPAY_CONFIG.KEY_ID,
-        amount: material.price * 100,
-        currency: 'INR',
-        name: COMPANY_INFO.NAME,
-        description: material.title,
-        image: COMPANY_INFO.LOGO,
-        prefill: {
-          name: formData.fullName,
-          email: formData.email,
-          contact: formData.phone
-        },
-        notes: {
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          pincode: formData.pincode
-        },
-        theme: {
-          color: COMPANY_INFO.THEME_COLOR
-        },
-        handler: async (response: any) => {
-          try {
-            console.log('Payment successful:', response);
-            
-            const orderData = {
-              user_id: user?.id,
-              total_amount: material.price,
-              status: 'confirmed' as const,
-              phone: formData.phone,
-              shipping_address: `${formData.address}, ${formData.city}, ${formData.state} - ${formData.pincode}`,
-              notes: `Payment ID: ${response.razorpay_payment_id}, Customer: ${formData.fullName}, Email: ${formData.email}`
-            };
-
-            const { data: order, error: orderError } = await supabase
-              .from('orders')
-              .insert(orderData)
-              .select()
-              .single();
-
-            if (orderError) throw orderError;
-
-            const { error: itemError } = await supabase
-              .from('order_items')
-              .insert({
-                order_id: order.id,
-                material_id: material.id,
-                quantity: 1,
-                price: material.price
-              });
-
-            if (itemError) throw itemError;
-
-            toast.success("Payment successful! Your order has been confirmed.");
-            navigate('/dashboard');
-          } catch (error) {
-            console.error('Order creation error:', error);
-            toast.error("Payment successful but order creation failed. Please contact support.");
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setIsProcessing(false);
-            console.log('Payment modal dismissed');
-          }
-        }
-      };
-
-      const rzp = new (window as any).Razorpay(options);
-      
-      rzp.on('payment.failed', (response: any) => {
-        console.error('Payment failed:', response.error);
-        toast.error(`Payment failed: ${response.error.description}`);
-        setIsProcessing(false);
-      });
-
-      rzp.open();
-      setIsProcessing(false);
-    } catch (error) {
-      console.error('Payment initialization error:', error);
-      toast.error("Failed to initialize payment. Please check your Razorpay configuration.");
-      setIsProcessing(false);
-    }
-  };
-
-  const handlePurchaseClick = () => {
-    if (!user) {
-      toast.error("Please login to purchase materials");
-      navigate('/login');
-      return;
-    }
-    setShowOrderForm(true);
+    
+    addToCart(material.id);
+    toast.success(`${material.title} added to cart!`);
   };
 
   const getCategoryColor = (category: string) => {
@@ -199,12 +81,44 @@ const MaterialDetail = () => {
     return category.replace('_', ' ');
   };
 
-  if (isLoading) {
+  if (!id) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
-          <div className="text-lg">Loading material...</div>
+          <div className="max-w-md mx-auto">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Material ID</h1>
+            <p className="text-gray-600 mb-8">The material ID is missing or invalid.</p>
+            <Button asChild>
+              <Link to="/materials">Browse Materials</Link>
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Navigation />
+        <div className="container mx-auto px-4 py-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="h-96 bg-gray-300 rounded"></div>
+                <div className="space-y-4">
+                  <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
+                  <div className="h-20 bg-gray-300 rounded"></div>
+                  <div className="h-12 bg-gray-300 rounded w-1/3"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
@@ -218,16 +132,17 @@ const MaterialDetail = () => {
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-md mx-auto">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Material Not Found</h2>
-            <p className="text-gray-600 mb-6">
-              The material you're looking for doesn't exist or has been removed.
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">Material Not Found</h1>
+            <p className="text-gray-600 mb-8">
+              {error instanceof Error ? error.message : 'The requested material could not be found or may no longer be available.'}
             </p>
-            <div className="space-y-3">
-              <Button asChild className="w-full">
+            <div className="space-y-4">
+              <Button asChild>
                 <Link to="/materials">Browse All Materials</Link>
               </Button>
-              <Button asChild variant="outline" className="w-full">
-                <Link to="/">Back to Home</Link>
+              <Button variant="outline" onClick={() => navigate(-1)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Go Back
               </Button>
             </div>
           </div>
@@ -237,220 +152,118 @@ const MaterialDetail = () => {
     );
   }
 
-  const embedUrl = material.preview_url ? getGoogleDriveEmbedUrl(material.preview_url) : null;
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
       
-      {/* Header */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-8">
-        <div className="container mx-auto px-4">
-          <Button asChild variant="ghost" className="text-white hover:bg-white/20 mb-4">
-            <Link to="/materials">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Materials
-            </Link>
-          </Button>
-          <div className="flex items-center gap-2 mb-2">
-            <Badge className="bg-white/20 text-white border-white/30">
-              {formatCategory(material.category)}
-            </Badge>
-            <div className="flex items-center gap-1 text-yellow-300">
-              <Star className="h-4 w-4 fill-current" />
-              <Star className="h-4 w-4 fill-current" />
-              <Star className="h-4 w-4 fill-current" />
-              <Star className="h-4 w-4 fill-current" />
-              <Star className="h-4 w-4 fill-current" />
-              <span className="text-sm ml-1">(4.8)</span>
-            </div>
-          </div>
-          <h1 className="text-3xl lg:text-4xl font-bold mb-2">{material.title}</h1>
-          <p className="text-lg text-blue-100">{material.description}</p>
-        </div>
-      </section>
-
       <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Material Preview */}
-          <Card className="shadow-lg">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                Material Preview
-              </CardTitle>
-              <CardDescription>
-                {material.preview_pages ? `Preview ${material.preview_pages} pages` : 'Sample pages'} from this {material.pages}-page material
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {embedUrl ? (
-                <div className="space-y-4">
-                  <div className="aspect-[3/4] w-full border rounded-lg overflow-hidden bg-white">
-                    <iframe
-                      src={embedUrl}
-                      className="w-full h-full"
-                      allow="autoplay"
-                      title="Material Preview"
+        <div className="max-w-6xl mx-auto">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back
+          </Button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Material Image */}
+            <div className="space-y-4">
+              <Card className="overflow-hidden">
+                <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+                  {material.image_url ? (
+                    <img 
+                      src={material.image_url} 
+                      alt={material.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                      }}
                     />
-                  </div>
-                  <div className="flex items-center justify-between text-sm text-gray-600">
-                    <span>Preview: {material.preview_pages || 3} pages</span>
-                    {material.preview_url && (
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={material.preview_url} target="_blank" rel="noopener noreferrer">
-                          <ExternalLink className="h-3 w-3 mr-1" />
-                          Open in Drive
-                        </a>
-                      </Button>
-                    )}
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <p className="text-blue-800 font-medium text-sm">
-                      📚 Complete {material.pages} pages available after purchase
-                    </p>
-                    <p className="text-blue-700 text-xs mt-1">
-                      Full material includes detailed explanations, examples, and practice questions
-                    </p>
+                  ) : null}
+                  <div className={material.image_url ? 'hidden' : 'text-center p-8'}>
+                    <BookOpen className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-500 text-lg font-medium">{material.title}</p>
                   </div>
                 </div>
-              ) : (
-                <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-8 text-center min-h-96 flex flex-col justify-center border border-blue-200">
-                  <BookOpen className="h-16 w-16 text-blue-600 mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                    Complete {material.pages}-Page Study Material
-                  </h3>
-                  <div className="grid grid-cols-3 gap-3 mb-6">
-                    {Array.from({ length: Math.min(6, material.pages) }).map((_, index) => (
-                      <div key={index} className="bg-white rounded border-2 aspect-[3/4] flex items-center justify-center text-sm text-gray-600 shadow-sm">
-                        Page {index + 1}
-                      </div>
+              </Card>
+
+              {material.preview_url && (
+                <Button asChild variant="outline" className="w-full">
+                  <a href={material.preview_url} target="_blank" rel="noopener noreferrer">
+                    <FileText className="h-4 w-4 mr-2" />
+                    View Sample ({material.preview_pages || 3} pages)
+                  </a>
+                </Button>
+              )}
+            </div>
+
+            {/* Material Details */}
+            <div className="space-y-6">
+              <div>
+                <div className="flex items-start justify-between mb-4">
+                  <Badge className={getCategoryColor(material.category)}>
+                    {formatCategory(material.category)}
+                  </Badge>
+                  <div className="flex items-center gap-1 text-yellow-500">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 fill-current" />
                     ))}
                   </div>
-                  <div className="bg-blue-100 rounded-lg p-4 mb-4">
-                    <p className="text-blue-800 font-medium text-sm">
-                      📚 Full {material.pages} pages of comprehensive content
-                    </p>
-                    <p className="text-blue-700 text-xs mt-1">
-                      Includes detailed explanations, examples, and practice questions
-                    </p>
-                  </div>
-                  <p className="text-gray-600 text-sm">
-                    Purchase to unlock the complete material with all {material.pages} pages
-                  </p>
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                
+                <h1 className="text-3xl font-bold text-gray-900 mb-3">{material.title}</h1>
+                <p className="text-lg text-gray-600 leading-relaxed">{material.description}</p>
+              </div>
 
-          {/* Material Details */}
-          <div className="space-y-6">
-            <Card className="shadow-lg">
-              <CardHeader>
-                <CardTitle>Material Details</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <FileText className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                    <p className="font-semibold">{material.pages} Pages</p>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-xl">Material Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-blue-500" />
+                      <span className="text-gray-600">Pages:</span>
+                      <span className="font-medium">{material.pages || 'Not specified'}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-green-500" />
+                      <span className="text-gray-600">Format:</span>
+                      <span className="font-medium">{material.format}</span>
+                    </div>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <BookOpen className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                    <p className="font-semibold">{material.format}</p>
+                  
+                  <div className="border-t pt-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Price</p>
+                        <p className="text-3xl font-bold text-blue-600">₹{material.price}</p>
+                      </div>
+                      <Button 
+                        onClick={handleAddToCart}
+                        size="lg" 
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Add to Cart
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
 
-                <div>
-                  <h4 className="font-semibold mb-2">What's Included:</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Comprehensive study material</li>
-                    <li>• Topic-wise coverage</li>
-                    <li>• Practice questions</li>
-                    <li>• Previous year analysis</li>
-                    <li>• Expert explanations by Dr. Nathan</li>
-                    <li>• Model test papers</li>
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <h3 className="font-semibold text-blue-900 mb-2">What's Included:</h3>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• High-quality {material.format} format</li>
+                    <li>• {material.pages || 'Multiple'} pages of content</li>
+                    <li>• Expert curated material</li>
+                    <li>• Instant download after purchase</li>
+                    <li>• Lifetime access</li>
                   </ul>
-                </div>
-
-                <div>
-                  <h4 className="font-semibold mb-2">Key Features:</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
-                    <li>• Updated as per latest syllabus</li>
-                    <li>• Designed by TRB experts</li>
-                    <li>• High-quality content</li>
-                    <li>• Easy to understand format</li>
-                  </ul>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Purchase Card */}
-            <Card className="shadow-lg border-2 border-blue-200">
-              <CardContent className="p-6">
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold text-blue-600 mb-2">₹{material.price}</div>
-                  <p className="text-gray-600">One-time purchase • {material.pages} pages • Lifetime access</p>
-                </div>
-
-                {user ? (
-                  <>
-                    <Button 
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6 mb-4"
-                      onClick={handlePurchaseClick}
-                      disabled={isProcessing}
-                    >
-                      <ShoppingCart className="h-5 w-5 mr-2" />
-                      {isProcessing ? "Processing..." : "Buy Now"}
-                    </Button>
-                    
-                    <Dialog open={showOrderForm} onOpenChange={setShowOrderForm}>
-                      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                          <div className="flex items-center justify-between">
-                            <DialogTitle>Complete Your Purchase</DialogTitle>
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              onClick={() => setShowOrderForm(false)}
-                              className="h-6 w-6 p-0"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <DialogDescription>
-                            Please provide your details to proceed with the payment
-                          </DialogDescription>
-                        </DialogHeader>
-                        <OrderForm
-                          material={material}
-                          onSubmit={handleFormSubmit}
-                          isProcessing={isProcessing}
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  </>
-                ) : (
-                  <div className="space-y-3">
-                    <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-6">
-                      <Link to="/login">
-                        <LogIn className="h-5 w-5 mr-2" />
-                        Login to Purchase
-                      </Link>
-                    </Button>
-                    <p className="text-center text-sm text-gray-500">
-                      Please login to purchase this material
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                  <p className="text-sm text-green-800 text-center">
-                    💳 Secure payment • Instant access • 100% satisfaction guarantee
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>

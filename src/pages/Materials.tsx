@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -84,6 +83,7 @@ const Materials = () => {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <div className="text-lg">Loading materials...</div>
         </div>
         <Footer />
@@ -150,7 +150,6 @@ const Materials = () => {
               <Card 
                 key={material.id} 
                 className="hover:shadow-lg transition-all group cursor-pointer"
-                onClick={() => window.location.href = `/material/${material.id}`}
               >
                 <CardHeader className="pb-3">
                   <div className="flex justify-between items-start mb-2">
@@ -191,7 +190,6 @@ const Materials = () => {
                       variant="outline" 
                       size="sm" 
                       className="group-hover:bg-blue-600 group-hover:text-white transition-colors"
-                      onClick={(e) => e.stopPropagation()}
                     >
                       <Link to={`/material/${material.id}`}>
                         <Eye className="h-4 w-4 mr-1" />

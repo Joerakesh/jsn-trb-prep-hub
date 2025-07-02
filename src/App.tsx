@@ -1,55 +1,61 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
-import { CartProvider } from "@/contexts/CartContext";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import { CartProvider } from "./contexts/CartContext";
+
+// Page imports
 import Index from "./pages/Index";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
 import Materials from "./pages/Materials";
 import MaterialDetail from "./pages/MaterialDetail";
+import Tests from "./pages/Tests";
+import YouTube from "./pages/YouTube";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
+import Login from "./pages/Login";
+import Samples from "./pages/Samples";
 import Works from "./pages/Works";
-import YouTube from "./pages/YouTube";
-import Tests from "./pages/Tests";
+import NotFound from "./pages/NotFound";
+
+// Admin pages
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminMaterials from "./pages/admin/AdminMaterials";
-import AdminOrders from "./pages/admin/AdminOrders";
-import AdminSamples from "./pages/admin/AdminSamples";
 import AdminTests from "./pages/admin/AdminTests";
+import AdminOrders from "./pages/admin/AdminOrders";
 import AdminVideos from "./pages/admin/AdminVideos";
-import NotFound from "./pages/NotFound";
-import Samples from "./pages/Samples";
+import AdminSamples from "./pages/admin/AdminSamples";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
-        <AuthProvider>
-          <CartProvider>
-            <div className="min-h-screen">
+      <TooltipProvider>
+        <Toaster />
+        <BrowserRouter>
+          <AuthProvider>
+            <CartProvider>
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/materials" element={<Materials />} />
-                <Route path="/materials/:id" element={<MaterialDetail />} />
-                <Route path="/tests" element={<Tests />} />
-                <Route path="/youtube" element={<YouTube />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />
-                <Route path="/samples" element={<Samples />} />
-                <Route path="/works" element={<Works />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/materials" element={<Materials />} />
+                <Route path="/material/:id" element={<MaterialDetail />} />
+                <Route path="/tests" element={<Tests />} />
+                <Route path="/youtube" element={<YouTube />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/samples" element={<Samples />} />
+                <Route path="/works" element={<Works />} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
@@ -59,13 +65,13 @@ function App() {
                 <Route path="/admin/videos" element={<AdminVideos />} />
                 <Route path="/admin/samples" element={<AdminSamples />} />
                 
+                {/* 404 Route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
-              <Toaster />
-            </div>
-          </CartProvider>
-        </AuthProvider>
-      </Router>
+            </CartProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
