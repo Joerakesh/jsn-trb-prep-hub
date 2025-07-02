@@ -1,16 +1,25 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSeparator
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { BookOpen, Menu, User, LogOut, Settings, FileText, Play, Youtube, ChevronDown } from "lucide-react";
+import {
+  BookOpen,
+  Menu,
+  User,
+  LogOut,
+  Settings,
+  FileText,
+  Play,
+  Youtube,
+  ChevronDown,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
@@ -22,19 +31,47 @@ const Navigation = () => {
 
   const navigationItems = [
     { name: "Home", path: "/", icon: null },
-    { name: "Study Materials", path: "/materials", icon: <BookOpen className="h-4 w-4" /> },
-    { name: "Online Tests", path: "/tests", icon: <Play className="h-4 w-4" /> },
-    { name: "YouTube", path: "/youtube", icon: <Youtube className="h-4 w-4" /> },
+    {
+      name: "Study Materials",
+      path: "/materials",
+      icon: <BookOpen className="h-4 w-4" />,
+    },
+    {
+      name: "Online Tests",
+      path: "/tests",
+      icon: <Play className="h-4 w-4" />,
+    },
+    {
+      name: "YouTube",
+      path: "/youtube",
+      icon: <Youtube className="h-4 w-4" />,
+    },
     { name: "About", path: "/about", icon: null },
     { name: "Contact", path: "/contact", icon: null },
   ];
 
   const adminItems = [
-    { name: "Dashboard", path: "/admin", icon: <Settings className="h-4 w-4" /> },
-    { name: "Materials", path: "/admin/materials", icon: <BookOpen className="h-4 w-4" /> },
+    {
+      name: "Dashboard",
+      path: "/admin",
+      icon: <Settings className="h-4 w-4" />,
+    },
+    {
+      name: "Materials",
+      path: "/admin/materials",
+      icon: <BookOpen className="h-4 w-4" />,
+    },
     { name: "Tests", path: "/admin/tests", icon: <Play className="h-4 w-4" /> },
-    { name: "Orders", path: "/admin/orders", icon: <FileText className="h-4 w-4" /> },
-    { name: "Videos", path: "/admin/videos", icon: <Youtube className="h-4 w-4" /> },
+    {
+      name: "Orders",
+      path: "/admin/orders",
+      icon: <FileText className="h-4 w-4" />,
+    },
+    {
+      name: "Videos",
+      path: "/admin/videos",
+      icon: <Youtube className="h-4 w-4" />,
+    },
   ];
 
   const handleLogout = () => {
@@ -54,7 +91,9 @@ const Navigation = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">JSN English Academy</span>
+            <span className="text-xl font-bold text-gray-900">
+              JSN English Academy
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -82,14 +121,17 @@ const Navigation = () => {
                 {isAdmin && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100">
+                      <Button
+                        variant="outline"
+                        className="bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                      >
                         <Settings className="h-4 w-4 mr-2" />
                         Admin
                         <ChevronDown className="h-4 w-4 ml-2" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent 
-                      align="end" 
+                    <DropdownMenuContent
+                      align="end"
                       className="w-56 bg-white border shadow-lg z-[60]"
                       sideOffset={5}
                     >
@@ -118,12 +160,6 @@ const Navigation = () => {
                   <Link to="/dashboard">
                     <User className="h-4 w-4 mr-2" />
                     Dashboard
-                  </Link>
-                </Button>
-                <Button asChild variant="ghost" size="sm">
-                  <Link to="/profile">
-                    <User className="h-4 w-4 mr-2" />
-                    Profile
                   </Link>
                 </Button>
                 <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -170,7 +206,9 @@ const Navigation = () => {
                 {user && isAdmin && (
                   <>
                     <div className="border-t pt-4 mt-4">
-                      <p className="text-sm font-medium text-red-600 px-4 mb-2">Admin Panel</p>
+                      <p className="text-sm font-medium text-red-600 px-4 mb-2">
+                        Admin Panel
+                      </p>
                       {adminItems.map((item) => (
                         <Link
                           key={item.name}
