@@ -258,6 +258,7 @@ export type Database = {
           participants_count: number | null
           questions: string | null
           title: string
+          updated_at: string | null
         }
         Insert: {
           category: Database["public"]["Enums"]["material_category"]
@@ -271,6 +272,7 @@ export type Database = {
           participants_count?: number | null
           questions?: string | null
           title: string
+          updated_at?: string | null
         }
         Update: {
           category?: Database["public"]["Enums"]["material_category"]
@@ -284,6 +286,7 @@ export type Database = {
           participants_count?: number | null
           questions?: string | null
           title?: string
+          updated_at?: string | null
         }
         Relationships: []
       }

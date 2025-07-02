@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -113,6 +114,12 @@ const Navigation = () => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">
+                    <User className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
                 <Link to="/profile">
                   <Button variant="ghost" size="sm">
                     <User className="h-4 w-4 mr-2" />
@@ -187,6 +194,14 @@ const Navigation = () => {
                 <div className="border-t pt-4 mt-4">
                   {user ? (
                     <>
+                      <Link
+                        to="/dashboard"
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                      >
+                        <User className="h-4 w-4" />
+                        Dashboard
+                      </Link>
                       <Link
                         to="/profile"
                         onClick={() => setIsOpen(false)}

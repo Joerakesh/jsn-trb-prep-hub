@@ -1,8 +1,7 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import Index from "./pages/Index";
@@ -25,44 +24,48 @@ import AdminSamples from "./pages/admin/AdminSamples";
 import AdminTests from "./pages/admin/AdminTests";
 import AdminVideos from "./pages/admin/AdminVideos";
 import NotFound from "./pages/NotFound";
+import Samples from "./pages/Samples";
 
 const queryClient = new QueryClient();
 
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <CartProvider>
-          <TooltipProvider>
-            <Toaster />
-            <BrowserRouter>
+      <Router>
+        <AuthProvider>
+          <CartProvider>
+            <div className="min-h-screen">
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/materials" element={<Materials />} />
-                <Route path="/material/:id" element={<MaterialDetail />} />
+                <Route path="/materials/:id" element={<MaterialDetail />} />
+                <Route path="/tests" element={<Tests />} />
+                <Route path="/youtube" element={<YouTube />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/samples" element={<Samples />} />
+                <Route path="/works" element={<Works />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/orders" element={<Orders />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/works" element={<Works />} />
-                <Route path="/youtube" element={<YouTube />} />
-                <Route path="/tests" element={<Tests />} />
+                
+                {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/admin/materials" element={<AdminMaterials />} />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route path="/admin/samples" element={<AdminSamples />} />
                 <Route path="/admin/tests" element={<AdminTests />} />
+                <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/videos" element={<AdminVideos />} />
+                <Route path="/admin/samples" element={<AdminSamples />} />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </CartProvider>
-      </AuthProvider>
+              <Toaster />
+            </div>
+          </CartProvider>
+        </AuthProvider>
+      </Router>
     </QueryClientProvider>
   );
 }
