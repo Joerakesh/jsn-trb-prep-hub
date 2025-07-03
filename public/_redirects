@@ -5,14 +5,14 @@
 # Handle API routes
 /api/*  /api/:splat  200
 
-# Handle material detail pages
+# Handle material detail pages - support both /material/ and /materials/
 /material/*  /index.html  200
+/materials/*  /index.html  200
 
 # Handle admin routes
 /admin/*  /index.html  200
 
 # Handle other routes
-/materials  /index.html  200
 /tests  /index.html  200
 /youtube  /index.html  200
 /dashboard  /index.html  200
