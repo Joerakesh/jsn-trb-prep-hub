@@ -1,4 +1,3 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -64,7 +63,7 @@ const MaterialDetail = () => {
   const handleAddToCart = () => {
     if (!material) return;
     
-    addToCart(material.id);
+    addToCart(material.id, material.title);
     toast.success(`${material.title} added to cart!`);
   };
 
