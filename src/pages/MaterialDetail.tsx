@@ -1,13 +1,16 @@
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, ShoppingCart, FileText, BookOpen, Star, AlertCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, FileText, BookOpen, Star, AlertCircle, Download } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
-import { useCart } from "@/contexts/CartContext";
+import { usePayment } from "@/contexts/PaymentContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
 interface Material {
@@ -26,7 +29,8 @@ interface Material {
 const MaterialDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToCart } = useCart();
+  const { createPayment, loading: paymentLoading } = usePayment();
+  const { user } = useAuth();
 
   const { data: material, isLoading, error } = useQuery({
     queryKey: ['material', id],
@@ -60,11 +64,35 @@ const MaterialDetail = () => {
     retry: 1
   });
 
-  const handleAddToCart = () => {
+  // Check if user has already purchased this material
+  const { data: hasPurchased } = useQuery({
+    queryKey: ['user-purchase', id, user?.id],
+    queryFn: async () => {
+      if (!user || !id) return false;
+      
+      const { data } = await supabase
+        .from('payments')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('material_id', id)
+        .eq('status', 'paid')
+        .maybeSingle();
+      
+      return !!data;
+    },
+    enabled: !!user && !!id
+  });
+
+  const handlePurchase = async () => {
     if (!material) return;
     
-    addToCart(material.id, material.title);
-    toast.success(`${material.title} added to cart!`);
+    if (!user) {
+      toast.error('Please login to purchase');
+      navigate('/login');
+      return;
+    }
+
+    await createPayment(material.id, material.price);
   };
 
   const getCategoryColor = (category: string) => {
@@ -83,6 +111,10 @@ const MaterialDetail = () => {
   if (!id) {
     return (
       <div className="min-h-screen bg-gray-50">
+        <SEOHead 
+          title="Invalid Material"
+          description="The requested material ID is invalid or missing."
+        />
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-md mx-auto">
@@ -127,6 +159,10 @@ const MaterialDetail = () => {
   if (error || !material) {
     return (
       <div className="min-h-screen bg-gray-50">
+        <SEOHead 
+          title="Material Not Found"
+          description="The requested material could not be found or is no longer available."
+        />
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
           <div className="max-w-md mx-auto">
@@ -153,6 +189,13 @@ const MaterialDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEOHead 
+        title={material.title}
+        description={material.description || `${material.title} - Educational material for ${formatCategory(material.category)} preparation. ${material.pages ? `${material.pages} pages` : ''} in ${material.format} format.`}
+        keywords={`${material.title}, ${formatCategory(material.category)}, TRB, educational materials, ${material.format}, study materials`}
+        ogImage={material.image_url}
+        type="product"
+      />
       <Navigation />
       
       <div className="container mx-auto px-4 py-8">
@@ -237,14 +280,22 @@ const MaterialDetail = () => {
                         <p className="text-sm text-gray-600">Price</p>
                         <p className="text-3xl font-bold text-blue-600">₹{material.price}</p>
                       </div>
-                      <Button 
-                        onClick={handleAddToCart}
-                        size="lg" 
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        <ShoppingCart className="h-4 w-4 mr-2" />
-                        Add to Cart
-                      </Button>
+                      {hasPurchased ? (
+                        <Button size="lg" className="bg-green-600 hover:bg-green-700">
+                          <Download className="h-4 w-4 mr-2" />
+                          Download
+                        </Button>
+                      ) : (
+                        <Button 
+                          onClick={handlePurchase}
+                          size="lg" 
+                          className="bg-blue-600 hover:bg-blue-700"
+                          disabled={paymentLoading}
+                        >
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          {paymentLoading ? 'Processing...' : 'Buy Now'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

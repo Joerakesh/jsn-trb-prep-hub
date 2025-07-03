@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider } from "./contexts/AuthContext";
-import { CartProvider } from "./contexts/CartContext";
+import { PaymentProvider } from "./contexts/PaymentContext";
 
 // Page imports
 import Index from "./pages/Index";
@@ -14,7 +15,6 @@ import Materials from "./pages/Materials";
 import MaterialDetail from "./pages/MaterialDetail";
 import Tests from "./pages/Tests";
 import YouTube from "./pages/YouTube";
-import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -36,42 +36,43 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <BrowserRouter>
-          <AuthProvider>
-            <CartProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/materials" element={<Materials />} />
-                <Route path="/material/:id" element={<MaterialDetail />} />
-                <Route path="/tests" element={<Tests />} />
-                <Route path="/youtube" element={<YouTube />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/orders" element={<Orders />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/samples" element={<Samples />} />
-                <Route path="/works" element={<Works />} />
-                
-                {/* Admin Routes */}
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/materials" element={<AdminMaterials />} />
-                <Route path="/admin/tests" element={<AdminTests />} />
-                <Route path="/admin/orders" element={<AdminOrders />} />
-                <Route path="/admin/videos" element={<AdminVideos />} />
-                <Route path="/admin/samples" element={<AdminSamples />} />
-                
-                {/* 404 Route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </CartProvider>
-          </AuthProvider>
-        </BrowserRouter>
-      </TooltipProvider>
+      <HelmetProvider>
+        <TooltipProvider>
+          <Toaster />
+          <BrowserRouter>
+            <AuthProvider>
+              <PaymentProvider>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/materials" element={<Materials />} />
+                  <Route path="/material/:id" element={<MaterialDetail />} />
+                  <Route path="/tests" element={<Tests />} />
+                  <Route path="/youtube" element={<YouTube />} />
+                  <Route path="/orders" element={<Orders />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/samples" element={<Samples />} />
+                  <Route path="/works" element={<Works />} />
+                  
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/materials" element={<AdminMaterials />} />
+                  <Route path="/admin/tests" element={<AdminTests />} />
+                  <Route path="/admin/orders" element={<AdminOrders />} />
+                  <Route path="/admin/videos" element={<AdminVideos />} />
+                  <Route path="/admin/samples" element={<AdminSamples />} />
+                  
+                  {/* 404 Route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </PaymentProvider>
+            </AuthProvider>
+          </BrowserRouter>
+        </TooltipProvider>
+      </HelmetProvider>
     </QueryClientProvider>
   );
 }

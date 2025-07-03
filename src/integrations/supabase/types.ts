@@ -9,45 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      cart_items: {
-        Row: {
-          created_at: string | null
-          id: string
-          material_id: string
-          quantity: number | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          material_id: string
-          quantity?: number | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          material_id?: string
-          quantity?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cart_items_material_id_fkey"
-            columns: ["material_id"]
-            isOneToOne: false
-            referencedRelation: "materials"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "cart_items_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       materials: {
         Row: {
           category: Database["public"]["Enums"]["material_category"]
@@ -143,6 +104,7 @@ export type Database = {
           created_at: string | null
           id: string
           notes: string | null
+          payment_id: string | null
           phone: string | null
           shipping_address: string | null
           status: Database["public"]["Enums"]["order_status"] | null
@@ -154,6 +116,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          payment_id?: string | null
           phone?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -165,6 +128,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           notes?: string | null
+          payment_id?: string | null
           phone?: string | null
           shipping_address?: string | null
           status?: Database["public"]["Enums"]["order_status"] | null
@@ -174,10 +138,64 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "orders_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "orders_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string | null
+          id: string
+          material_id: string
+          razorpay_order_id: string
+          razorpay_payment_id: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          material_id: string
+          razorpay_order_id: string
+          razorpay_payment_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          id?: string
+          material_id?: string
+          razorpay_order_id?: string
+          razorpay_payment_id?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
             referencedColumns: ["id"]
           },
         ]
