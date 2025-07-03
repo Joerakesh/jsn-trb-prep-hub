@@ -97,10 +97,10 @@ const MaterialDetail = () => {
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'UG_TRB': return 'bg-blue-100 text-blue-800';
-      case 'PG_TRB': return 'bg-purple-100 text-purple-800';
-      case 'General': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'UG_TRB': return 'bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200';
+      case 'PG_TRB': return 'bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200';
+      case 'General': return 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200';
+      default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200';
     }
   };
 
@@ -116,12 +116,12 @@ const MaterialDetail = () => {
           description="The requested material ID is invalid or missing."
         />
         <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
+        <div className="container mx-auto px-4 py-16 text-center animate-fade-in">
           <div className="max-w-md mx-auto">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4 animate-pulse" />
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Material ID</h1>
             <p className="text-gray-600 mb-8">The material ID is missing or invalid.</p>
-            <Button asChild>
+            <Button asChild className="hover:scale-105 transition-transform duration-200">
               <Link to="/materials">Browse Materials</Link>
             </Button>
           </div>
@@ -138,14 +138,14 @@ const MaterialDetail = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="max-w-4xl mx-auto">
             <div className="animate-pulse">
-              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8"></div>
+              <div className="h-8 bg-gray-300 rounded w-1/4 mb-8 animate-pulse"></div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div className="h-96 bg-gray-300 rounded"></div>
+                <div className="h-96 bg-gray-300 rounded animate-pulse"></div>
                 <div className="space-y-4">
-                  <div className="h-8 bg-gray-300 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-                  <div className="h-20 bg-gray-300 rounded"></div>
-                  <div className="h-12 bg-gray-300 rounded w-1/3"></div>
+                  <div className="h-8 bg-gray-300 rounded w-3/4 animate-pulse"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2 animate-pulse"></div>
+                  <div className="h-20 bg-gray-300 rounded animate-pulse"></div>
+                  <div className="h-12 bg-gray-300 rounded w-1/3 animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -164,18 +164,18 @@ const MaterialDetail = () => {
           description="The requested material could not be found or is no longer available."
         />
         <Navigation />
-        <div className="container mx-auto px-4 py-16 text-center">
+        <div className="container mx-auto px-4 py-16 text-center animate-fade-in">
           <div className="max-w-md mx-auto">
-            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4 animate-bounce" />
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Material Not Found</h1>
             <p className="text-gray-600 mb-8">
               {error instanceof Error ? error.message : 'The requested material could not be found or may no longer be available.'}
             </p>
             <div className="space-y-4">
-              <Button asChild>
+              <Button asChild className="hover:scale-105 transition-transform duration-200">
                 <Link to="/materials">Browse All Materials</Link>
               </Button>
-              <Button variant="outline" onClick={() => navigate(-1)}>
+              <Button variant="outline" onClick={() => navigate(-1)} className="hover:scale-105 transition-transform duration-200">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
@@ -198,23 +198,27 @@ const MaterialDetail = () => {
       />
       <Navigation />
       
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="max-w-6xl mx-auto">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)} 
+            className="mb-6 hover:scale-105 transition-all duration-200 hover:bg-gray-100"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back
           </Button>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Material Image */}
-            <div className="space-y-4">
-              <Card className="overflow-hidden">
-                <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center">
+            <div className="space-y-4 animate-slide-in-left">
+              <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center relative group">
                   {material.image_url ? (
                     <img 
                       src={material.image_url} 
                       alt={material.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                         e.currentTarget.nextElementSibling?.classList.remove('hidden');
@@ -222,14 +226,18 @@ const MaterialDetail = () => {
                     />
                   ) : null}
                   <div className={material.image_url ? 'hidden' : 'text-center p-8'}>
-                    <BookOpen className="h-24 w-24 text-gray-400 mx-auto mb-4" />
+                    <BookOpen className="h-24 w-24 text-gray-400 mx-auto mb-4 animate-pulse" />
                     <p className="text-gray-500 text-lg font-medium">{material.title}</p>
                   </div>
                 </div>
               </Card>
 
               {material.preview_url && (
-                <Button asChild variant="outline" className="w-full">
+                <Button 
+                  asChild 
+                  variant="outline" 
+                  className="w-full hover:scale-105 transition-all duration-200 hover:bg-blue-50"
+                >
                   <a href={material.preview_url} target="_blank" rel="noopener noreferrer">
                     <FileText className="h-4 w-4 mr-2" />
                     View Sample ({material.preview_pages || 3} pages)
@@ -239,7 +247,7 @@ const MaterialDetail = () => {
             </div>
 
             {/* Material Details */}
-            <div className="space-y-6">
+            <div className="space-y-6 animate-slide-in-right">
               <div>
                 <div className="flex items-start justify-between mb-4">
                   <Badge className={getCategoryColor(material.category)}>
@@ -247,27 +255,33 @@ const MaterialDetail = () => {
                   </Badge>
                   <div className="flex items-center gap-1 text-yellow-500">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-current" />
+                      <Star 
+                        key={i} 
+                        className="h-4 w-4 fill-current hover:scale-110 transition-transform duration-150" 
+                        style={{ animationDelay: `${i * 100}ms` }}
+                      />
                     ))}
                   </div>
                 </div>
                 
-                <h1 className="text-3xl font-bold text-gray-900 mb-3">{material.title}</h1>
+                <h1 className="text-3xl font-bold text-gray-900 mb-3 hover:text-blue-600 transition-colors duration-300">
+                  {material.title}
+                </h1>
                 <p className="text-lg text-gray-600 leading-relaxed">{material.description}</p>
               </div>
 
-              <Card>
+              <Card className="hover:shadow-lg transition-shadow duration-300">
                 <CardHeader>
                   <CardTitle className="text-xl">Material Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                       <FileText className="h-4 w-4 text-blue-500" />
                       <span className="text-gray-600">Pages:</span>
                       <span className="font-medium">{material.pages || 'Not specified'}</span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                       <BookOpen className="h-4 w-4 text-green-500" />
                       <span className="text-gray-600">Format:</span>
                       <span className="font-medium">{material.format}</span>
@@ -278,10 +292,13 @@ const MaterialDetail = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Price</p>
-                        <p className="text-3xl font-bold text-blue-600">₹{material.price}</p>
+                        <p className="text-3xl font-bold text-blue-600 animate-pulse">₹{material.price}</p>
                       </div>
                       {hasPurchased ? (
-                        <Button size="lg" className="bg-green-600 hover:bg-green-700">
+                        <Button 
+                          size="lg" 
+                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-200"
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Download
                         </Button>
@@ -289,11 +306,15 @@ const MaterialDetail = () => {
                         <Button 
                           onClick={handlePurchase}
                           size="lg" 
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 active:scale-95"
                           disabled={paymentLoading}
                         >
                           <CreditCard className="h-4 w-4 mr-2" />
-                          {paymentLoading ? 'Processing...' : 'Buy Now'}
+                          {paymentLoading ? (
+                            <span className="animate-pulse">Processing...</span>
+                          ) : (
+                            'Buy Now'
+                          )}
                         </Button>
                       )}
                     </div>
@@ -301,15 +322,26 @@ const MaterialDetail = () => {
                 </CardContent>
               </Card>
 
-              <Card className="bg-blue-50 border-blue-200">
+              <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="pt-6">
                   <h3 className="font-semibold text-blue-900 mb-2">What's Included:</h3>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• High-quality {material.format} format</li>
-                    <li>• {material.pages || 'Multiple'} pages of content</li>
-                    <li>• Expert curated material</li>
-                    <li>• Instant download after purchase</li>
-                    <li>• Lifetime access</li>
+                  <ul className="text-sm text-blue-800 space-y-2">
+                    {[
+                      `High-quality ${material.format} format`,
+                      `${material.pages || 'Multiple'} pages of content`,
+                      'Expert curated material',
+                      'Instant download after purchase',
+                      'Lifetime access'
+                    ].map((item, index) => (
+                      <li 
+                        key={index}
+                        className="flex items-center gap-2 hover:bg-blue-100 p-1 rounded transition-colors duration-200"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <span className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-pulse"></span>
+                        {item}
+                      </li>
+                    ))}
                   </ul>
                 </CardContent>
               </Card>
