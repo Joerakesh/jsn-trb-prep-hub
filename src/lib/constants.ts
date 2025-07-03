@@ -1,10 +1,9 @@
+
 // Razorpay Configuration
-// To change your Razorpay API key and secret:
-// 1. Replace RAZORPAY_KEY_ID with your actual Razorpay Key ID
-// 2. Replace RAZORPAY_SECRET with your actual Razorpay Secret Key
+// The keys are configured in Supabase Edge Function secrets
 export const RAZORPAY_CONFIG = {
-  KEY_ID: "rzp_live_cQLVIocotBfACG", // Replace with your Razorpay Key ID
-  SECRET: "3HihQChGXqezBDhIXkSMd9l8", // Replace with your Razorpay Secret Key
+  KEY_ID: "rzp_live_cQLVIocotBfACG", // Your live Razorpay Key ID
+  SECRET: "3HihQChGXqezBDhIXkSMd9l8", // This should only be used in backend
 };
 
 export const COMPANY_INFO = {
