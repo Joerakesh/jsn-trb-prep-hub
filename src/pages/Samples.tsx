@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Download, FileText, BookOpen, ShoppingCart, Eye, Truck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
 import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -31,7 +30,6 @@ interface Material {
 
 const Samples = () => {
   const { user } = useAuth();
-  const { addToCart } = useCart();
   const navigate = useNavigate();
 
   const { data: sampleMaterials = [], isLoading } = useQuery({
@@ -70,7 +68,7 @@ const Samples = () => {
     }
   };
 
-  const handleOrderFullVersion = async (sampleTitle: string, category: string) => {
+  const handlePurchaseFullVersion = (sampleTitle: string, category: string) => {
     // Find the corresponding full material
     const fullMaterial = fullMaterials.find(material => 
       material.category === category && 
@@ -83,17 +81,13 @@ const Samples = () => {
     }
 
     if (!user) {
-      toast.error("Please login to order the full version");
+      toast.error("Please login to purchase the full version");
       navigate('/login');
       return;
     }
 
-    try {
-      await addToCart(fullMaterial.id, fullMaterial.title);
-      toast.success(`${fullMaterial.title} added to cart for hard copy delivery!`);
-    } catch (error) {
-      toast.error("Failed to add to cart");
-    }
+    // Navigate to material detail page for direct purchase
+    navigate(`/materials/${fullMaterial.id}`);
   };
 
   const formatCategory = (category: string) => {
@@ -121,7 +115,7 @@ const Samples = () => {
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4">Free Sample Study Materials</h1>
           <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-6">
-            Preview our comprehensive study materials with free samples. Love what you see? Order the complete version and get it delivered to your doorstep!
+            Preview our comprehensive study materials with free samples. Love what you see? Purchase the complete version instantly with our integrated payment system!
           </p>
           <div className="flex justify-center items-center gap-4 text-blue-100">
             <div className="flex items-center gap-2">
@@ -130,8 +124,8 @@ const Samples = () => {
             </div>
             <div className="w-1 h-1 bg-blue-300 rounded-full"></div>
             <div className="flex items-center gap-2">
-              <Truck className="h-5 w-5" />
-              <span>Hard Copy Delivery</span>
+              <ShoppingCart className="h-5 w-5" />
+              <span>Instant Purchase</span>
             </div>
           </div>
         </div>
@@ -154,15 +148,15 @@ const Samples = () => {
                 <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <ShoppingCart className="h-8 w-8 text-green-600" />
                 </div>
-                <h4 className="font-semibold mb-2">2. Order Full Version</h4>
-                <p className="text-gray-600">Like the sample? Order the complete study material with one click</p>
+                <h4 className="font-semibold mb-2">2. Purchase Instantly</h4>
+                <p className="text-gray-600">Like the sample? Purchase the complete study material with instant payment</p>
               </div>
               <div className="text-center">
                 <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Truck className="h-8 w-8 text-purple-600" />
+                  <Download className="h-8 w-8 text-purple-600" />
                 </div>
-                <h4 className="font-semibold mb-2">3. Receive Hard Copy</h4>
-                <p className="text-gray-600">Get the complete printed material delivered to your address via courier</p>
+                <h4 className="font-semibold mb-2">3. Download Immediately</h4>
+                <p className="text-gray-600">Get instant access to download the complete material after payment</p>
               </div>
             </div>
           </CardContent>
@@ -222,18 +216,18 @@ const Samples = () => {
                           <p className="text-lg font-bold text-blue-900 mb-2">₹{fullMaterial.price}</p>
                           <Button 
                             className="w-full bg-blue-600 hover:bg-blue-700"
-                            onClick={() => handleOrderFullVersion(material.title, material.category)}
+                            onClick={() => handlePurchaseFullVersion(material.title, material.category)}
                           >
                             <ShoppingCart className="h-4 w-4 mr-2" />
-                            Order Hard Copy
+                            Purchase Now
                           </Button>
                         </div>
                       )}
                     </div>
 
                     <div className="bg-yellow-50 p-2 rounded text-xs text-yellow-800 text-center">
-                      <Truck className="h-3 w-3 inline mr-1" />
-                      Hard copy delivered via courier within 3-5 business days
+                      <Download className="h-3 w-3 inline mr-1" />
+                      Instant download after payment
                     </div>
                   </div>
                 </CardContent>
@@ -246,27 +240,27 @@ const Samples = () => {
       {/* Benefits Section */}
       <section className="bg-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Why Choose Our Hard Copy Materials?</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-8">Why Choose Our Materials?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <FileText className="h-8 w-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">High Quality Print</h3>
-              <p className="text-gray-600">Premium quality paper and professional printing for better reading experience</p>
+              <h3 className="text-xl font-semibold mb-2">High Quality Content</h3>
+              <p className="text-gray-600">Comprehensive and well-structured study materials prepared by experts</p>
             </div>
             <div>
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Truck className="h-8 w-8 text-green-600" />
+                <Download className="h-8 w-8 text-green-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Fast Delivery</h3>
-              <p className="text-gray-600">Quick courier delivery to your doorstep within 3-5 business days</p>
+              <h3 className="text-xl font-semibold mb-2">Instant Access</h3>
+              <p className="text-gray-600">Download immediately after payment - no waiting, no delays</p>
             </div>
             <div>
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BookOpen className="h-8 w-8 text-purple-600" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">Complete Content</h3>
+              <h3 className="text-xl font-semibold mb-2">Complete Coverage</h3>
               <p className="text-gray-600">Full comprehensive study material with all topics covered in detail</p>
             </div>
           </div>
@@ -276,16 +270,16 @@ const Samples = () => {
       {/* CTA Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Order Your Study Materials?</h2>
+          <h2 className="text-3xl font-bold mb-4">Ready to Purchase Your Study Materials?</h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Browse our complete collection and get high-quality study materials delivered to your home
+            Browse our complete collection and get instant access to high-quality study materials
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" variant="secondary">
               <Link to="/materials">View All Materials</Link>
             </Button>
             <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
-              <Link to="/cart">Check Cart</Link>
+              <Link to="/dashboard">My Dashboard</Link>
             </Button>
           </div>
         </div>
