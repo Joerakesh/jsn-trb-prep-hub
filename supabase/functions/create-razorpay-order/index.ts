@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -15,21 +14,26 @@ serve(async (req) => {
   try {
     const { amount, currency, receipt } = await req.json()
 
-    // You'll need to add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to your Supabase secrets
+    console.log('Creating Razorpay order:', { amount, currency, receipt })
+
     const keyId = Deno.env.get('RAZORPAY_KEY_ID')
     const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET')
 
     if (!keyId || !keySecret) {
+      console.error('Razorpay credentials not configured')
       throw new Error('Razorpay credentials not configured')
     }
 
     const auth = btoa(`${keyId}:${keySecret}`)
 
     const orderData = {
-      amount,
-      currency,
-      receipt,
+      amount: parseInt(amount),
+      currency: currency || 'INR',
+      receipt: receipt,
+      payment_capture: 1
     }
+
+    console.log('Sending order data to Razorpay:', orderData)
 
     const response = await fetch('https://api.razorpay.com/v1/orders', {
       method: 'POST',
@@ -40,11 +44,22 @@ serve(async (req) => {
       body: JSON.stringify(orderData),
     })
 
-    const order = await response.json()
+    const responseText = await response.text()
+    console.log('Razorpay response:', responseText)
 
     if (!response.ok) {
-      throw new Error(order.error?.description || 'Failed to create order')
+      let errorMessage = 'Failed to create order'
+      try {
+        const errorData = JSON.parse(responseText)
+        errorMessage = errorData.error?.description || errorMessage
+      } catch (e) {
+        errorMessage = responseText || errorMessage
+      }
+      throw new Error(errorMessage)
     }
+
+    const order = JSON.parse(responseText)
+    console.log('Order created successfully:', order)
 
     return new Response(
       JSON.stringify({ success: true, order }),
@@ -54,8 +69,12 @@ serve(async (req) => {
       },
     )
   } catch (error) {
+    console.error('Order creation error:', error)
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ 
+        success: false, 
+        error: error.message || 'Failed to create order'
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,

@@ -47,7 +47,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Create Razorpay order using Supabase Edge Function
       const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
-          amount: amount * 100, // Convert to paisa
+          amount: Math.round(amount * 100), // Convert to paisa and ensure integer
           currency: 'INR',
           receipt: `material_${materialId}_${Date.now()}`
         }
@@ -55,14 +55,15 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       if (orderError) {
         console.error('Error creating order:', orderError);
+        throw new Error(orderError.message || 'Failed to create payment order');
+      }
+
+      if (!orderData?.success || !orderData?.order) {
+        console.error('Invalid order response:', orderData);
         throw new Error('Failed to create payment order');
       }
 
-      if (!orderData.success) {
-        throw new Error('Failed to create payment order');
-      }
-
-      console.log('Order created:', orderData.order);
+      console.log('Order created successfully:', orderData.order);
 
       // Store payment record in database with shipping details
       const { error: paymentError } = await supabase
@@ -96,6 +97,11 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         console.error('Error storing order:', orderInsertError);
       }
 
+      // Check if Razorpay is loaded
+      if (typeof window === 'undefined' || !window.Razorpay) {
+        throw new Error('Razorpay SDK not loaded. Please refresh the page and try again.');
+      }
+
       // Initialize Razorpay
       const options = {
         key: RAZORPAY_CONFIG.KEY_ID,
@@ -123,16 +129,9 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
               return;
             }
 
-            if (verifyData.success) {
-              // Update payment status
-              await supabase
-                .from('payments')
-                .update({
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  status: 'paid'
-                })
-                .eq('razorpay_order_id', response.razorpay_order_id);
+            console.log('Payment verification response:', verifyData);
 
+            if (verifyData?.success) {
               toast.success('🎉 Payment successful! You can now download the material.');
               
               // Reload the page to update the purchase status
@@ -175,7 +174,8 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     } catch (error) {
       console.error('Payment error:', error);
-      toast.error('Failed to initiate payment. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initiate payment. Please try again.';
+      toast.error(errorMessage);
       setLoading(false);
     }
   };

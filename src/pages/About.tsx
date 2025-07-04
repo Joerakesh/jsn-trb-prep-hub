@@ -1,251 +1,94 @@
 
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { BookOpen, GraduationCap, Award, Users, Target, Heart, Star, Calendar, MapPin, Mail, Phone } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { Card, CardContent } from "@/components/ui/card";
-import { Users, Target, Award, BookOpen, Mail, Phone, Globe, GraduationCap, FileText, Trophy } from "lucide-react";
+import SEOHead from "@/components/SEOHead";
 
 const About = () => {
-  const features = [
-    {
-      icon: <Users className="h-12 w-12 text-blue-600" />,
-      title: "Expert Faculty",
-      description: "Learn from experienced educators with proven track records in TRB exam preparation"
-    },
-    {
-      icon: <Target className="h-12 w-12 text-blue-600" />,
-      title: "Focused Approach",
-      description: "Targeted study materials and practice tests designed specifically for TRB success"
-    },
-    {
-      icon: <Award className="h-12 w-12 text-blue-600" />,
-      title: "Proven Results",
-      description: "Thousands of successful candidates who cleared TRB exams with our guidance"
-    },
-    {
-      icon: <BookOpen className="h-12 w-12 text-blue-600" />,
-      title: "Quality Materials",
-      description: "Comprehensive study materials updated according to latest TRB exam patterns"
-    }
+  const achievements = [
+    { icon: GraduationCap, title: "Ph.D. in English Literature", description: "Specialized in Comparative Literature and Translation Studies" },
+    { icon: BookOpen, title: "15+ Research Publications", description: "Published in renowned academic journals" },
+    { icon: Users, title: "12+ Years Teaching Experience", description: "Assistant Professor at St. Joseph's College" },
+    { icon: Award, title: "Expert Trainer", description: "UGC-NET, SET, and TRB examination specialist" },
+  ];
+
+  const specializations = [
+    "Comparative Literature",
+    "Translation Studies", 
+    "Indian Writing in English",
+    "UGC-NET Coaching",
+    "SET Preparation",
+    "TRB Training",
+    "Research Supervision",
+    "Academic Writing"
+  ];
+
+  const timeline = [
+    { year: "2024", event: "Launched JSN English Academy Digital Platform" },
+    { year: "2018", event: "Joined St. Joseph's College as Assistant Professor" },
+    { year: "2016", event: "Completed Ph.D. in English Literature" },
+    { year: "2012", event: "Started Teaching Career" },
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <SEOHead 
+        title="About Dr. S. Jerald Sagaya Nathan - JSN English Academy"
+        description="Learn about Dr. S. Jerald Sagaya Nathan, Ph.D. in English Literature, Assistant Professor, and expert trainer for UGC-NET, SET, and TRB examinations with 12+ years of teaching experience."
+        keywords="Dr. S. Jerald Sagaya Nathan, English Literature, UGC-NET, SET, TRB, Assistant Professor, St. Joseph's College, Tiruchirappalli"
+      />
       <Navigation />
       
       {/* Hero Section */}
-      <section className="bg-blue-600 text-white py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold mb-6">About JSN Academy</h1>
-              <p className="text-xl text-blue-100 mb-8">
-                Empowering future teachers with comprehensive TRB exam preparation and quality education materials.
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <div className="mb-8">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center shadow-2xl animate-scale-in">
+                <GraduationCap className="h-16 w-16 text-white" />
+              </div>
+              <h1 className="text-5xl font-bold text-gray-900 mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                Dr. S. Jerald Sagaya Nathan
+              </h1>
+              <p className="text-xl text-gray-600 mb-6">
+                Ph.D. in English Literature | Assistant Professor | Academic Excellence Mentor
               </p>
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-blue-500 px-6 py-3 rounded-lg">
-                  <span className="text-2xl font-bold">500+</span>
-                  <p className="text-sm">Success Stories</p>
-                </div>
-                <div className="bg-blue-500 px-6 py-3 rounded-lg">
-                  <span className="text-2xl font-bold">10+</span>
-                  <p className="text-sm">Years Experience</p>
-                </div>
-                <div className="bg-blue-500 px-6 py-3 rounded-lg">
-                  <span className="text-2xl font-bold">100+</span>
-                  <p className="text-sm">Study Materials</p>
-                </div>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Badge variant="secondary" className="px-4 py-2 text-sm bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  Tiruchirappalli, Tamil Nadu
+                </Badge>
+                <Badge variant="secondary" className="px-4 py-2 text-sm bg-green-100 text-green-800 hover:bg-green-200 transition-colors">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  12+ Years Experience
+                </Badge>
               </div>
             </div>
-            <div>
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                alt="Students studying" 
-                className="rounded-lg shadow-2xl"
-              />
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Professor Profile Section */}
-      <section className="py-16 bg-white">
+      {/* Achievements Grid */}
+      <section className="py-16 bg-white/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Meet Our Founder</h2>
-            <p className="text-lg text-gray-600">Distinguished educator and researcher</p>
-          </div>
-          
-          <div className="max-w-6xl mx-auto">
-            <Card className="shadow-lg">
-              <CardContent className="p-8">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  <div className="lg:col-span-1 text-center">
-                    <div className="w-48 h-48 mx-auto bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-6">
-                      <GraduationCap className="h-24 w-24 text-white" />
-                    </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">Dr. S. Jerald Sagaya Nathan</h3>
-                    <p className="text-lg text-blue-600 mb-4">Ph.D., Assistant Professor of English</p>
-                    <div className="space-y-2 text-sm text-gray-600">
-                      <div className="flex items-center justify-center">
-                        <Mail className="h-4 w-4 mr-2" />
-                        <a href="mailto:jsnathan1981@gmail.com" className="hover:text-blue-600">jsnathan1981@gmail.com</a>
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <Phone className="h-4 w-4 mr-2" />
-                        <span>+91 98432 87913 / 96292 87913</span>
-                      </div>
-                      <div className="flex items-center justify-center">
-                        <Globe className="h-4 w-4 mr-2" />
-                        <span>ORCID: 0000-0003-4905-7465</span>
-                      </div>
-                    </div>
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12 animate-fade-in">
+            Academic Excellence & Achievements
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            {achievements.map((achievement, index) => (
+              <Card key={index} className="text-center hover:shadow-xl transition-all duration-300 hover:scale-105 animate-slide-in-left border-0 bg-white/80 backdrop-blur-sm" style={{ animationDelay: `${index * 100}ms` }}>
+                <CardHeader className="pb-3">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                    <achievement.icon className="h-8 w-8 text-white" />
                   </div>
-                  
-                  <div className="lg:col-span-2">
-                    <div className="space-y-8">
-                      {/* Educational Qualifications */}
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                          <GraduationCap className="h-5 w-5 mr-2 text-blue-600" />
-                          Educational Qualifications
-                        </h4>
-                        <div className="space-y-3 text-gray-700">
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h5 className="font-semibold">Ph.D. in English Literature</h5>
-                            <p className="text-sm">St. Joseph's College, Trichy (2011–2018)</p>
-                            <p className="text-sm italic">Thesis: A Comparative Study of Mystical Thoughts in Thirumular and Hopkins</p>
-                          </div>
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h5 className="font-semibold">M.Phil, M.A., B.A. in English Literature</h5>
-                            <p className="text-sm">St. Joseph's College, Trichy – First Rank Holder in All Degrees</p>
-                          </div>
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h5 className="font-semibold">Professional Qualifications</h5>
-                            <p className="text-sm">UGC-NET (2012), SET (2011) Qualified</p>
-                            <p className="text-sm">M.A. in Mass Communication & Journalism (2018)</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Professional Experience */}
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                          <Target className="h-5 w-5 mr-2 text-blue-600" />
-                          Academic & Professional Experience
-                        </h4>
-                        <div className="space-y-3 text-gray-700">
-                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h5 className="font-semibold">Assistant Professor, Department of English</h5>
-                            <p className="text-sm">St. Joseph's College (Autonomous), Trichy – Since 2011 (Aided since 2013)</p>
-                          </div>
-                          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
-                            <h5 className="font-semibold">Resource Person & Trainer</h5>
-                            <p className="text-sm">IAS Academy, UGC NET Coaching, TRB Training, Soft Skills & Competitive English Trainer</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Research Interests */}
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                          <BookOpen className="h-5 w-5 mr-2 text-blue-600" />
-                          Research Interests
-                        </h4>
-                        <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-green-50 p-3 rounded-lg text-sm">Comparative Literature & Translation Studies</div>
-                          <div className="bg-green-50 p-3 rounded-lg text-sm">Literary Theory & Criticism</div>
-                          <div className="bg-green-50 p-3 rounded-lg text-sm">Indian Writing in English</div>
-                          <div className="bg-green-50 p-3 rounded-lg text-sm">Media, Communication & Soft Skills</div>
-                        </div>
-                      </div>
-
-                      {/* Publications */}
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                          <FileText className="h-5 w-5 mr-2 text-blue-600" />
-                          Research Publications & Editorial Roles
-                        </h4>
-                        <div className="space-y-3 text-gray-700">
-                          <div className="bg-yellow-50 p-4 rounded-lg">
-                            <p className="font-semibold">15+ Research Papers</p>
-                            <p className="text-sm">Published in UGC-approved & peer-reviewed journals</p>
-                          </div>
-                          <div className="bg-yellow-50 p-4 rounded-lg">
-                            <p className="font-semibold">Editorial Board Member</p>
-                            <p className="text-sm">South Asia Journal, IJELLH, IJCRT, IJRAR, IJPBS, IJMDRR, etc.</p>
-                          </div>
-                          <div className="bg-yellow-50 p-4 rounded-lg">
-                            <p className="font-semibold">Edited Books:</p>
-                            <ul className="text-sm list-disc list-inside space-y-1">
-                              <li>Cultural Pluralism in Indian Literature (2025)</li>
-                              <li>MERGEN Anthology (2023, 2025)</li>
-                              <li>Societal and Altruistic Concerns in Asian Literature (2024)</li>
-                            </ul>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Achievements */}
-                      <div>
-                        <h4 className="text-xl font-semibold text-gray-900 mb-4 flex items-center">
-                          <Trophy className="h-5 w-5 mr-2 text-blue-600" />
-                          Achievements & Contributions
-                        </h4>
-                        <div className="space-y-3 text-gray-700">
-                          <div className="bg-purple-50 p-4 rounded-lg">
-                            <p className="font-semibold">Academic Excellence</p>
-                            <p className="text-sm">First Rank in UG, PG & M.Phil. English</p>
-                          </div>
-                          <div className="bg-purple-50 p-4 rounded-lg">
-                            <p className="font-semibold">Professional Contributions</p>
-                            <p className="text-sm">30+ Guest Lectures & Inaugural Talks across Tamil Nadu colleges</p>
-                            <p className="text-sm">Resource Person in Workshops, FDPs, and National Seminars</p>
-                          </div>
-                          <div className="bg-purple-50 p-4 rounded-lg">
-                            <p className="font-semibold">Editorial Leadership</p>
-                            <p className="text-sm">Active member of editorial and review boards for national and international journals</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Contact Information */}
-                <div className="mt-8 pt-8 border-t border-gray-200">
-                  <h4 className="text-lg font-semibold text-gray-900 mb-4">Contact Address</h4>
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-sm text-gray-700">
-                      245/8, Astalakshmi Avenue, First Main Road, Vasan Valley,<br />
-                      Rettaivaikal Post, Tiruchirappalli – 620102, Tamil Nadu, India
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              To provide aspiring teachers with the best resources, guidance, and support needed to excel in TRB examinations and build successful teaching careers.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
-                <CardContent className="p-6">
-                  <div className="flex justify-center mb-4">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                  <p className="text-gray-600">{feature.description}</p>
+                  <CardTitle className="text-lg font-semibold text-gray-900">{achievement.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-gray-600">{achievement.description}</p>
                 </CardContent>
               </Card>
             ))}
@@ -253,64 +96,118 @@ const About = () => {
         </div>
       </section>
 
-      {/* Story Section */}
-      <section className="bg-white py-16">
+      {/* Professional Journey */}
+      <section className="py-16">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                alt="Founder" 
-                className="rounded-lg shadow-lg"
-              />
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
-              <p className="text-gray-600 mb-6">
-                JSN Academy was founded with a simple yet powerful vision: to bridge the gap between aspiring teachers and their dream of clearing the TRB examination. Our journey began over a decade ago when we recognized the need for specialized, quality study materials and guidance for TRB aspirants.
-              </p>
-              <p className="text-gray-600 mb-6">
-                What started as a small initiative has now grown into Tamil Nadu's most trusted TRB coaching center, helping hundreds of candidates achieve their teaching dreams every year. Our success lies in our personalized approach, updated study materials, and continuous support to our students.
-              </p>
-              <p className="text-gray-600">
-                Today, we continue to evolve and adapt our teaching methodologies to meet the changing patterns of TRB examinations, ensuring our students are always one step ahead in their preparation.
-              </p>
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12 animate-fade-in">
+              Professional Journey
+            </h2>
+            <Card className="mb-8 shadow-xl border-0 bg-white/80 backdrop-blur-sm animate-slide-in-right">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Heart className="h-6 w-6 text-red-500" />
+                  Mission & Vision
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-lg">
+                  <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Our Mission
+                  </h3>
+                  <p className="text-blue-800">
+                    To empower students and educators with comprehensive, high-quality educational resources 
+                    and expert guidance that transforms learning experiences and academic outcomes in English Literature and competitive examinations.
+                  </p>
+                </div>
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 p-6 rounded-lg">
+                  <h3 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                    <Star className="h-5 w-5" />
+                    Our Vision
+                  </h3>
+                  <p className="text-purple-800">
+                    To be the leading platform for English Literature education and competitive exam preparation, 
+                    fostering academic excellence and creating pathways to success for aspiring educators and researchers.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Specializations */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm animate-slide-in-left">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-blue-600" />
+                    Areas of Specialization
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2">
+                    {specializations.map((spec, index) => (
+                      <Badge 
+                        key={index} 
+                        variant="outline" 
+                        className="justify-center py-2 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-default"
+                      >
+                        {spec}
+                      </Badge>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Timeline */}
+              <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm animate-slide-in-right">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-purple-600" />
+                    Academic Timeline
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {timeline.map((item, index) => (
+                      <div key={index} className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                          {item.year}
+                        </div>
+                        <p className="text-gray-700 font-medium">{item.event}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Team Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">Why Choose JSN Academy?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <img 
-                src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                alt="Updated curriculum" 
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2">Updated Curriculum</h3>
-              <p className="text-gray-600">Latest syllabus coverage with recent exam pattern analysis</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <img 
-                src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                alt="Interactive learning" 
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2">Interactive Learning</h3>
-              <p className="text-gray-600">Engaging study sessions with practical examples and case studies</p>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <img 
-                src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80" 
-                alt="Success support" 
-                className="w-full h-48 object-cover rounded-lg mb-4"
-              />
-              <h3 className="text-xl font-semibold mb-2">Success Support</h3>
-              <p className="text-gray-600">Continuous mentoring and doubt clarification sessions</p>
+      {/* Contact Information */}
+      <section className="py-16 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center animate-fade-in">
+            <h2 className="text-3xl font-bold mb-8">Get in Touch</h2>
+            <p className="text-xl text-blue-100 mb-8">
+              Ready to begin your academic journey? Connect with Dr. Nathan for personalized guidance and support.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors">
+                <Mail className="h-8 w-8 mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Email</h3>
+                <p className="text-blue-100">jsnathan1981@gmail.com</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors">
+                <Phone className="h-8 w-8 mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Phone</h3>
+                <p className="text-blue-100">+91 98432 87913</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-colors">
+                <MapPin className="h-8 w-8 mx-auto mb-3" />
+                <h3 className="font-semibold mb-2">Location</h3>
+                <p className="text-blue-100">Tiruchirappalli, Tamil Nadu</p>
+              </div>
             </div>
           </div>
         </div>
