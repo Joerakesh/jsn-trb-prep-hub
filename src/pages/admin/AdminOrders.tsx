@@ -6,15 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Search, 
   Filter, 
   Eye, 
-  Edit, 
   Package, 
-  TrendingUp, 
   Users, 
   DollarSign,
   CalendarDays,
@@ -24,9 +21,9 @@ import {
   CheckCircle2,
   Truck,
   XCircle,
-  AlertTriangle,
-  Download,
-  RefreshCw
+  RefreshCw,
+  User,
+  Mail
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -146,7 +143,6 @@ const AdminOrders = () => {
     }
   };
 
-  // Filter orders based on search and filters
   const filteredOrders = orders.filter(order => {
     const matchesSearch = 
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -180,7 +176,6 @@ const AdminOrders = () => {
     return matchesSearch && matchesStatus && matchesDate;
   });
 
-  // Calculate statistics
   const stats = {
     total: orders.length,
     pending: orders.filter(o => o.status === 'pending').length,
@@ -222,7 +217,7 @@ const AdminOrders = () => {
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">Orders Management</h1>
-            <p className="text-green-100">Track and manage all customer orders</p>
+            <p className="text-green-100">Comprehensive order tracking and customer management</p>
           </div>
           <Button 
             variant="secondary" 
@@ -293,7 +288,7 @@ const AdminOrders = () => {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
-                    placeholder="Search orders, customers, or materials..."
+                    placeholder="Search by order ID, customer name, email, or material..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -336,13 +331,13 @@ const AdminOrders = () => {
           </CardContent>
         </Card>
 
-        {/* Orders Table */}
+        {/* Enhanced Orders Table */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Orders ({filteredOrders.length})</span>
+              <span>Customer Orders ({filteredOrders.length})</span>
             </CardTitle>
-            <CardDescription>Manage all customer orders and their status</CardDescription>
+            <CardDescription>Detailed view of all customer orders with comprehensive information</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -366,46 +361,76 @@ const AdminOrders = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Order Details</TableHead>
-                      <TableHead>Customer</TableHead>
-                      <TableHead>Items</TableHead>
-                      <TableHead>Amount</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
+                      <TableHead className="w-32">Order ID</TableHead>
+                      <TableHead className="w-48">Customer Details</TableHead>
+                      <TableHead className="w-64">Materials Ordered</TableHead>
+                      <TableHead className="w-24">Amount</TableHead>
+                      <TableHead className="w-32">Status</TableHead>
+                      <TableHead className="w-32">Order Date</TableHead>
+                      <TableHead className="text-right w-24">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filteredOrders.map((order) => (
                       <TableRow key={order.id} className="hover:bg-gray-50">
                         <TableCell>
-                          <div>
+                          <div className="font-mono text-sm">
                             <p className="font-medium">#{order.id.slice(0, 8)}</p>
-                            {order.phone && (
-                              <p className="text-sm text-gray-500 flex items-center gap-1">
-                                <Phone className="h-3 w-3" />
-                                {order.phone}
-                              </p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{order.profiles?.full_name || 'N/A'}</p>
-                            <p className="text-sm text-gray-500">{order.profiles?.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}</p>
-                            <p className="text-sm text-gray-500">
-                              {order.order_items.slice(0, 2).map(item => item.materials.title).join(', ')}
-                              {order.order_items.length > 2 && '...'}
+                            <p className="text-xs text-gray-500">
+                              {format(new Date(order.created_at), 'HH:mm')}
                             </p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <p className="font-semibold text-green-600">₹{order.total_amount.toLocaleString()}</p>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-blue-600" />
+                              <span className="font-medium text-blue-900">
+                                {order.profiles?.full_name || 'Anonymous User'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Mail className="h-3 w-3 text-gray-500" />
+                              <span className="text-sm text-gray-600">{order.profiles?.email}</span>
+                            </div>
+                            {order.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-gray-500" />
+                                <span className="text-sm text-gray-600">{order.phone}</span>
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="space-y-2">
+                            {order.order_items.map((item, index) => (
+                              <div key={item.id} className="bg-gray-50 p-2 rounded-lg border-l-4 border-blue-400">
+                                <div className="flex justify-between items-start">
+                                  <div className="flex-1">
+                                    <p className="font-medium text-sm text-blue-900">{item.materials.title}</p>
+                                    <div className="flex gap-4 text-xs text-gray-600 mt-1">
+                                      <span className="bg-blue-100 px-2 py-1 rounded">
+                                        {item.materials.category.replace('_', ' ')}
+                                      </span>
+                                      <span>{item.materials.format}</span>
+                                      <span>Qty: {item.quantity}</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="font-semibold text-green-600 text-sm">
+                                      ₹{(item.price * item.quantity).toLocaleString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="text-center">
+                            <p className="font-bold text-lg text-green-600">₹{order.total_amount.toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">{order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}</p>
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Select
@@ -413,11 +438,9 @@ const AdminOrders = () => {
                             onValueChange={(value) => handleStatusUpdate(order.id, value)}
                           >
                             <SelectTrigger className="w-32">
-                              <Badge className={getStatusColor(order.status)}>
-                                <div className="flex items-center gap-1">
-                                  {getStatusIcon(order.status)}
-                                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                </div>
+                              <Badge className={`${getStatusColor(order.status)} flex items-center gap-1`}>
+                                {getStatusIcon(order.status)}
+                                <span className="capitalize">{order.status}</span>
                               </Badge>
                             </SelectTrigger>
                             <SelectContent>
@@ -430,9 +453,14 @@ const AdminOrders = () => {
                           </Select>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <CalendarDays className="h-3 w-3" />
-                            {format(new Date(order.created_at), 'MMM dd, yyyy')}
+                          <div className="text-sm">
+                            <div className="flex items-center gap-1 font-medium">
+                              <CalendarDays className="h-3 w-3" />
+                              {format(new Date(order.created_at), 'MMM dd')}
+                            </div>
+                            <p className="text-xs text-gray-500">
+                              {format(new Date(order.created_at), 'yyyy')}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -441,6 +469,7 @@ const AdminOrders = () => {
                               variant="outline" 
                               size="sm" 
                               onClick={() => handleViewDetails(order)}
+                              className="hover:bg-blue-50"
                             >
                               <Eye className="h-3 w-3" />
                             </Button>
@@ -455,11 +484,14 @@ const AdminOrders = () => {
           </CardContent>
         </Card>
 
-        {/* Order Details Modal */}
+        {/* Enhanced Order Details Modal */}
         <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Order Details - #{selectedOrder?.id.slice(0, 8)}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Package className="h-5 w-5 text-blue-600" />
+                Order Details - #{selectedOrder?.id.slice(0, 8)}
+              </DialogTitle>
               <DialogDescription>
                 Complete order information and customer details
               </DialogDescription>
@@ -467,73 +499,124 @@ const AdminOrders = () => {
             
             {selectedOrder && (
               <div className="space-y-6">
-                {/* Customer Info */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Customer Information</CardTitle>
+                {/* Customer Information Card */}
+                <Card className="border-l-4 border-blue-500">
+                  <CardHeader className="bg-blue-50">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <User className="h-5 w-5 text-blue-600" />
+                      Customer Information
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Name</label>
-                        <p className="font-medium">{selectedOrder.profiles?.full_name || 'N/A'}</p>
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            Full Name
+                          </label>
+                          <p className="font-semibold text-lg">{selectedOrder.profiles?.full_name || 'Not provided'}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            Email Address
+                          </label>
+                          <p className="font-medium">{selectedOrder.profiles?.email}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            Phone Number
+                          </label>
+                          <p className="font-medium">{selectedOrder.phone || 'Not provided'}</p>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Email</label>
-                        <p className="font-medium">{selectedOrder.profiles?.email}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Phone</label>
-                        <p className="font-medium">{selectedOrder.phone || 'N/A'}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Order Date</label>
-                        <p className="font-medium">{format(new Date(selectedOrder.created_at), 'MMM dd, yyyy HH:mm')}</p>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
+                            <CalendarDays className="h-3 w-3" />
+                            Order Date & Time
+                          </label>
+                          <p className="font-medium">{format(new Date(selectedOrder.created_at), 'MMM dd, yyyy HH:mm:ss')}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Order Status</label>
+                          <Badge className={`${getStatusColor(selectedOrder.status)} mt-1`}>
+                            <div className="flex items-center gap-1">
+                              {getStatusIcon(selectedOrder.status)}
+                              <span className="capitalize">{selectedOrder.status}</span>
+                            </div>
+                          </Badge>
+                        </div>
                       </div>
                     </div>
+                    
                     {selectedOrder.shipping_address && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Shipping Address</label>
-                        <p className="font-medium flex items-start gap-2">
-                          <MapPin className="h-4 w-4 mt-1 text-gray-400" />
-                          {selectedOrder.shipping_address}
-                        </p>
+                      <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
+                        <label className="text-sm font-medium text-blue-900 flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          Shipping Address
+                        </label>
+                        <p className="font-medium text-blue-800 mt-1">{selectedOrder.shipping_address}</p>
                       </div>
                     )}
+                    
                     {selectedOrder.notes && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Order Notes</label>
-                        <p className="font-medium">{selectedOrder.notes}</p>
+                      <div className="mt-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
+                        <label className="text-sm font-medium text-yellow-900">Special Notes</label>
+                        <p className="font-medium text-yellow-800 mt-1">{selectedOrder.notes}</p>
                       </div>
                     )}
                   </CardContent>
                 </Card>
 
-                {/* Order Items */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Order Items</CardTitle>
+                {/* Order Items Card */}
+                <Card className="border-l-4 border-green-500">
+                  <CardHeader className="bg-green-50">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Package className="h-5 w-5 text-green-600" />
+                      Materials Ordered ({selectedOrder.order_items.length} items)
+                    </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {selectedOrder.order_items.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                          <div>
-                            <p className="font-medium">{item.materials.title}</p>
-                            <p className="text-sm text-gray-500">
-                              {item.materials.category.replace('_', ' ')} • {item.materials.format}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-medium">₹{item.price.toLocaleString()} × {item.quantity}</p>
-                            <p className="text-sm text-gray-500">₹{(item.price * item.quantity).toLocaleString()}</p>
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      {selectedOrder.order_items.map((item, index) => (
+                        <div key={item.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg text-blue-900">{item.materials.title}</h4>
+                              <div className="flex gap-4 mt-2">
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  Category: {item.materials.category.replace('_', ' ')}
+                                </span>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                  Format: {item.materials.format}
+                                </span>
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                  Quantity: {item.quantity}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-gray-600">Unit Price: ₹{item.price.toLocaleString()}</div>
+                              <div className="text-lg font-bold text-green-600">
+                                Total: ₹{(item.price * item.quantity).toLocaleString()}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       ))}
-                      <div className="border-t pt-3 mt-3">
-                        <div className="flex justify-between items-center">
-                          <p className="text-lg font-semibold">Total Amount</p>
-                          <p className="text-xl font-bold text-green-600">₹{selectedOrder.total_amount.toLocaleString()}</p>
+                      
+                      <div className="border-t-2 border-gray-200 pt-4 mt-6">
+                        <div className="flex justify-between items-center bg-green-50 p-4 rounded-lg">
+                          <div>
+                            <p className="text-lg font-semibold text-green-900">Total Order Amount</p>
+                            <p className="text-sm text-green-700">{selectedOrder.order_items.length} item{selectedOrder.order_items.length !== 1 ? 's' : ''} ordered</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-green-600">₹{selectedOrder.total_amount.toLocaleString()}</p>
+                          </div>
                         </div>
                       </div>
                     </div>

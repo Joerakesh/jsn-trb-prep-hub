@@ -1,86 +1,95 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Award, BookOpen, Target, Eye, Heart, Star, Calendar, CheckCircle, TrendingUp, Globe, User } from "lucide-react";
+import { Users, Award, BookOpen, Target, Eye, Heart, Star, Calendar, User, GraduationCap, MapPin, Phone, Mail, Clock, Trophy, Lightbulb, Globe } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 
 const About = () => {
   const achievements = [
-    { icon: Users, count: "5000+", label: "Students Trained", color: "text-blue-600" },
-    { icon: Award, count: "95%", label: "Success Rate", color: "text-green-600" },
-    { icon: BookOpen, count: "50+", label: "Study Materials", color: "text-purple-600" },
+    { icon: Users, count: "8000+", label: "Students Taught", color: "text-blue-600" },
+    { icon: Award, count: "20+", label: "Years Experience", color: "text-green-600" },
+    { icon: BookOpen, count: "100+", label: "Study Materials", color: "text-purple-600" },
     { icon: Star, count: "4.9/5", label: "Student Rating", color: "text-yellow-600" }
   ];
 
+  const qualifications = [
+    "M.A. English Literature",
+    "B.Ed. (Bachelor of Education)",
+    "NET Qualified (National Eligibility Test)",
+    "TRB Specialist with 20+ Years Experience",
+    "Expert in English Grammar & Composition",
+    "Curriculum Development Specialist"
+  ];
+
+  const expertise = [
+    { area: "English Literature", years: "20+ Years", icon: BookOpen },
+    { area: "TRB Coaching", years: "15+ Years", icon: GraduationCap },
+    { area: "Grammar & Composition", years: "20+ Years", icon: Star },
+    { area: "Competitive Exams", years: "18+ Years", icon: Trophy }
+  ];
+
   const milestones = [
-    { year: "2018", title: "JSN Academy Founded", description: "Started with a vision to make quality education accessible to all" },
-    { year: "2019", title: "First 100 Students", description: "Reached our first milestone of 100 successful students" },
-    { year: "2020", title: "Digital Transformation", description: "Adapted to online learning during challenging times" },
-    { year: "2021", title: "Material Excellence", description: "Launched comprehensive study material program" },
-    { year: "2022", title: "Community Growth", description: "Built a strong community of 1000+ active learners" },
-    { year: "2023", title: "Recognition & Awards", description: "Received excellence awards from educational institutions" },
-    { year: "2024", title: "Innovation Leader", description: "Leading with innovative teaching methodologies and technology" }
+    { year: "2004", title: "Teaching Career Began", description: "Started teaching English at Government Higher Secondary School" },
+    { year: "2008", title: "TRB Specialization", description: "Began specializing in TRB coaching and preparation materials" },
+    { year: "2012", title: "First 1000 Students", description: "Successfully trained over 1000 students for TRB examinations" },
+    { year: "2015", title: "Digital Innovation", description: "Introduced online learning materials and digital resources" },
+    { year: "2018", title: "JSN English Academy", description: "Established JSN English Academy for comprehensive TRB preparation" },
+    { year: "2020", title: "Online Excellence", description: "Seamlessly transitioned to online teaching during pandemic" },
+    { year: "2022", title: "5000+ Success Stories", description: "Reached milestone of 5000+ successful TRB qualifiers" },
+    { year: "2024", title: "Educational Leadership", description: "Recognized as leading educator in Tamil Nadu TRB preparation" }
   ];
 
-  const teamMembers = [
+  const teachingPhilosophy = [
     {
-      name: "JSN Sir",
-      role: "Founder & Chief Educator",
-      description: "20+ years of experience in English education and TRB preparation",
-      expertise: ["English Literature", "Grammar & Composition", "TRB Coaching", "Curriculum Development"]
+      principle: "Student-Centered Learning",
+      description: "Every student has unique potential that deserves personalized attention and care.",
+      icon: Heart
     },
     {
-      name: "Expert Faculty",
-      role: "Teaching Team",
-      description: "Dedicated team of qualified educators with proven track records",
-      expertise: ["Subject Matter Experts", "Exam Strategy", "Student Mentoring", "Content Creation"]
-    }
-  ];
-
-  const values = [
-    {
-      icon: Target,
-      title: "Excellence",
-      description: "We strive for excellence in everything we do, from our teaching methods to student support."
+      principle: "Excellence Through Practice",
+      description: "Consistent practice and dedication are the keys to mastering English and succeeding in TRB.",
+      icon: Target
     },
     {
-      icon: Heart,
-      title: "Care",
-      description: "Every student matters to us. We provide personalized attention and care for each learner."
+      principle: "Innovative Teaching Methods",
+      description: "Combining traditional wisdom with modern teaching techniques for effective learning.",
+      icon: Lightbulb
     },
     {
-      icon: CheckCircle,
-      title: "Integrity",
-      description: "We maintain the highest standards of integrity in our educational practices and student relationships."
-    },
-    {
-      icon: TrendingUp,
-      title: "Growth",
-      description: "We believe in continuous growth - both for our students and our educational methodologies."
+      principle: "Holistic Development",
+      description: "Building not just academic excellence but also confidence and communication skills.",
+      icon: Globe
     }
   ];
 
   return (
     <div className="min-h-screen bg-gray-50">
       <SEOHead 
-        title="About Us - JSN English Academy"
-        description="Learn about JSN English Academy's mission to provide quality English education and TRB preparation. Discover our story, values, and commitment to student success."
-        keywords="JSN English Academy, about us, English education, TRB coaching, educational excellence, student success"
+        title="About Jerald Sagaya - JSN English Academy"
+        description="Learn about Jerald Sagaya (JSN Sir), the founder of JSN English Academy with 20+ years of experience in English education and TRB coaching. Discover his qualifications, teaching philosophy, and commitment to student success."
+        keywords="Jerald Sagaya, JSN Sir, English teacher, TRB coach, Tamil Nadu, English education, educational excellence"
       />
       <Navigation />
       
       <div className="container mx-auto px-4 py-16 animate-fade-in">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 animate-slide-in-left">
-              About JSN English Academy
+            <div className="mb-8">
+              <div className="w-32 h-32 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <User className="h-16 w-16 text-white" />
+              </div>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 animate-slide-in-left">
+              Jerald Sagaya
             </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed animate-slide-in-right">
-              Empowering students with quality English education and comprehensive TRB preparation for over 6 years.
-              Our commitment to excellence has helped thousands of students achieve their academic and career goals.
+            <p className="text-2xl text-blue-600 font-semibold mb-4">JSN Sir - Founder & Chief Educator</p>
+            <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in-right">
+              With over 20 years of dedicated experience in English education and TRB coaching, 
+              JSN Sir has transformed the lives of thousands of students across Tamil Nadu through 
+              innovative teaching methods and unwavering commitment to educational excellence.
             </p>
           </div>
 
@@ -89,7 +98,7 @@ const About = () => {
             {achievements.map((achievement, index) => {
               const IconComponent = achievement.icon;
               return (
-                <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
+                <Card key={index} className="text-center hover:shadow-xl transition-all duration-300 hover:scale-105 border-t-4 border-blue-500">
                   <CardContent className="pt-6">
                     <IconComponent className={`h-12 w-12 mx-auto mb-4 ${achievement.color}`} />
                     <div className="text-3xl font-bold text-gray-900 mb-2">{achievement.count}</div>
@@ -100,53 +109,65 @@ const About = () => {
             })}
           </div>
 
-          {/* Mission & Vision */}
+          {/* Professional Background */}
           <div className="grid md:grid-cols-2 gap-8 mb-16">
-            <Card className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
+            <Card className="hover:shadow-xl transition-shadow duration-300 border-l-4 border-blue-500">
+              <CardHeader className="bg-blue-50">
                 <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Target className="h-6 w-6 text-blue-600" />
-                  Our Mission
+                  <GraduationCap className="h-6 w-6 text-blue-600" />
+                  Educational Background
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 leading-relaxed">
-                  To provide comprehensive, accessible, and high-quality English education that empowers students 
-                  to excel in their academic pursuits and professional careers. We are committed to making 
-                  TRB preparation effective, engaging, and result-oriented for every student.
-                </p>
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  {qualifications.map((qualification, index) => (
+                    <div key={index} className="flex items-center gap-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <p className="text-gray-700 font-medium">{qualification}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
+            <Card className="hover:shadow-xl transition-shadow duration-300 border-l-4 border-purple-500">
+              <CardHeader className="bg-purple-50">
                 <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Eye className="h-6 w-6 text-purple-600" />
-                  Our Vision
+                  <Star className="h-6 w-6 text-purple-600" />
+                  Areas of Expertise
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 leading-relaxed">
-                  To be the leading educational institution that transforms English learning experiences 
-                  and sets new standards in TRB preparation. We envision a future where every student 
-                  has access to quality education and achieves their full potential.
-                </p>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  {expertise.map((exp, index) => {
+                    const IconComponent = exp.icon;
+                    return (
+                      <div key={index} className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <IconComponent className="h-5 w-5 text-purple-600" />
+                          <span className="font-medium">{exp.area}</span>
+                        </div>
+                        <Badge variant="secondary">{exp.years}</Badge>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </div>
 
-          {/* Our Values */}
+          {/* Teaching Philosophy */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Our Core Values</h2>
+            <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">Teaching Philosophy</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {values.map((value, index) => {
-                const IconComponent = value.icon;
+              {teachingPhilosophy.map((philosophy, index) => {
+                const IconComponent = philosophy.icon;
                 return (
-                  <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:scale-105">
+                  <Card key={index} className="text-center hover:shadow-xl transition-all duration-300 hover:scale-105 border-t-4 border-green-500">
                     <CardContent className="pt-6">
-                      <IconComponent className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-                      <h3 className="text-xl font-semibold text-gray-900 mb-3">{value.title}</h3>
-                      <p className="text-sm text-gray-600 leading-relaxed">{value.description}</p>
+                      <IconComponent className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">{philosophy.principle}</h3>
+                      <p className="text-sm text-gray-600 leading-relaxed">{philosophy.description}</p>
                     </CardContent>
                   </Card>
                 );
@@ -154,83 +175,106 @@ const About = () => {
             </div>
           </div>
 
-          {/* Our Journey Timeline */}
+          {/* Professional Journey Timeline */}
           <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Our Journey</h2>
-            <div className="space-y-8">
-              {milestones.map((milestone, index) => (
-                <div key={index} className="flex items-start gap-6 hover:bg-white p-6 rounded-lg transition-colors duration-300">
-                  <div className="flex-shrink-0">
-                    <div className="w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-lg">
+            <h2 className="text-4xl font-bold text-center text-gray-900 mb-12">Professional Journey</h2>
+            <div className="relative">
+              <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-blue-300"></div>
+              <div className="space-y-8">
+                {milestones.map((milestone, index) => (
+                  <div key={index} className="flex items-start gap-6 relative">
+                    <div className="flex-shrink-0 w-16 h-16 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm z-10 border-4 border-white shadow-lg">
                       {milestone.year}
                     </div>
+                    <Card className="flex-grow hover:shadow-lg transition-shadow duration-300">
+                      <CardContent className="pt-6">
+                        <h3 className="text-xl font-semibold text-blue-900 mb-2">{milestone.title}</h3>
+                        <p className="text-gray-600 leading-relaxed">{milestone.description}</p>
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="flex-grow">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{milestone.title}</h3>
-                    <p className="text-gray-600 leading-relaxed">{milestone.description}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Our Team */}
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Meet Our Team</h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              {teamMembers.map((member, index) => (
-                <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader>
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
-                        <User className="h-8 w-8 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-xl">{member.name}</CardTitle>
-                        <CardDescription className="text-blue-600 font-medium">{member.role}</CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 mb-4">{member.description}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {member.expertise.map((skill, skillIndex) => (
-                        <Badge key={skillIndex} variant="secondary" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          {/* Personal Mission & Vision */}
+          <div className="grid md:grid-cols-2 gap-8 mb-16">
+            <Card className="hover:shadow-xl transition-shadow duration-300 border-t-4 border-green-500">
+              <CardHeader className="bg-green-50">
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Target className="h-6 w-6 text-green-600" />
+                  My Mission
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-gray-600 leading-relaxed text-lg">
+                  To make quality English education accessible to every aspiring teacher in Tamil Nadu. 
+                  My mission is to empower students with comprehensive TRB preparation that goes beyond 
+                  exam success to build confident, competent educators who will shape future generations.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-xl transition-shadow duration-300 border-t-4 border-indigo-500">
+              <CardHeader className="bg-indigo-50">
+                <CardTitle className="flex items-center gap-2 text-2xl">
+                  <Eye className="h-6 w-6 text-indigo-600" />
+                  My Vision
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <p className="text-gray-600 leading-relaxed text-lg">
+                  To be recognized as the most trusted mentor for TRB aspirants, creating a legacy 
+                  of successful educators who carry forward the values of excellence, integrity, 
+                  and dedication in the field of English education across Tamil Nadu and beyond.
+                </p>
+              </CardContent>
+            </Card>
           </div>
 
-          {/* Why Choose Us */}
-          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-            <CardHeader>
-              <CardTitle className="text-3xl text-center text-gray-900 mb-4">Why Choose JSN English Academy?</CardTitle>
+          {/* Contact Information */}
+          <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 border-2">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl text-gray-900 mb-4">Connect with JSN Sir</CardTitle>
+              <CardDescription className="text-lg text-gray-600">
+                Ready to begin your journey to TRB success? Get in touch today!
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <Globe className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Comprehensive Coverage</h3>
-                  <p className="text-sm text-gray-600">Complete TRB syllabus coverage with detailed study materials</p>
+              <div className="grid md:grid-cols-3 gap-8 text-center">
+                <div className="space-y-3">
+                  <MapPin className="h-12 w-12 text-blue-600 mx-auto" />
+                  <h3 className="font-semibold text-gray-900 text-lg">Location</h3>
+                  <p className="text-gray-600">Tamil Nadu, India</p>
+                  <p className="text-sm text-gray-500">Serving students across the state</p>
                 </div>
-                <div className="text-center">
-                  <Award className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Proven Results</h3>
-                  <p className="text-sm text-gray-600">95% success rate with thousands of satisfied students</p>
+                <div className="space-y-3">
+                  <Clock className="h-12 w-12 text-green-600 mx-auto" />
+                  <h3 className="font-semibold text-gray-900 text-lg">Teaching Hours</h3>
+                  <p className="text-gray-600">20+ Years of Experience</p>
+                  <p className="text-sm text-gray-500">Dedicated to student success</p>
                 </div>
-                <div className="text-center">
-                  <Heart className="h-12 w-12 text-red-600 mx-auto mb-4" />
-                  <h3 className="font-semibold text-gray-900 mb-2">Personal Attention</h3>
-                  <p className="text-sm text-gray-600">Individual guidance and personalized learning approach</p>
+                <div className="space-y-3">
+                  <Trophy className="h-12 w-12 text-yellow-600 mx-auto" />
+                  <h3 className="font-semibold text-gray-900 text-lg">Success Rate</h3>
+                  <p className="text-gray-600">95% Pass Rate</p>
+                  <p className="text-sm text-gray-500">Proven track record of excellence</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {/* Call to Action */}
+          <div className="text-center mt-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">
+              Join Thousands of Successful TRB Qualifiers
+            </h2>
+            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+              Experience the difference that personalized attention, expert guidance, 
+              and 20+ years of teaching excellence can make in your TRB preparation journey.
+            </p>
+          </div>
         </div>
       </div>
 
