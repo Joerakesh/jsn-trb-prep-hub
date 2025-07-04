@@ -162,7 +162,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       };
 
-      const rzp = new (window as any).Razorpay(options);
+      const rzp = new window.Razorpay(options);
       
       rzp.on('payment.failed', (response: any) => {
         console.error('Payment failed:', response.error);
