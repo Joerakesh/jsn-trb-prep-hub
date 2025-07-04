@@ -12,7 +12,15 @@ serve(async (req) => {
   }
 
   try {
-    const { amount, currency, receipt } = await req.json()
+    const requestData = await req.json()
+    console.log('Received payment request:', requestData)
+
+    const { amount, currency, receipt } = requestData
+
+    // Validate required fields
+    if (!amount || amount <= 0) {
+      throw new Error('Invalid amount provided')
+    }
 
     console.log('Creating Razorpay order:', { amount, currency, receipt })
 
@@ -21,15 +29,15 @@ serve(async (req) => {
 
     if (!keyId || !keySecret) {
       console.error('Razorpay credentials not configured')
-      throw new Error('Razorpay credentials not configured')
+      throw new Error('Payment service configuration error')
     }
 
     const auth = btoa(`${keyId}:${keySecret}`)
 
     const orderData = {
-      amount: parseInt(amount),
+      amount: Math.round(Number(amount)), // Ensure it's an integer
       currency: currency || 'INR',
-      receipt: receipt,
+      receipt: receipt || `order_${Date.now()}`,
       payment_capture: 1
     }
 
@@ -45,15 +53,18 @@ serve(async (req) => {
     })
 
     const responseText = await response.text()
-    console.log('Razorpay response:', responseText)
+    console.log('Razorpay API response status:', response.status)
+    console.log('Razorpay API response:', responseText)
 
     if (!response.ok) {
-      let errorMessage = 'Failed to create order'
+      let errorMessage = 'Failed to create payment order'
       try {
         const errorData = JSON.parse(responseText)
-        errorMessage = errorData.error?.description || errorMessage
+        errorMessage = errorData.error?.description || errorData.message || errorMessage
+        console.error('Razorpay API error:', errorData)
       } catch (e) {
-        errorMessage = responseText || errorMessage
+        console.error('Failed to parse error response:', e)
+        errorMessage = `HTTP ${response.status}: ${responseText}`
       }
       throw new Error(errorMessage)
     }
@@ -62,7 +73,11 @@ serve(async (req) => {
     console.log('Order created successfully:', order)
 
     return new Response(
-      JSON.stringify({ success: true, order }),
+      JSON.stringify({ 
+        success: true, 
+        order: order,
+        message: 'Order created successfully' 
+      }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -73,7 +88,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: false, 
-        error: error.message || 'Failed to create order'
+        error: error.message || 'Failed to create payment order',
+        details: error.toString()
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

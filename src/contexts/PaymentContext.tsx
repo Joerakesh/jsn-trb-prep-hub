@@ -44,8 +44,13 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
     try {
       console.log('Creating payment for material:', materialId, 'amount:', amount);
       
+      // Validate amount
+      if (!amount || amount <= 0) {
+        throw new Error('Invalid amount specified');
+      }
+
       // Create Razorpay order using Supabase Edge Function
-      const { data: orderData, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
+      const { data: orderResponse, error: orderError } = await supabase.functions.invoke('create-razorpay-order', {
         body: {
           amount: Math.round(amount * 100), // Convert to paisa and ensure integer
           currency: 'INR',
@@ -53,17 +58,20 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
       });
 
+      console.log('Order creation response:', orderResponse);
+
       if (orderError) {
-        console.error('Error creating order:', orderError);
-        throw new Error(orderError.message || 'Failed to create payment order');
+        console.error('Supabase function error:', orderError);
+        throw new Error(`Payment service error: ${orderError.message}`);
       }
 
-      if (!orderData?.success || !orderData?.order) {
-        console.error('Invalid order response:', orderData);
-        throw new Error('Failed to create payment order');
+      if (!orderResponse || !orderResponse.success || !orderResponse.order) {
+        console.error('Invalid order response:', orderResponse);
+        const errorMsg = orderResponse?.error || 'Failed to create payment order';
+        throw new Error(errorMsg);
       }
 
-      console.log('Order created successfully:', orderData.order);
+      console.log('Order created successfully:', orderResponse.order);
 
       // Store payment record in database with shipping details
       const { error: paymentError } = await supabase
@@ -71,7 +79,7 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
         .insert({
           user_id: user.id,
           material_id: materialId,
-          razorpay_order_id: orderData.order.id,
+          razorpay_order_id: orderResponse.order.id,
           amount: amount,
           currency: 'INR',
           status: 'created'
@@ -105,11 +113,11 @@ export const PaymentProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Initialize Razorpay
       const options = {
         key: RAZORPAY_CONFIG.KEY_ID,
-        amount: orderData.order.amount,
-        currency: orderData.order.currency,
+        amount: orderResponse.order.amount,
+        currency: orderResponse.order.currency,
         name: 'JSN English Academy',
         description: 'Purchase educational material',
-        order_id: orderData.order.id,
+        order_id: orderResponse.order.id,
         handler: async (response: any) => {
           console.log('Payment response:', response);
           
