@@ -43,13 +43,13 @@ interface Order {
   status: OrderStatus;
   created_at: string;
   updated_at: string;
-  shipping_address: string;
-  phone: string;
-  notes: string;
+  shipping_address: string | null;
+  phone: string | null;
+  notes: string | null;
   profiles: {
-    full_name: string;
-    email: string;
-  };
+    full_name: string | null;
+    email: string | null;
+  } | null;
   order_items: Array<{
     id: string;
     quantity: number;
@@ -57,7 +57,8 @@ interface Order {
     materials: {
       title: string;
       category: string;
-      format: string;
+      format: string | null;
+      pages: number | null;
     };
   }>;
 }
@@ -74,26 +75,35 @@ const AdminOrders = () => {
   const { data: orders = [], isLoading, refetch } = useQuery({
     queryKey: ['admin-orders'],
     queryFn: async () => {
+      console.log('Fetching orders with details...');
       const { data, error } = await supabase
         .from('orders')
         .select(`
           *,
-          profiles (
+          profiles!orders_user_id_fkey (
             full_name,
             email
           ),
           order_items (
-            *,
+            id,
+            quantity,
+            price,
             materials (
               title,
               category,
-              format
+              format,
+              pages
             )
           )
         `)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching orders:', error);
+        throw error;
+      }
+      
+      console.log('Orders fetched:', data);
       return data as Order[];
     },
     enabled: isAdmin
@@ -389,10 +399,12 @@ const AdminOrders = () => {
                                 {order.profiles?.full_name || 'Anonymous User'}
                               </span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Mail className="h-3 w-3 text-gray-500" />
-                              <span className="text-sm text-gray-600">{order.profiles?.email}</span>
-                            </div>
+                            {order.profiles?.email && (
+                              <div className="flex items-center gap-2">
+                                <Mail className="h-3 w-3 text-gray-500" />
+                                <span className="text-sm text-gray-600">{order.profiles.email}</span>
+                              </div>
+                            )}
                             {order.phone && (
                               <div className="flex items-center gap-2">
                                 <Phone className="h-3 w-3 text-gray-500" />
@@ -403,33 +415,53 @@ const AdminOrders = () => {
                         </TableCell>
                         <TableCell>
                           <div className="space-y-2">
-                            {order.order_items.map((item, index) => (
-                              <div key={item.id} className="bg-gray-50 p-2 rounded-lg border-l-4 border-blue-400">
-                                <div className="flex justify-between items-start">
-                                  <div className="flex-1">
-                                    <p className="font-medium text-sm text-blue-900">{item.materials.title}</p>
-                                    <div className="flex gap-4 text-xs text-gray-600 mt-1">
-                                      <span className="bg-blue-100 px-2 py-1 rounded">
-                                        {item.materials.category.replace('_', ' ')}
-                                      </span>
-                                      <span>{item.materials.format}</span>
-                                      <span>Qty: {item.quantity}</span>
+                            {order.order_items && order.order_items.length > 0 ? (
+                              order.order_items.map((item, index) => (
+                                <div key={item.id} className="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                  <div className="flex justify-between items-start">
+                                    <div className="flex-1">
+                                      <p className="font-medium text-sm text-blue-900">{item.materials.title}</p>
+                                      <div className="flex gap-3 text-xs text-gray-600 mt-1 flex-wrap">
+                                        <span className="bg-blue-100 px-2 py-1 rounded-full">
+                                          {item.materials.category.replace('_', ' ')}
+                                        </span>
+                                        {item.materials.format && (
+                                          <span className="bg-green-100 px-2 py-1 rounded-full">
+                                            {item.materials.format}
+                                          </span>
+                                        )}
+                                        {item.materials.pages && (
+                                          <span className="bg-purple-100 px-2 py-1 rounded-full">
+                                            {item.materials.pages} pages
+                                          </span>
+                                        )}
+                                        <span className="bg-orange-100 px-2 py-1 rounded-full">
+                                          Qty: {item.quantity}
+                                        </span>
+                                      </div>
+                                    </div>
+                                    <div className="text-right ml-2">
+                                      <p className="font-semibold text-green-600 text-sm">
+                                        ₹{(item.price * item.quantity).toLocaleString()}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        ₹{item.price}/item
+                                      </p>
                                     </div>
                                   </div>
-                                  <div className="text-right">
-                                    <p className="font-semibold text-green-600 text-sm">
-                                      ₹{(item.price * item.quantity).toLocaleString()}
-                                    </p>
-                                  </div>
                                 </div>
+                              ))
+                            ) : (
+                              <div className="bg-red-50 p-3 rounded-lg border-l-4 border-red-400">
+                                <p className="text-red-700 text-sm">No items found for this order</p>
                               </div>
-                            ))}
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-center">
-                            <p className="font-bold text-lg text-green-600">₹{order.total_amount.toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">{order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}</p>
+                            <p className="font-bold text-lg text-green-600">₹{Number(order.total_amount).toLocaleString()}</p>
+                            <p className="text-xs text-gray-500">{order.order_items?.length || 0} item{(order.order_items?.length || 0) !== 1 ? 's' : ''}</p>
                           </div>
                         </TableCell>
                         <TableCell>
@@ -522,7 +554,7 @@ const AdminOrders = () => {
                             <Mail className="h-3 w-3" />
                             Email Address
                           </label>
-                          <p className="font-medium">{selectedOrder.profiles?.email}</p>
+                          <p className="font-medium">{selectedOrder.profiles?.email || 'Not provided'}</p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
@@ -576,46 +608,60 @@ const AdminOrders = () => {
                   <CardHeader className="bg-green-50">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Package className="h-5 w-5 text-green-600" />
-                      Materials Ordered ({selectedOrder.order_items.length} items)
+                      Materials Ordered ({selectedOrder.order_items?.length || 0} items)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      {selectedOrder.order_items.map((item, index) => (
-                        <div key={item.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <h4 className="font-semibold text-lg text-blue-900">{item.materials.title}</h4>
-                              <div className="flex gap-4 mt-2">
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                  Category: {item.materials.category.replace('_', ' ')}
-                                </span>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                                  Format: {item.materials.format}
-                                </span>
-                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                  Quantity: {item.quantity}
-                                </span>
+                      {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
+                        selectedOrder.order_items.map((item, index) => (
+                          <div key={item.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div className="flex justify-between items-start">
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg text-blue-900">{item.materials.title}</h4>
+                                <div className="flex gap-4 mt-2 flex-wrap">
+                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    Category: {item.materials.category.replace('_', ' ')}
+                                  </span>
+                                  {item.materials.format && (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                      Format: {item.materials.format}
+                                    </span>
+                                  )}
+                                  {item.materials.pages && (
+                                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                      Pages: {item.materials.pages}
+                                    </span>
+                                  )}
+                                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                                    Quantity: {item.quantity}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm text-gray-600">Unit Price: ₹{item.price.toLocaleString()}</div>
-                              <div className="text-lg font-bold text-green-600">
-                                Total: ₹{(item.price * item.quantity).toLocaleString()}
+                              <div className="text-right ml-4">
+                                <div className="text-sm text-gray-600">Unit Price: ₹{Number(item.price).toLocaleString()}</div>
+                                <div className="text-lg font-bold text-green-600">
+                                  Total: ₹{(Number(item.price) * item.quantity).toLocaleString()}
+                                </div>
                               </div>
                             </div>
                           </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                          <p className="text-gray-600">No materials found for this order</p>
                         </div>
-                      ))}
+                      )}
                       
                       <div className="border-t-2 border-gray-200 pt-4 mt-6">
                         <div className="flex justify-between items-center bg-green-50 p-4 rounded-lg">
                           <div>
                             <p className="text-lg font-semibold text-green-900">Total Order Amount</p>
-                            <p className="text-sm text-green-700">{selectedOrder.order_items.length} item{selectedOrder.order_items.length !== 1 ? 's' : ''} ordered</p>
+                            <p className="text-sm text-green-700">{selectedOrder.order_items?.length || 0} item{(selectedOrder.order_items?.length || 0) !== 1 ? 's' : ''} ordered</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-green-600">₹{selectedOrder.total_amount.toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-green-600">₹{Number(selectedOrder.total_amount).toLocaleString()}</p>
                           </div>
                         </div>
                       </div>
