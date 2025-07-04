@@ -1,15 +1,17 @@
 
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, FileText, BookOpen, Star, AlertCircle, Download } from "lucide-react";
+import { ArrowLeft, CreditCard, FileText, BookOpen, Star, AlertCircle, Download, Shield, Clock, Award } from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import PaymentDialog from "@/components/PaymentDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { usePayment } from "@/contexts/PaymentContext";
+import { usePayment, ShippingDetails } from "@/contexts/PaymentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -31,6 +33,7 @@ const MaterialDetail = () => {
   const navigate = useNavigate();
   const { createPayment, loading: paymentLoading } = usePayment();
   const { user } = useAuth();
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
   const { data: material, isLoading, error } = useQuery({
     queryKey: ['material', id],
@@ -83,16 +86,21 @@ const MaterialDetail = () => {
     enabled: !!user && !!id
   });
 
-  const handlePurchase = async () => {
-    if (!material) return;
-    
+  const handlePurchaseClick = () => {
     if (!user) {
       toast.error('Please login to purchase');
       navigate('/login');
       return;
     }
 
-    await createPayment(material.id, material.price);
+    setPaymentDialogOpen(true);
+  };
+
+  const handlePayment = async (shippingDetails: ShippingDetails) => {
+    if (!material) return;
+    
+    await createPayment(material.id, material.price, shippingDetails);
+    setPaymentDialogOpen(false);
   };
 
   const getCategoryColor = (category: string) => {
@@ -304,7 +312,7 @@ const MaterialDetail = () => {
                         </Button>
                       ) : (
                         <Button 
-                          onClick={handlePurchase}
+                          onClick={handlePurchaseClick}
                           size="lg" 
                           className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 active:scale-95"
                           disabled={paymentLoading}
@@ -321,6 +329,22 @@ const MaterialDetail = () => {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Trust indicators */}
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
+                  <Shield className="h-6 w-6 text-blue-600 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-blue-800">Secure Payment</p>
+                </div>
+                <div className="text-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200">
+                  <Clock className="h-6 w-6 text-green-600 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-green-800">Instant Access</p>
+                </div>
+                <div className="text-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
+                  <Award className="h-6 w-6 text-purple-600 mx-auto mb-2" />
+                  <p className="text-xs font-medium text-purple-800">Quality Content</p>
+                </div>
+              </div>
 
               <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="pt-6">
@@ -349,6 +373,14 @@ const MaterialDetail = () => {
           </div>
         </div>
       </div>
+
+      <PaymentDialog
+        open={paymentDialogOpen}
+        onOpenChange={setPaymentDialogOpen}
+        material={material}
+        onPayment={handlePayment}
+        isProcessing={paymentLoading}
+      />
 
       <Footer />
     </div>
