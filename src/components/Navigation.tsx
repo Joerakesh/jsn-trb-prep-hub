@@ -92,7 +92,7 @@ const Navigation = () => {
           <Link to="/" className="flex items-center space-x-2">
             <BookOpen className="h-8 w-8 text-blue-600" />
             <span className="text-xl font-bold text-gray-900">
-              JSN English Academy
+              JSN English Learning
             </span>
           </Link>
 

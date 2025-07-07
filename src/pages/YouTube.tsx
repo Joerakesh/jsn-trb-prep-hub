@@ -4,7 +4,16 @@ import Footer from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Play, ExternalLink, Users, Video, Eye, Bell, BookOpen } from "lucide-react";
+import {
+  Search,
+  Play,
+  ExternalLink,
+  Users,
+  Video,
+  Eye,
+  Bell,
+  BookOpen,
+} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,25 +30,28 @@ const YouTube = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   const { data: videos = [], isLoading } = useQuery({
-    queryKey: ['youtube-videos'],
+    queryKey: ["youtube-videos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('youtube_videos')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("youtube_videos")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) throw error;
       return data as Video[];
     },
   });
 
-  const filteredVideos = videos.filter(video =>
-    video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    video.description?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredVideos = videos.filter(
+    (video) =>
+      video.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      video.description?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const extractVideoId = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/);
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/
+    );
     return match ? match[1] : null;
   };
 
@@ -66,16 +78,19 @@ const YouTube = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
+
       {/* Enhanced Channel Header Section */}
       <section className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 text-white relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-black/10">
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='nonzero'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-          }} />
+          <div
+            className="absolute inset-0"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05' fill-rule='nonzero'%3E%3Cpath d='m36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
         </div>
-        
+
         <div className="container mx-auto px-4 py-16 relative z-10">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             {/* Channel Avatar & Info */}
@@ -84,16 +99,22 @@ const YouTube = () => {
                 <BookOpen className="h-20 w-20 text-white" />
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                <h1 className="text-4xl lg:text-5xl font-bold mb-2">JSN English Academy</h1>
-                <p className="text-red-100 text-lg mb-4">@jsnacademy</p>
+                <h1 className="text-4xl lg:text-5xl font-bold mb-2">
+                  JSN English Learning
+                </h1>
+                <p className="text-red-100 text-lg mb-4">
+                  @jsn_englishlearning
+                </p>
                 <div className="flex flex-wrap gap-6 justify-center lg:justify-start text-sm mb-6">
                   <div className="flex items-center gap-2">
                     <Users className="h-5 w-5" />
-                    <span className="font-semibold">2.5K+ Subscribers</span>
+                    <span className="font-semibold">5.76K+ Subscribers</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Video className="h-5 w-5" />
-                    <span className="font-semibold">{videos.length} Videos</span>
+                    <span className="font-semibold">
+                      {/* {videos.length} Videos */}1K+ Videos
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Eye className="h-5 w-5" />
@@ -101,14 +122,14 @@ const YouTube = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
-                  <Button 
+                  <Button
                     asChild
                     className="bg-white text-red-600 hover:bg-red-50 font-semibold shadow-lg"
                     size="lg"
                   >
-                    <a 
-                      href="https://www.youtube.com/@jsnacademy" 
-                      target="_blank" 
+                    <a
+                      href="https://www.youtube.com/@jsn_englishlearning"
+                      target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-2"
                     >
@@ -116,14 +137,14 @@ const YouTube = () => {
                       Visit Channel
                     </a>
                   </Button>
-                  <Button 
-                    variant="outline" 
+                  {/* <Button
+                    variant="outline"
                     className="border-white text-white hover:bg-white/10 bg-white/5 backdrop-blur-sm font-semibold"
                     size="lg"
                   >
                     <Bell className="h-4 w-4 mr-2" />
                     Subscribe
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>
@@ -132,26 +153,35 @@ const YouTube = () => {
             <div className="flex-1 bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               <h2 className="text-2xl font-bold mb-4">About Our Channel</h2>
               <p className="text-red-100 mb-6 leading-relaxed">
-                Welcome to JSN English Academy! Your trusted partner for TRB exam preparation. 
-                We provide comprehensive English language education, exam strategies, and study materials 
-                to help aspiring teachers achieve their dreams.
+                Welcome to JSN English Academy! Your trusted partner for TRB
+                exam preparation. We provide comprehensive English language
+                education, exam strategies, and study materials to help aspiring
+                teachers achieve their dreams.
               </p>
               <div className="space-y-3">
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-red-100">Subject-wise video lectures and tutorials</span>
+                  <span className="text-red-100">
+                    Subject-wise video lectures and tutorials
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-red-100">TRB exam preparation strategies and tips</span>
+                  <span className="text-red-100">
+                    TRB exam preparation strategies and tips
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-red-100">Previous year question paper analysis</span>
+                  <span className="text-red-100">
+                    Previous year question paper analysis
+                  </span>
                 </div>
                 <div className="flex items-start gap-3">
                   <div className="w-2 h-2 bg-white rounded-full mt-2 flex-shrink-0"></div>
-                  <span className="text-red-100">Interactive learning sessions and Q&A</span>
+                  <span className="text-red-100">
+                    Interactive learning sessions and Q&A
+                  </span>
                 </div>
               </div>
             </div>
@@ -184,27 +214,37 @@ const YouTube = () => {
             <div className="text-center py-16">
               <div className="bg-white rounded-lg shadow-lg p-12 max-w-md mx-auto">
                 <Play className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No Videos Available</h3>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No Videos Available
+                </h3>
                 <p className="text-gray-600">
-                  {searchTerm ? "No videos found matching your search." : "Videos will be added soon. Stay tuned!"}
+                  {searchTerm
+                    ? "No videos found matching your search."
+                    : "Videos will be added soon. Stay tuned!"}
                 </p>
               </div>
             </div>
           ) : (
             <>
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-gray-900 mb-4">Educational Videos</h2>
+                <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                  Educational Videos
+                </h2>
                 <p className="text-lg text-gray-600">
-                  {filteredVideos.length} video{filteredVideos.length !== 1 ? 's' : ''} available
+                  {filteredVideos.length} video
+                  {filteredVideos.length !== 1 ? "s" : ""} available
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredVideos.map((video) => {
                   const embedUrl = getEmbedUrl(video.youtube_url);
-                  
+
                   return (
-                    <Card key={video.id} className="hover:shadow-lg transition-shadow">
+                    <Card
+                      key={video.id}
+                      className="hover:shadow-lg transition-shadow"
+                    >
                       <CardHeader className="p-0">
                         {embedUrl ? (
                           <div className="aspect-video">
@@ -223,8 +263,12 @@ const YouTube = () => {
                         )}
                       </CardHeader>
                       <CardContent className="p-6">
-                        <CardTitle className="text-lg mb-2 line-clamp-2">{video.title}</CardTitle>
-                        <p className="text-gray-600 text-sm line-clamp-3 mb-4">{video.description}</p>
+                        <CardTitle className="text-lg mb-2 line-clamp-2">
+                          {video.title}
+                        </CardTitle>
+                        <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                          {video.description}
+                        </p>
                         <div className="flex items-center justify-between">
                           <span className="text-xs text-gray-500">
                             {new Date(video.created_at).toLocaleDateString()}
@@ -253,9 +297,12 @@ const YouTube = () => {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Subscribe to Our Channel</h2>
+              <h2 className="text-3xl font-bold text-gray-900 mb-6">
+                Subscribe to Our Channel
+              </h2>
               <p className="text-gray-600 mb-6">
-                Stay updated with our latest educational videos, exam tips, and study strategies. Our YouTube channel features:
+                Stay updated with our latest educational videos, exam tips, and
+                study strategies. Our YouTube channel features:
               </p>
               <ul className="space-y-3 text-gray-600">
                 <li className="flex items-center">
@@ -277,9 +324,9 @@ const YouTube = () => {
               </ul>
             </div>
             <div className="text-center">
-              <img 
-                src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                alt="YouTube learning" 
+              <img
+                src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="YouTube learning"
                 className="rounded-lg shadow-lg mx-auto"
               />
             </div>

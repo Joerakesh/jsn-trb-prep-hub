@@ -1,11 +1,27 @@
-
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, CreditCard, FileText, BookOpen, Star, AlertCircle, Download, Shield, Clock, Award } from "lucide-react";
+import {
+  ArrowLeft,
+  CreditCard,
+  FileText,
+  BookOpen,
+  Star,
+  AlertCircle,
+  Download,
+  Shield,
+  Clock,
+  Award,
+} from "lucide-react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
@@ -35,61 +51,65 @@ const MaterialDetail = () => {
   const { user } = useAuth();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
-  const { data: material, isLoading, error } = useQuery({
-    queryKey: ['material', id],
+  const {
+    data: material,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["material", id],
     queryFn: async () => {
       if (!id) {
-        throw new Error('Material ID is required');
+        throw new Error("Material ID is required");
       }
 
-      console.log('Fetching material with ID:', id);
-      
+      console.log("Fetching material with ID:", id);
+
       const { data, error: supabaseError } = await supabase
-        .from('materials')
-        .select('*')
-        .eq('id', id)
-        .eq('is_active', true)
+        .from("materials")
+        .select("*")
+        .eq("id", id)
+        .eq("is_active", true)
         .maybeSingle();
-      
+
       if (supabaseError) {
-        console.error('Error fetching material:', supabaseError);
+        console.error("Error fetching material:", supabaseError);
         throw new Error(supabaseError.message);
       }
-      
+
       if (!data) {
-        throw new Error('Material not found');
+        throw new Error("Material not found");
       }
-      
-      console.log('Material fetched:', data);
+
+      console.log("Material fetched:", data);
       return data as Material;
     },
     enabled: !!id,
-    retry: 1
+    retry: 1,
   });
 
   // Check if user has already purchased this material
   const { data: hasPurchased } = useQuery({
-    queryKey: ['user-purchase', id, user?.id],
+    queryKey: ["user-purchase", id, user?.id],
     queryFn: async () => {
       if (!user || !id) return false;
-      
+
       const { data } = await supabase
-        .from('payments')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('material_id', id)
-        .eq('status', 'paid')
+        .from("payments")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("material_id", id)
+        .eq("status", "paid")
         .maybeSingle();
-      
+
       return !!data;
     },
-    enabled: !!user && !!id
+    enabled: !!user && !!id,
   });
 
   const handlePurchaseClick = () => {
     if (!user) {
-      toast.error('Please login to purchase');
-      navigate('/login');
+      toast.error("Please login to purchase");
+      navigate("/login");
       return;
     }
 
@@ -98,28 +118,32 @@ const MaterialDetail = () => {
 
   const handlePayment = async (shippingDetails: ShippingDetails) => {
     if (!material) return;
-    
+
     await createPayment(material.id, material.price, shippingDetails);
     setPaymentDialogOpen(false);
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'UG_TRB': return 'bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200';
-      case 'PG_TRB': return 'bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200';
-      case 'General': return 'bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200';
-      default: return 'bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200';
+      case "UG_TRB":
+        return "bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors duration-200";
+      case "PG_TRB":
+        return "bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors duration-200";
+      case "General":
+        return "bg-green-100 text-green-800 hover:bg-green-200 transition-colors duration-200";
+      default:
+        return "bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors duration-200";
     }
   };
 
   const formatCategory = (category: string) => {
-    return category.replace('_', ' ');
+    return category.replace("_", " ");
   };
 
   if (!id) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <SEOHead 
+        <SEOHead
           title="Invalid Material"
           description="The requested material ID is invalid or missing."
         />
@@ -127,9 +151,16 @@ const MaterialDetail = () => {
         <div className="container mx-auto px-4 py-16 text-center animate-fade-in">
           <div className="max-w-md mx-auto">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4 animate-pulse" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Material ID</h1>
-            <p className="text-gray-600 mb-8">The material ID is missing or invalid.</p>
-            <Button asChild className="hover:scale-105 transition-transform duration-200">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Invalid Material ID
+            </h1>
+            <p className="text-gray-600 mb-8">
+              The material ID is missing or invalid.
+            </p>
+            <Button
+              asChild
+              className="hover:scale-105 transition-transform duration-200"
+            >
               <Link to="/materials">Browse Materials</Link>
             </Button>
           </div>
@@ -167,7 +198,7 @@ const MaterialDetail = () => {
   if (error || !material) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <SEOHead 
+        <SEOHead
           title="Material Not Found"
           description="The requested material could not be found or is no longer available."
         />
@@ -175,15 +206,26 @@ const MaterialDetail = () => {
         <div className="container mx-auto px-4 py-16 text-center animate-fade-in">
           <div className="max-w-md mx-auto">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4 animate-bounce" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Material Not Found</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Material Not Found
+            </h1>
             <p className="text-gray-600 mb-8">
-              {error instanceof Error ? error.message : 'The requested material could not be found or may no longer be available.'}
+              {error instanceof Error
+                ? error.message
+                : "The requested material could not be found or may no longer be available."}
             </p>
             <div className="space-y-4">
-              <Button asChild className="hover:scale-105 transition-transform duration-200">
+              <Button
+                asChild
+                className="hover:scale-105 transition-transform duration-200"
+              >
                 <Link to="/materials">Browse All Materials</Link>
               </Button>
-              <Button variant="outline" onClick={() => navigate(-1)} className="hover:scale-105 transition-transform duration-200">
+              <Button
+                variant="outline"
+                onClick={() => navigate(-1)}
+                className="hover:scale-105 transition-transform duration-200"
+              >
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Go Back
               </Button>
@@ -197,20 +239,29 @@ const MaterialDetail = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <SEOHead 
+      <SEOHead
         title={material.title}
-        description={material.description || `${material.title} - Educational material for ${formatCategory(material.category)} preparation. ${material.pages ? `${material.pages} pages` : ''} in ${material.format} format.`}
-        keywords={`${material.title}, ${formatCategory(material.category)}, TRB, educational materials, ${material.format}, study materials`}
+        description={
+          material.description ||
+          `${material.title} - Educational material for ${formatCategory(
+            material.category
+          )} preparation. ${
+            material.pages ? `${material.pages} pages` : ""
+          } in ${material.format} format.`
+        }
+        keywords={`${material.title}, ${formatCategory(
+          material.category
+        )}, TRB, educational materials, ${material.format}, study materials`}
         ogImage={material.image_url}
         type="product"
       />
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-8 animate-fade-in">
         <div className="max-w-6xl mx-auto">
-          <Button 
-            variant="ghost" 
-            onClick={() => navigate(-1)} 
+          <Button
+            variant="ghost"
+            onClick={() => navigate(-1)}
             className="mb-6 hover:scale-105 transition-all duration-200 hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -223,30 +274,42 @@ const MaterialDetail = () => {
               <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <div className="aspect-[3/4] bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center relative group">
                   {material.image_url ? (
-                    <img 
-                      src={material.image_url} 
+                    <img
+                      src={material.image_url}
                       alt={material.title}
                       className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextElementSibling?.classList.remove(
+                          "hidden"
+                        );
                       }}
                     />
                   ) : null}
-                  <div className={material.image_url ? 'hidden' : 'text-center p-8'}>
+                  <div
+                    className={
+                      material.image_url ? "hidden" : "text-center p-8"
+                    }
+                  >
                     <BookOpen className="h-24 w-24 text-gray-400 mx-auto mb-4 animate-pulse" />
-                    <p className="text-gray-500 text-lg font-medium">{material.title}</p>
+                    <p className="text-gray-500 text-lg font-medium">
+                      {material.title}
+                    </p>
                   </div>
                 </div>
               </Card>
 
               {material.preview_url && (
-                <Button 
-                  asChild 
-                  variant="outline" 
+                <Button
+                  asChild
+                  variant="outline"
                   className="w-full hover:scale-105 transition-all duration-200 hover:bg-blue-50"
                 >
-                  <a href={material.preview_url} target="_blank" rel="noopener noreferrer">
+                  <a
+                    href={material.preview_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     <FileText className="h-4 w-4 mr-2" />
                     View Sample ({material.preview_pages || 3} pages)
                   </a>
@@ -263,19 +326,21 @@ const MaterialDetail = () => {
                   </Badge>
                   <div className="flex items-center gap-1 text-yellow-500">
                     {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className="h-4 w-4 fill-current hover:scale-110 transition-transform duration-150" 
+                      <Star
+                        key={i}
+                        className="h-4 w-4 fill-current hover:scale-110 transition-transform duration-150"
                         style={{ animationDelay: `${i * 100}ms` }}
                       />
                     ))}
                   </div>
                 </div>
-                
+
                 <h1 className="text-3xl font-bold text-gray-900 mb-3 hover:text-blue-600 transition-colors duration-300">
                   {material.title}
                 </h1>
-                <p className="text-lg text-gray-600 leading-relaxed">{material.description}</p>
+                <p className="text-lg text-gray-600 leading-relaxed">
+                  {material.description}
+                </p>
               </div>
 
               <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -287,7 +352,9 @@ const MaterialDetail = () => {
                     <div className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                       <FileText className="h-4 w-4 text-blue-500" />
                       <span className="text-gray-600">Pages:</span>
-                      <span className="font-medium">{material.pages || 'Not specified'}</span>
+                      <span className="font-medium">
+                        {material.pages || "Not specified"}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 hover:bg-gray-50 p-2 rounded transition-colors duration-200">
                       <BookOpen className="h-4 w-4 text-green-500" />
@@ -295,25 +362,27 @@ const MaterialDetail = () => {
                       <span className="font-medium">{material.format}</span>
                     </div>
                   </div>
-                  
+
                   <div className="border-t pt-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Price</p>
-                        <p className="text-3xl font-bold text-blue-600 animate-pulse">₹{material.price}</p>
+                        <p className="text-3xl font-bold text-blue-600 animate-pulse">
+                          ₹{material.price}
+                        </p>
                       </div>
                       {hasPurchased ? (
-                        <Button 
-                          size="lg" 
+                        <Button
+                          size="lg"
                           className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-200"
                         >
-                          <Download className="h-4 w-4 mr-2" />
-                          Download
+                          {/* <Download className="h-4 w-4 mr-2" /> */}
+                          Will Deliver Soon
                         </Button>
                       ) : (
-                        <Button 
+                        <Button
                           onClick={handlePurchaseClick}
-                          size="lg" 
+                          size="lg"
                           className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 active:scale-95"
                           disabled={paymentLoading}
                         >
@@ -321,7 +390,7 @@ const MaterialDetail = () => {
                           {paymentLoading ? (
                             <span className="animate-pulse">Processing...</span>
                           ) : (
-                            'Buy Now'
+                            "Buy Now"
                           )}
                         </Button>
                       )}
@@ -334,30 +403,38 @@ const MaterialDetail = () => {
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors duration-200">
                   <Shield className="h-6 w-6 text-blue-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-blue-800">Secure Payment</p>
+                  <p className="text-xs font-medium text-blue-800">
+                    Secure Payment
+                  </p>
                 </div>
                 <div className="text-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200">
                   <Clock className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-green-800">Instant Access</p>
+                  <p className="text-xs font-medium text-green-800">
+                    Instant Access
+                  </p>
                 </div>
                 <div className="text-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
                   <Award className="h-6 w-6 text-purple-600 mx-auto mb-2" />
-                  <p className="text-xs font-medium text-purple-800">Quality Content</p>
+                  <p className="text-xs font-medium text-purple-800">
+                    Quality Content
+                  </p>
                 </div>
               </div>
 
               <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 hover:shadow-lg transition-shadow duration-300">
                 <CardContent className="pt-6">
-                  <h3 className="font-semibold text-blue-900 mb-2">What's Included:</h3>
+                  <h3 className="font-semibold text-blue-900 mb-2">
+                    What's Included:
+                  </h3>
                   <ul className="text-sm text-blue-800 space-y-2">
                     {[
                       `High-quality ${material.format} format`,
-                      `${material.pages || 'Multiple'} pages of content`,
-                      'Expert curated material',
-                      'Instant download after purchase',
-                      'Lifetime access'
+                      `${material.pages || "Multiple"} pages of content`,
+                      "Expert curated material",
+                      "Instant download after purchase",
+                      "Lifetime access",
                     ].map((item, index) => (
-                      <li 
+                      <li
                         key={index}
                         className="flex items-center gap-2 hover:bg-blue-100 p-1 rounded transition-colors duration-200"
                         style={{ animationDelay: `${index * 100}ms` }}
