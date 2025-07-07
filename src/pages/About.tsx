@@ -160,8 +160,12 @@ const About = () => {
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="mb-8">
-              <div className="w-32 h-32 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <User className="h-16 w-16 text-white" />
+              <div className="w-60 h-61 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 overflow-hidden">
+                <img
+                  src="/profile.jpg"
+                  alt="Profile"
+                  className="h-60 w-60 object-cover rounded-full"
+                />
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 animate-slide-in-left">
