@@ -1,5 +1,5 @@
-
 import { Toaster } from "@/components/ui/sonner";
+import { HelmetProvider } from "react-helmet-async";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -60,7 +60,7 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/works" element={<Works />} />
                 <Route path="/samples" element={<Samples />} />
-                
+
                 {/* Admin Routes */}
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/users" element={<AdminUsers />} />
@@ -69,7 +69,7 @@ function App() {
                 <Route path="/admin/orders" element={<AdminOrders />} />
                 <Route path="/admin/videos" element={<AdminVideos />} />
                 <Route path="/admin/samples" element={<AdminSamples />} />
-                
+
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
