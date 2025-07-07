@@ -346,6 +346,38 @@ const About = () => {
             </Card>
           </div>
 
+          {/* JSN Resources Section */}
+          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200 border-2 mb-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl text-gray-900 mb-4">
+                JSN's Academic Profile & Resources
+              </CardTitle>
+              <CardDescription className="text-lg text-gray-600">
+                Access JSN's detailed academic profile and teaching credentials
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button 
+                asChild 
+                size="lg" 
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
+              >
+                <a 
+                  href="https://drive.google.com/file/d/1example-pdf-id/view" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-5 w-5" />
+                  Download JSN's Academic Profile (PDF)
+                </a>
+              </Button>
+              <p className="text-sm text-gray-500 mt-2">
+                Complete academic qualifications, certifications, and teaching experience
+              </p>
+            </CardContent>
+          </Card>
+
           {/* Contact Information */}
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 border-2">
             <CardHeader className="text-center">

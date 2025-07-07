@@ -24,12 +24,14 @@ import {
   Play,
   Search,
   Filter,
+  Lock,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Test {
   id: string;
@@ -44,6 +46,7 @@ interface Test {
 }
 
 const Tests = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedDifficulty, setSelectedDifficulty] = useState("all");
@@ -63,6 +66,10 @@ const Tests = () => {
   });
 
   const handleStartTest = (testUrl: string, testTitle: string) => {
+    if (!user) {
+      alert("Please login to access tests. Your login will be verified by admin.");
+      return;
+    }
     if (testUrl) {
       window.open(testUrl, "_blank");
       console.log(`Starting test: ${testTitle}`);
@@ -311,14 +318,23 @@ const Tests = () => {
                     </div>
 
                     <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 transition-colors"
+                      className="w-full bg-blue-600 hover:bg-blue-700 transition-colors disabled:bg-gray-400"
                       onClick={() =>
                         handleStartTest(test.google_form_url, test.title)
                       }
-                      disabled={!test.google_form_url}
+                      disabled={!test.google_form_url || !user}
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
-                      Start Test
+                      {!user ? (
+                        <>
+                          <Lock className="h-4 w-4 mr-2" />
+                          Login Required
+                        </>
+                      ) : (
+                        <>
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Start Test
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
