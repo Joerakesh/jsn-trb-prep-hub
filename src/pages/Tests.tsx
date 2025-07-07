@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,9 @@ import {
   Search,
   Filter,
   Lock,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -43,6 +47,10 @@ interface Test {
   difficulty: string;
   participants_count: number;
   google_form_url: string;
+}
+
+interface UserProfile {
+  verification_status: string;
 }
 
 const Tests = () => {
@@ -65,11 +73,34 @@ const Tests = () => {
     },
   });
 
+  const { data: userProfile } = useQuery({
+    queryKey: ["user-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("verification_status")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      return data as UserProfile;
+    },
+    enabled: !!user?.id,
+  });
+
   const handleStartTest = (testUrl: string, testTitle: string) => {
     if (!user) {
       alert("Please login to access tests. Your login will be verified by admin.");
       return;
     }
+
+    if (userProfile?.verification_status !== 'approved') {
+      alert("Your account needs to be verified by admin before accessing tests.");
+      return;
+    }
+
     if (testUrl) {
       window.open(testUrl, "_blank");
       console.log(`Starting test: ${testTitle}`);
@@ -93,6 +124,32 @@ const Tests = () => {
     return category.replace("_", " ");
   };
 
+  const getVerificationStatusBadge = (status: string) => {
+    switch (status) {
+      case "approved":
+        return (
+          <Badge className="bg-green-100 text-green-800 border-green-200">
+            <CheckCircle className="h-3 w-3 mr-1" />
+            Verified
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge className="bg-red-100 text-red-800 border-red-200">
+            <XCircle className="h-3 w-3 mr-1" />
+            Rejected
+          </Badge>
+        );
+      default:
+        return (
+          <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <AlertCircle className="h-3 w-3 mr-1" />
+            Pending Verification
+          </Badge>
+        );
+    }
+  };
+
   // Filter tests based on search and filters
   const filteredTests = tests.filter((test) => {
     const matchesSearch =
@@ -106,6 +163,10 @@ const Tests = () => {
 
     return matchesSearch && matchesCategory && matchesDifficulty;
   });
+
+  const isUserVerified = userProfile?.verification_status === 'approved';
+  const isUserPending = userProfile?.verification_status === 'pending';
+  const isUserRejected = userProfile?.verification_status === 'rejected';
 
   if (isLoading) {
     return (
@@ -132,16 +193,54 @@ const Tests = () => {
             Practice with our comprehensive mock tests designed to simulate real
             TRB exam conditions
           </p>
-          <div className="flex justify-center">
+          <div className="flex justify-center gap-4">
             <Badge
               variant="secondary"
               className="text-blue-600 bg-white px-4 py-2"
             >
               {tests.length} Tests Available
             </Badge>
+            {user && userProfile && (
+              <div className="flex items-center">
+                {getVerificationStatusBadge(userProfile.verification_status)}
+              </div>
+            )}
           </div>
         </div>
       </section>
+
+      {/* Verification Status Alert */}
+      {user && !isUserVerified && (
+        <section className="container mx-auto px-4 py-6">
+          <Card className={`border-l-4 ${
+            isUserPending ? 'border-l-yellow-500 bg-yellow-50' : 
+            isUserRejected ? 'border-l-red-500 bg-red-50' : 'border-l-gray-500 bg-gray-50'
+          }`}>
+            <CardContent className="pt-6">
+              <div className="flex items-start gap-3">
+                {isUserPending && <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />}
+                {isUserRejected && <XCircle className="h-5 w-5 text-red-600 mt-0.5" />}
+                <div>
+                  <h3 className={`font-semibold mb-2 ${
+                    isUserPending ? 'text-yellow-800' : 
+                    isUserRejected ? 'text-red-800' : 'text-gray-800'
+                  }`}>
+                    {isUserPending && "Account Verification Pending"}
+                    {isUserRejected && "Account Verification Rejected"}
+                  </h3>
+                  <p className={`text-sm ${
+                    isUserPending ? 'text-yellow-700' : 
+                    isUserRejected ? 'text-red-700' : 'text-gray-700'
+                  }`}>
+                    {isUserPending && "Your account is under review by our admin team. You'll be able to access tests once your account is approved."}
+                    {isUserRejected && "Your account verification was rejected. Please contact support for more information."}
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </section>
+      )}
 
       {/* Search and Filter Section */}
       <section className="container mx-auto px-4 py-8">
@@ -231,9 +330,9 @@ const Tests = () => {
           <Card className="text-center hover:shadow-lg transition-shadow">
             <CardContent className="pt-6">
               <Play className="h-12 w-12 text-orange-600 mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Free Access</h3>
+              <h3 className="font-semibold mb-2">Verified Access</h3>
               <p className="text-sm text-gray-600">
-                No cost, unlimited attempts
+                Admin verified accounts only
               </p>
             </CardContent>
           </Card>
@@ -311,23 +410,25 @@ const Tests = () => {
                         <FileText className="h-4 w-4 mr-1 text-green-500" />
                         <span>{test.questions || "Various"}</span>
                       </div>
-                      {/* <div className="flex items-center col-span-2">
-                        <Users className="h-4 w-4 mr-1 text-purple-500" />
-                        <span>{test.participants_count.toLocaleString()}+ participants</span>
-                      </div> */}
                     </div>
 
                     <Button
-                      className="w-full bg-blue-600 hover:bg-blue-700 transition-colors disabled:bg-gray-400"
+                      className="w-full transition-colors disabled:bg-gray-400"
                       onClick={() =>
                         handleStartTest(test.google_form_url, test.title)
                       }
-                      disabled={!test.google_form_url || !user}
+                      disabled={!test.google_form_url || !user || !isUserVerified}
+                      variant={isUserVerified ? "default" : "secondary"}
                     >
                       {!user ? (
                         <>
                           <Lock className="h-4 w-4 mr-2" />
                           Login Required
+                        </>
+                      ) : !isUserVerified ? (
+                        <>
+                          <AlertCircle className="h-4 w-4 mr-2" />
+                          Verification Pending
                         </>
                       ) : (
                         <>

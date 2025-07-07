@@ -1,103 +1,72 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Package, Search, Filter, ShoppingBag, CreditCard, Truck, CheckCircle2, Clock, XCircle, User } from "lucide-react";
-import { useState } from "react";
+import {
+  BookOpen,
+  FileText,
+  ShoppingCart,
+  User,
+  Clock,
+  CheckCircle,
+  Play,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
-import { useAuth } from "@/contexts/AuthContext";
+import VerificationStatus from "@/components/VerificationStatus";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
-
-interface Order {
-  id: string;
-  total_amount: number;
-  status: string;
-  created_at: string;
-  updated_at: string;
-  shipping_address: string;
-  phone: string;
-  notes: string;
-  order_items: Array<{
-    id: string;
-    quantity: number;
-    price: number;
-    material_id: string;
-    materials: {
-      title: string;
-      category: string;
-      format: string;
-    };
-  }>;
-}
+import { useAuth } from "@/contexts/AuthContext";
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: orders = [], isLoading } = useQuery({
-    queryKey: ['user-orders', user?.id],
+  const { data: orders = [] } = useQuery({
+    queryKey: ["user-orders", user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user?.id) return [];
       
       const { data, error } = await supabase
-        .from('orders')
+        .from("orders")
         .select(`
           *,
           order_items (
             *,
-            materials (
-              title,
-              category,
-              format
-            )
+            materials (title, image_url)
           )
         `)
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+
       if (error) throw error;
-      return data as Order[];
+      return data;
     },
-    enabled: !!user
+    enabled: !!user?.id,
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
-    }
-  };
+  const { data: profile } = useQuery({
+    queryKey: ["user-profile", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'confirmed': return <CheckCircle2 className="h-4 w-4" />;
-      case 'shipped': return <Truck className="h-4 w-4" />;
-      case 'delivered': return <Package className="h-4 w-4" />;
-      case 'cancelled': return <XCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
-    }
-  };
-
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.order_items.some(item => 
-                           item.materials.title.toLowerCase().includes(searchTerm.toLowerCase())
-                         );
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
   });
 
   if (!user) {
@@ -105,10 +74,11 @@ const Dashboard = () => {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Please Log In</h1>
-          <p className="text-gray-600 mb-8">You need to be logged in to view your dashboard.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">
+            Please log in to access your dashboard
+          </h1>
           <Button asChild>
-            <Link to="/login">Log In</Link>
+            <Link to="/login">Login</Link>
           </Button>
         </div>
         <Footer />
@@ -116,247 +86,245 @@ const Dashboard = () => {
     );
   }
 
+  const getStatusBadge = (status: string) => {
+    const statusMap = {
+      pending: { color: "bg-yellow-100 text-yellow-800", icon: Clock },
+      confirmed: { color: "bg-blue-100 text-blue-800", icon: CheckCircle },
+      shipped: { color: "bg-purple-100 text-purple-800", icon: CheckCircle },
+      delivered: { color: "bg-green-100 text-green-800", icon: CheckCircle },
+      cancelled: { color: "bg-red-100 text-red-800", icon: FileText },
+    };
+    const config = statusMap[status as keyof typeof statusMap] || statusMap.pending;
+    const Icon = config.icon;
+
+    return (
+      <Badge className={config.color}>
+        <Icon className="h-3 w-3 mr-1" />
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </Badge>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
+
       {/* Header */}
       <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-12">
         <div className="container mx-auto px-4">
-          <h1 className="text-3xl font-bold mb-2">My Dashboard</h1>
-          <p className="text-blue-100">Track your orders and manage your account</p>
+          <h1 className="text-3xl font-bold mb-4">
+            Welcome back, {profile?.full_name || user.email}!
+          </h1>
+          <p className="text-blue-100">
+            Manage your account, orders, and access your study materials
+          </p>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-8">
-        <Tabs defaultValue="orders" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
-            <TabsTrigger value="orders" className="flex items-center gap-2">
-              <ShoppingBag className="h-4 w-4" />
-              My Orders
-            </TabsTrigger>
-            <TabsTrigger value="profile" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Profile
-            </TabsTrigger>
-          </TabsList>
+      {/* Dashboard Content */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column - Main Content */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Verification Status */}
+            <VerificationStatus />
 
-          <TabsContent value="orders" className="space-y-6">
-            {/* Order Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold">{orders.length}</p>
-                      <p className="text-sm text-gray-600">Total Orders</p>
-                    </div>
-                    <ShoppingBag className="h-8 w-8 text-blue-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {orders.filter(o => o.status === 'pending').length}
-                      </p>
-                      <p className="text-sm text-gray-600">Pending</p>
-                    </div>
-                    <Clock className="h-8 w-8 text-yellow-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {orders.filter(o => o.status === 'shipped').length}
-                      </p>
-                      <p className="text-sm text-gray-600">Shipped</p>
-                    </div>
-                    <Truck className="h-8 w-8 text-purple-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold">
-                        {orders.filter(o => o.status === 'delivered').length}
-                      </p>
-                      <p className="text-sm text-gray-600">Delivered</p>
-                    </div>
-                    <CheckCircle2 className="h-8 w-8 text-green-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Search and Filter */}
+            {/* Quick Actions */}
             <Card>
-              <CardContent className="pt-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                      <Input
-                        placeholder="Search orders or materials..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Filter by status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="shipped">Shipped</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
-                  <Filter className="h-4 w-4" />
-                  <span>Showing {filteredOrders.length} of {orders.length} orders</span>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Access your favorite features quickly
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Button asChild className="h-auto p-6 flex-col space-y-2">
+                    <Link to="/materials">
+                      <BookOpen className="h-8 w-8" />
+                      <span>Browse Materials</span>
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-auto p-6 flex-col space-y-2">
+                    <Link to="/tests">
+                      <Play className="h-8 w-8" />
+                      <span>Take Tests</span>
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-auto p-6 flex-col space-y-2">
+                    <Link to="/orders">
+                      <ShoppingCart className="h-8 w-8" />
+                      <span>View Orders</span>
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" className="h-auto p-6 flex-col space-y-2">
+                    <Link to="/profile">
+                      <User className="h-8 w-8" />
+                      <span>Edit Profile</span>
+                    </Link>
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Orders List */}
+            {/* Recent Orders */}
             <Card>
               <CardHeader>
-                <CardTitle>Order History</CardTitle>
-                <CardDescription>View and track all your orders</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Recent Orders</CardTitle>
+                    <CardDescription>
+                      Your latest material purchases
+                    </CardDescription>
+                  </div>
+                  <Button asChild variant="outline" size="sm">
+                    <Link to="/orders">View All</Link>
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {orders.length === 0 ? (
                   <div className="text-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                    <p>Loading orders...</p>
-                  </div>
-                ) : filteredOrders.length === 0 ? (
-                  <div className="text-center py-8">
-                    <ShoppingBag className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">
-                      {searchTerm || statusFilter !== 'all' ? 'No matching orders' : 'No orders yet'}
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      {searchTerm || statusFilter !== 'all' 
-                        ? 'Try adjusting your search or filter criteria'
-                        : 'Start shopping to see your orders here'
-                      }
-                    </p>
-                    {!searchTerm && statusFilter === 'all' && (
-                      <Button asChild>
-                        <Link to="/materials">Browse Materials</Link>
-                      </Button>
-                    )}
+                    <ShoppingCart className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                    <p className="text-gray-600 mb-4">No orders yet</p>
+                    <Button asChild>
+                      <Link to="/materials">Start Shopping</Link>
+                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {filteredOrders.map((order) => (
-                      <Card key={order.id} className="border hover:shadow-md transition-shadow">
-                        <CardContent className="pt-6">
-                          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                            <div className="space-y-2">
-                              <div className="flex items-center gap-3">
-                                <h3 className="font-semibold">Order #{order.id.slice(0, 8)}</h3>
-                                <Badge className={getStatusColor(order.status)}>
-                                  <div className="flex items-center gap-1">
-                                    {getStatusIcon(order.status)}
-                                    {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                                  </div>
-                                </Badge>
+                    {orders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                      >
+                        <div className="flex items-center space-x-4">
+                          <div className="flex-shrink-0">
+                            {order.order_items && order.order_items[0]?.materials?.image_url ? (
+                              <img
+                                src={order.order_items[0].materials.image_url}
+                                alt="Material"
+                                className="h-12 w-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
+                                <BookOpen className="h-6 w-6 text-gray-500" />
                               </div>
-                              <div className="flex items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center gap-1">
-                                  <CalendarDays className="h-4 w-4" />
-                                  {format(new Date(order.created_at), 'MMM dd, yyyy')}
-                                </div>
-                                <div className="flex items-center gap-1">
-                                  <Package className="h-4 w-4" />
-                                  {order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}
-                                </div>
-                              </div>
-                              <p className="text-lg font-semibold text-green-600">
-                                ₹{order.total_amount.toLocaleString()}
-                              </p>
-                            </div>
+                            )}
                           </div>
-                          
-                          {/* Order Items - Show material names instead of generic items */}
-                          <div className="mt-4 pt-4 border-t">
-                            <h4 className="font-medium mb-2">Materials Purchased:</h4>
-                            <div className="space-y-2">
-                              {order.order_items.map((item) => (
-                                <div key={item.id} className="flex justify-between items-center text-sm bg-gray-50 p-3 rounded">
-                                  <div>
-                                    <span className="font-medium text-blue-600">{item.materials.title}</span>
-                                    <div className="text-gray-500 text-xs mt-1">
-                                      Category: {item.materials.category.replace('_', ' ')} • Format: {item.materials.format}
-                                      {item.quantity > 1 && ` • Quantity: ${item.quantity}`}
-                                    </div>
-                                  </div>
-                                  <span className="font-medium text-green-600">₹{(item.price * item.quantity).toLocaleString()}</span>
-                                </div>
-                              ))}
-                            </div>
+                          <div>
+                            <p className="font-medium">
+                              Order #{order.id.slice(0, 8)}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              {order.order_items?.length || 0} item(s) • ₹
+                              {order.total_amount}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {new Date(order.created_at).toLocaleDateString()}
+                            </p>
                           </div>
-
-                          {/* Order Status Info */}
-                          {order.shipping_address && (
-                            <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
-                              <h5 className="font-medium text-blue-900 text-sm">Shipping Address:</h5>
-                              <p className="text-blue-800 text-sm">{order.shipping_address}</p>
-                              {order.phone && (
-                                <p className="text-blue-800 text-sm">Contact: {order.phone}</p>
-                              )}
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          {getStatusBadge(order.status)}
+                          <Button asChild variant="ghost" size="sm">
+                            <Link to={`/orders`}>
+                              View
+                            </Link>
+                          </Button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
 
-          <TabsContent value="profile">
+          {/* Right Column - Profile Summary */}
+          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Manage your account details</CardDescription>
+                <CardTitle>Profile Summary</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium mb-1">Email</label>
-                    <p className="text-gray-900">{user.email}</p>
+                    <label className="text-sm font-medium text-gray-600">
+                      Full Name
+                    </label>
+                    <p className="text-gray-900">
+                      {profile?.full_name || "Not provided"}
+                    </p>
                   </div>
-                  <div className="pt-4">
-                    <Button asChild>
-                      <Link to="/profile">Edit Profile</Link>
-                    </Button>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Email
+                    </label>
+                    <p className="text-gray-900">{profile?.email || user.email}</p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Phone
+                    </label>
+                    <p className="text-gray-900">
+                      {profile?.phone || "Not provided"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600">
+                      Account Status
+                    </label>
+                    <div className="mt-1">
+                      {profile?.verification_status === 'approved' ? (
+                        <Badge className="bg-green-100 text-green-800">
+                          <CheckCircle className="h-3 w-3 mr-1" />
+                          Verified
+                        </Badge>
+                      ) : profile?.verification_status === 'rejected' ? (
+                        <Badge className="bg-red-100 text-red-800">
+                          Rejected
+                        </Badge>
+                      ) : (
+                        <Badge className="bg-yellow-100 text-yellow-800">
+                          <Clock className="h-3 w-3 mr-1" />
+                          Pending
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link to="/profile">Edit Profile</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Account Stats */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Account Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Total Orders</span>
+                    <span className="font-semibold">{orders.length}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Account Since</span>
+                    <span className="font-semibold">
+                      {profile?.created_at
+                        ? new Date(profile.created_at).toLocaleDateString()
+                        : "Recently"}
+                    </span>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
-      </div>
+          </div>
+        </div>
+      </section>
 
       <Footer />
     </div>

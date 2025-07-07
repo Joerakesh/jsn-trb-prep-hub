@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import {
   Play,
   Youtube,
   ChevronDown,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -55,6 +57,11 @@ const Navigation = () => {
       name: "Dashboard",
       path: "/admin",
       icon: <Settings className="h-4 w-4" />,
+    },
+    {
+      name: "Users",
+      path: "/admin/users",
+      icon: <Users className="h-4 w-4" />,
     },
     {
       name: "Materials",
@@ -137,7 +144,7 @@ const Navigation = () => {
                     >
                       {adminItems.map((item, index) => (
                         <div key={item.name}>
-                          {index === 1 && <DropdownMenuSeparator />}
+                          {index === 2 && <DropdownMenuSeparator />}
                           <DropdownMenuItem asChild>
                             <Link
                               to={item.path}
@@ -273,6 +280,17 @@ const Navigation = () => {
       </div>
     </nav>
   );
+
+  // Helper functions
+  const handleLogout = () => {
+    signOut();
+    setIsOpen(false);
+  };
+
+  // Scroll to top when route changes
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 };
 
 export default Navigation;
