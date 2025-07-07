@@ -268,7 +268,7 @@ const Navigation = () => {
                       to="/login"
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-                    >
+    >
                       Login
                     </Link>
                   )}
@@ -280,17 +280,6 @@ const Navigation = () => {
       </div>
     </nav>
   );
-
-  // Helper functions
-  const handleLogout = () => {
-    signOut();
-    setIsOpen(false);
-  };
-
-  // Scroll to top when route changes
-  React.useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location.pathname]);
 };
 
 export default Navigation;
