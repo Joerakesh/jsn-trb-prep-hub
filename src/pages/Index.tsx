@@ -168,7 +168,7 @@ const Index = () => {
                 asChild
                 variant="outline"
                 size="lg"
-                className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg"
+                className="border-white text-black hover:bg-white hover:text-blue-600 px-8 py-4 text-lg"
               >
                 <Link to="/about" className="flex items-center gap-2">
                   <User className="h-5 w-5" />
@@ -270,7 +270,7 @@ const Index = () => {
                   </div>
                   <div className="space-y-4 text-gray-600">
                     <p className="text-lg leading-relaxed">
-                      With over 20 years of dedicated experience in English
+                      With over 13 years of dedicated experience in English
                       education and TRB coaching, JSN has transformed the lives
                       of thousands of students across Tamil Nadu.
                     </p>
@@ -401,7 +401,7 @@ const Index = () => {
               asChild
               variant="outline"
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-blue-600 px-8 py-4 text-lg"
+              className="border-white text-black hover:bg-white hover:text-blue-600 px-8 py-4 text-lg"
             >
               <Link to="/contact" className="flex items-center gap-2">
                 <Users className="h-5 w-5" />

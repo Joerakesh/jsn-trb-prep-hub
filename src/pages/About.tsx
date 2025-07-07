@@ -61,8 +61,10 @@ const About = () => {
 
   const qualifications = [
     "M.A. English Literature",
-    "B.Ed. (Bachelor of Education)",
-    "NET Qualified (National Eligibility Test)",
+    "M.A. (Journalism & Mass Communication)",
+    "NET Qualified",
+    "TNSET Qualified",
+    "Ph.D Qualified",
     "TRB Specialist with 13+ Years Experience",
     "Expert in English Grammar & Composition",
     "Curriculum Development Specialist",
@@ -163,18 +165,50 @@ const About = () => {
               </div>
             </div>
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 animate-slide-in-left">
-              Jerald Sagaya Nathan
+              Dr. S. Jerald Sagaya Nathan
             </h1>
             <p className="text-2xl text-blue-600 font-semibold mb-4">
               JSN - Founder & Chief Educator
             </p>
             <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed animate-slide-in-right">
-              With over 20 years of dedicated experience in English education
+              With over 13 years of dedicated experience in English education
               and TRB coaching, JSN has transformed the lives of thousands of
               students across Tamil Nadu through innovative teaching methods and
               unwavering commitment to educational excellence.
             </p>
           </div>
+          {/* JSN Resources Section */}
+          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200 border-2 mb-8">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl text-gray-900 mb-4">
+                JSN's Academic Profile & Resources
+              </CardTitle>
+              <CardDescription className="text-lg text-gray-600">
+                Access JSN's detailed academic profile and teaching credentials
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button
+                asChild
+                size="lg"
+                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
+              >
+                <a
+                  href="https://drive.google.com/file/d/1ARcPb6WdsJf-1o-p0C9a7c_UXSF6jvTE/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2"
+                >
+                  <FileText className="h-5 w-5" />
+                  JSN's Academic Profile (PDF)
+                </a>
+              </Button>
+              <p className="text-sm text-gray-500 mt-2">
+                Complete academic qualifications, certifications, and teaching
+                experience
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Achievements Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
@@ -347,38 +381,6 @@ const About = () => {
               </CardContent>
             </Card>
           </div>
-
-          {/* JSN Resources Section */}
-          <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200 border-2 mb-8">
-            <CardHeader className="text-center">
-              <CardTitle className="text-3xl text-gray-900 mb-4">
-                JSN's Academic Profile & Resources
-              </CardTitle>
-              <CardDescription className="text-lg text-gray-600">
-                Access JSN's detailed academic profile and teaching credentials
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Button 
-                asChild 
-                size="lg" 
-                className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
-              >
-                <a 
-                  href="https://drive.google.com/file/d/1example-pdf-id/view" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2"
-                >
-                  <FileText className="h-5 w-5" />
-                  Download JSN's Academic Profile (PDF)
-                </a>
-              </Button>
-              <p className="text-sm text-gray-500 mt-2">
-                Complete academic qualifications, certifications, and teaching experience
-              </p>
-            </CardContent>
-          </Card>
 
           {/* Contact Information */}
           <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200 border-2">

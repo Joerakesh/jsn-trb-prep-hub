@@ -1,18 +1,43 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  Package, 
-  Users, 
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  Filter,
+  Eye,
+  Package,
+  Users,
   DollarSign,
   CalendarDays,
   Phone,
@@ -23,7 +48,7 @@ import {
   XCircle,
   RefreshCw,
   User,
-  Mail
+  Mail,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
@@ -72,13 +97,20 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const { data: orders = [], isLoading, refetch } = useQuery({
-    queryKey: ['admin-orders'],
+  console.log("Fetched users:", Users.length);
+
+  const {
+    data: orders = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin-orders"],
     queryFn: async () => {
-      console.log('Fetching orders with details...');
+      console.log("Fetching orders with details...");
       const { data, error } = await supabase
-        .from('orders')
-        .select(`
+        .from("orders")
+        .select(
+          `
           *,
           profiles!orders_user_id_fkey (
             full_name,
@@ -95,102 +127,127 @@ const AdminOrders = () => {
               pages
             )
           )
-        `)
-        .order('created_at', { ascending: false });
-      
+        `
+        )
+        .order("created_at", { ascending: false });
+
       if (error) {
-        console.error('Error fetching orders:', error);
+        console.error("Error fetching orders:", error);
         throw error;
       }
-      
-      console.log('Orders fetched:', data);
+
+      console.log("Orders fetched:", data);
       return data as Order[];
     },
-    enabled: isAdmin
+    enabled: isAdmin,
   });
 
   const updateOrderStatus = useMutation({
-    mutationFn: async ({ orderId, status }: { orderId: string; status: OrderStatus }) => {
+    mutationFn: async ({
+      orderId,
+      status,
+    }: {
+      orderId: string;
+      status: OrderStatus;
+    }) => {
       const { error } = await supabase
-        .from('orders')
-        .update({ 
+        .from("orders")
+        .update({
           status,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', orderId);
-      
+        .eq("id", orderId);
+
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
       toast.success("Order status updated successfully!");
       refetch();
     },
     onError: (error: any) => {
       toast.error(`Failed to update order: ${error.message}`);
-    }
+    },
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'confirmed': return 'bg-blue-100 text-blue-800 border-blue-200';
-      case 'shipped': return 'bg-purple-100 text-purple-800 border-purple-200';
-      case 'delivered': return 'bg-green-100 text-green-800 border-green-200';
-      case 'cancelled': return 'bg-red-100 text-red-800 border-red-200';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800 border-yellow-200";
+      case "confirmed":
+        return "bg-blue-100 text-blue-800 border-blue-200";
+      case "shipped":
+        return "bg-purple-100 text-purple-800 border-purple-200";
+      case "delivered":
+        return "bg-green-100 text-green-800 border-green-200";
+      case "cancelled":
+        return "bg-red-100 text-red-800 border-red-200";
+      default:
+        return "bg-gray-100 text-gray-800 border-gray-200";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'confirmed': return <CheckCircle2 className="h-4 w-4" />;
-      case 'shipped': return <Truck className="h-4 w-4" />;
-      case 'delivered': return <Package className="h-4 w-4" />;
-      case 'cancelled': return <XCircle className="h-4 w-4" />;
-      default: return <Clock className="h-4 w-4" />;
+      case "pending":
+        return <Clock className="h-4 w-4" />;
+      case "confirmed":
+        return <CheckCircle2 className="h-4 w-4" />;
+      case "shipped":
+        return <Truck className="h-4 w-4" />;
+      case "delivered":
+        return <Package className="h-4 w-4" />;
+      case "cancelled":
+        return <XCircle className="h-4 w-4" />;
+      default:
+        return <Clock className="h-4 w-4" />;
     }
   };
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = 
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      order.profiles?.full_name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       order.profiles?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.order_items.some(item => 
+      order.order_items.some((item) =>
         item.materials.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
-    
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    
+
+    const matchesStatus =
+      statusFilter === "all" || order.status === statusFilter;
+
     let matchesDate = true;
-    if (dateFilter !== 'all') {
+    if (dateFilter !== "all") {
       const orderDate = new Date(order.created_at);
       const now = new Date();
       switch (dateFilter) {
-        case 'today':
+        case "today":
           matchesDate = orderDate.toDateString() === now.toDateString();
           break;
-        case 'week':
+        case "week":
           const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           matchesDate = orderDate >= weekAgo;
           break;
-        case 'month':
+        case "month":
           const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
           matchesDate = orderDate >= monthAgo;
           break;
       }
     }
-    
+
     return matchesSearch && matchesStatus && matchesDate;
   });
 
+  console.log("Filtered users:", filteredOrders.length);
   const stats = {
     total: orders.length,
-    pending: orders.filter(o => o.status === 'pending').length,
-    revenue: orders.filter(o => o.status !== 'cancelled').reduce((sum, o) => sum + Number(o.total_amount), 0),
-    delivered: orders.filter(o => o.status === 'delivered').length
+    pending: orders.filter((o) => o.status === "pending").length,
+    revenue: orders
+      .filter((o) => o.status !== "cancelled")
+      .reduce((sum, o) => sum + Number(o.total_amount), 0),
+    delivered: orders.filter((o) => o.status === "delivered").length,
   };
 
   const handleStatusUpdate = (orderId: string, newStatus: string) => {
@@ -207,8 +264,12 @@ const AdminOrders = () => {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">You don't have permission to access this page.</p>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Access Denied
+          </h1>
+          <p className="text-gray-600 mb-8">
+            You don't have permission to access this page.
+          </p>
           <Button asChild>
             <Link to="/">Go Home</Link>
           </Button>
@@ -217,25 +278,30 @@ const AdminOrders = () => {
       </div>
     );
   }
-
+  // Remove this line
+  console.log("Fetched users:", Users.length);
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
+
       {/* Header */}
       <section className="bg-gradient-to-r from-green-600 to-emerald-700 text-white py-12">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">Orders Management</h1>
-            <p className="text-green-100">Comprehensive order tracking and customer management</p>
+            <p className="text-green-100">
+              Comprehensive order tracking and customer management
+            </p>
           </div>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => refetch()}
             disabled={isLoading}
             className="bg-white text-green-600 hover:bg-gray-100"
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isLoading ? "animate-spin" : ""}`}
+            />
             Refresh
           </Button>
         </div>
@@ -270,7 +336,9 @@ const AdminOrders = () => {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-2xl font-bold">₹{stats.revenue.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">
+                    ₹{stats.revenue.toLocaleString()}
+                  </p>
                   <p className="text-sm text-gray-600">Total Revenue</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
@@ -336,7 +404,9 @@ const AdminOrders = () => {
             </div>
             <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
               <Filter className="h-4 w-4" />
-              <span>Showing {filteredOrders.length} of {orders.length} orders</span>
+              <span>
+                Showing {filteredOrders.length} of {orders.length} orders
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -347,7 +417,10 @@ const AdminOrders = () => {
             <CardTitle className="flex items-center justify-between">
               <span>Customer Orders ({filteredOrders.length})</span>
             </CardTitle>
-            <CardDescription>Detailed view of all customer orders with comprehensive information</CardDescription>
+            <CardDescription>
+              Detailed view of all customer orders with comprehensive
+              information
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -360,10 +433,9 @@ const AdminOrders = () => {
                 <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No orders found</h3>
                 <p className="text-gray-600">
-                  {searchTerm || statusFilter !== 'all' || dateFilter !== 'all'
-                    ? 'Try adjusting your search criteria'
-                    : 'No orders have been placed yet'
-                  }
+                  {searchTerm || statusFilter !== "all" || dateFilter !== "all"
+                    ? "Try adjusting your search criteria"
+                    : "No orders have been placed yet"}
                 </p>
               </div>
             ) : (
@@ -385,9 +457,11 @@ const AdminOrders = () => {
                       <TableRow key={order.id} className="hover:bg-gray-50">
                         <TableCell>
                           <div className="font-mono text-sm">
-                            <p className="font-medium">#{order.id.slice(0, 8)}</p>
+                            <p className="font-medium">
+                              #{order.id.slice(0, 8)}
+                            </p>
                             <p className="text-xs text-gray-500">
-                              {format(new Date(order.created_at), 'HH:mm')}
+                              {format(new Date(order.created_at), "HH:mm")}
                             </p>
                           </div>
                         </TableCell>
@@ -396,34 +470,47 @@ const AdminOrders = () => {
                             <div className="flex items-center gap-2">
                               <User className="h-4 w-4 text-blue-600" />
                               <span className="font-medium text-blue-900">
-                                {order.profiles?.full_name || 'Anonymous User'}
+                                {order.profiles?.full_name || "Anonymous User"}
                               </span>
                             </div>
                             {order.profiles?.email && (
                               <div className="flex items-center gap-2">
                                 <Mail className="h-3 w-3 text-gray-500" />
-                                <span className="text-sm text-gray-600">{order.profiles.email}</span>
+                                <span className="text-sm text-gray-600">
+                                  {order.profiles.email}
+                                </span>
                               </div>
                             )}
                             {order.phone && (
                               <div className="flex items-center gap-2">
                                 <Phone className="h-3 w-3 text-gray-500" />
-                                <span className="text-sm text-gray-600">{order.phone}</span>
+                                <span className="text-sm text-gray-600">
+                                  {order.phone}
+                                </span>
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="space-y-2">
-                            {order.order_items && order.order_items.length > 0 ? (
+                            {order.order_items &&
+                            order.order_items.length > 0 ? (
                               order.order_items.map((item, index) => (
-                                <div key={item.id} className="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-400">
+                                <div
+                                  key={item.id}
+                                  className="bg-gray-50 p-3 rounded-lg border-l-4 border-blue-400"
+                                >
                                   <div className="flex justify-between items-start">
                                     <div className="flex-1">
-                                      <p className="font-medium text-sm text-blue-900">{item.materials.title}</p>
+                                      <p className="font-medium text-sm text-blue-900">
+                                        {item.materials.title}
+                                      </p>
                                       <div className="flex gap-3 text-xs text-gray-600 mt-1 flex-wrap">
                                         <span className="bg-blue-100 px-2 py-1 rounded-full">
-                                          {item.materials.category.replace('_', ' ')}
+                                          {item.materials.category.replace(
+                                            "_",
+                                            " "
+                                          )}
                                         </span>
                                         {item.materials.format && (
                                           <span className="bg-green-100 px-2 py-1 rounded-full">
@@ -442,7 +529,10 @@ const AdminOrders = () => {
                                     </div>
                                     <div className="text-right ml-2">
                                       <p className="font-semibold text-green-600 text-sm">
-                                        ₹{(item.price * item.quantity).toLocaleString()}
+                                        ₹
+                                        {(
+                                          item.price * item.quantity
+                                        ).toLocaleString()}
                                       </p>
                                       <p className="text-xs text-gray-500">
                                         ₹{item.price}/item
@@ -453,34 +543,57 @@ const AdminOrders = () => {
                               ))
                             ) : (
                               <div className="bg-red-50 p-3 rounded-lg border-l-4 border-red-400">
-                                <p className="text-red-700 text-sm">No items found for this order</p>
+                                <p className="text-red-700 text-sm">
+                                  No items found for this order
+                                </p>
                               </div>
                             )}
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="text-center">
-                            <p className="font-bold text-lg text-green-600">₹{Number(order.total_amount).toLocaleString()}</p>
-                            <p className="text-xs text-gray-500">{order.order_items?.length || 0} item{(order.order_items?.length || 0) !== 1 ? 's' : ''}</p>
+                            <p className="font-bold text-lg text-green-600">
+                              ₹{Number(order.total_amount).toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-500">
+                              {order.order_items?.length || 0} item
+                              {(order.order_items?.length || 0) !== 1
+                                ? "s"
+                                : ""}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell>
                           <Select
                             value={order.status}
-                            onValueChange={(value) => handleStatusUpdate(order.id, value)}
+                            onValueChange={(value) =>
+                              handleStatusUpdate(order.id, value)
+                            }
                           >
                             <SelectTrigger className="w-32">
-                              <Badge className={`${getStatusColor(order.status)} flex items-center gap-1`}>
+                              <Badge
+                                className={`${getStatusColor(
+                                  order.status
+                                )} flex items-center gap-1`}
+                              >
                                 {getStatusIcon(order.status)}
-                                <span className="capitalize">{order.status}</span>
+                                <span className="capitalize">
+                                  {order.status}
+                                </span>
                               </Badge>
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="pending">Pending</SelectItem>
-                              <SelectItem value="confirmed">Confirmed</SelectItem>
+                              <SelectItem value="confirmed">
+                                Confirmed
+                              </SelectItem>
                               <SelectItem value="shipped">Shipped</SelectItem>
-                              <SelectItem value="delivered">Delivered</SelectItem>
-                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="delivered">
+                                Delivered
+                              </SelectItem>
+                              <SelectItem value="cancelled">
+                                Cancelled
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                         </TableCell>
@@ -488,18 +601,18 @@ const AdminOrders = () => {
                           <div className="text-sm">
                             <div className="flex items-center gap-1 font-medium">
                               <CalendarDays className="h-3 w-3" />
-                              {format(new Date(order.created_at), 'MMM dd')}
+                              {format(new Date(order.created_at), "MMM dd")}
                             </div>
                             <p className="text-xs text-gray-500">
-                              {format(new Date(order.created_at), 'yyyy')}
+                              {format(new Date(order.created_at), "yyyy")}
                             </p>
                           </div>
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2 justify-end">
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleViewDetails(order)}
                               className="hover:bg-blue-50"
                             >
@@ -528,7 +641,7 @@ const AdminOrders = () => {
                 Complete order information and customer details
               </DialogDescription>
             </DialogHeader>
-            
+
             {selectedOrder && (
               <div className="space-y-6">
                 {/* Customer Information Card */}
@@ -547,21 +660,28 @@ const AdminOrders = () => {
                             <User className="h-3 w-3" />
                             Full Name
                           </label>
-                          <p className="font-semibold text-lg">{selectedOrder.profiles?.full_name || 'Not provided'}</p>
+                          <p className="font-semibold text-lg">
+                            {selectedOrder.profiles?.full_name ||
+                              "Not provided"}
+                          </p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
                             <Mail className="h-3 w-3" />
                             Email Address
                           </label>
-                          <p className="font-medium">{selectedOrder.profiles?.email || 'Not provided'}</p>
+                          <p className="font-medium">
+                            {selectedOrder.profiles?.email || "Not provided"}
+                          </p>
                         </div>
                         <div>
                           <label className="text-sm font-medium text-gray-500 flex items-center gap-1">
                             <Phone className="h-3 w-3" />
                             Phone Number
                           </label>
-                          <p className="font-medium">{selectedOrder.phone || 'Not provided'}</p>
+                          <p className="font-medium">
+                            {selectedOrder.phone || "Not provided"}
+                          </p>
                         </div>
                       </div>
                       <div className="space-y-4">
@@ -570,34 +690,53 @@ const AdminOrders = () => {
                             <CalendarDays className="h-3 w-3" />
                             Order Date & Time
                           </label>
-                          <p className="font-medium">{format(new Date(selectedOrder.created_at), 'MMM dd, yyyy HH:mm:ss')}</p>
+                          <p className="font-medium">
+                            {format(
+                              new Date(selectedOrder.created_at),
+                              "MMM dd, yyyy HH:mm:ss"
+                            )}
+                          </p>
                         </div>
                         <div>
-                          <label className="text-sm font-medium text-gray-500">Order Status</label>
-                          <Badge className={`${getStatusColor(selectedOrder.status)} mt-1`}>
+                          <label className="text-sm font-medium text-gray-500">
+                            Order Status
+                          </label>
+                          <Badge
+                            className={`${getStatusColor(
+                              selectedOrder.status
+                            )} mt-1`}
+                          >
                             <div className="flex items-center gap-1">
                               {getStatusIcon(selectedOrder.status)}
-                              <span className="capitalize">{selectedOrder.status}</span>
+                              <span className="capitalize">
+                                {selectedOrder.status}
+                              </span>
                             </div>
                           </Badge>
                         </div>
                       </div>
                     </div>
-                    
+
                     {selectedOrder.shipping_address && (
                       <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
                         <label className="text-sm font-medium text-blue-900 flex items-center gap-1">
                           <MapPin className="h-4 w-4" />
                           Shipping Address
                         </label>
-                        <p className="font-medium text-blue-800 mt-1">{selectedOrder.shipping_address}</p>
+                        <p className="font-medium text-blue-800 mt-1">
+                          {selectedOrder.shipping_address}
+                        </p>
                       </div>
                     )}
-                    
+
                     {selectedOrder.notes && (
                       <div className="mt-4 p-4 bg-yellow-50 rounded-lg border-l-4 border-yellow-400">
-                        <label className="text-sm font-medium text-yellow-900">Special Notes</label>
-                        <p className="font-medium text-yellow-800 mt-1">{selectedOrder.notes}</p>
+                        <label className="text-sm font-medium text-yellow-900">
+                          Special Notes
+                        </label>
+                        <p className="font-medium text-yellow-800 mt-1">
+                          {selectedOrder.notes}
+                        </p>
                       </div>
                     )}
                   </CardContent>
@@ -608,20 +747,28 @@ const AdminOrders = () => {
                   <CardHeader className="bg-green-50">
                     <CardTitle className="text-lg flex items-center gap-2">
                       <Package className="h-5 w-5 text-green-600" />
-                      Materials Ordered ({selectedOrder.order_items?.length || 0} items)
+                      Materials Ordered (
+                      {selectedOrder.order_items?.length || 0} items)
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="pt-6">
                     <div className="space-y-4">
-                      {selectedOrder.order_items && selectedOrder.order_items.length > 0 ? (
+                      {selectedOrder.order_items &&
+                      selectedOrder.order_items.length > 0 ? (
                         selectedOrder.order_items.map((item, index) => (
-                          <div key={item.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                          <div
+                            key={item.id}
+                            className="bg-gray-50 p-4 rounded-lg border border-gray-200"
+                          >
                             <div className="flex justify-between items-start">
                               <div className="flex-1">
-                                <h4 className="font-semibold text-lg text-blue-900">{item.materials.title}</h4>
+                                <h4 className="font-semibold text-lg text-blue-900">
+                                  {item.materials.title}
+                                </h4>
                                 <div className="flex gap-4 mt-2 flex-wrap">
                                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                                    Category: {item.materials.category.replace('_', ' ')}
+                                    Category:{" "}
+                                    {item.materials.category.replace("_", " ")}
                                   </span>
                                   {item.materials.format && (
                                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
@@ -639,9 +786,15 @@ const AdminOrders = () => {
                                 </div>
                               </div>
                               <div className="text-right ml-4">
-                                <div className="text-sm text-gray-600">Unit Price: ₹{Number(item.price).toLocaleString()}</div>
+                                <div className="text-sm text-gray-600">
+                                  Unit Price: ₹
+                                  {Number(item.price).toLocaleString()}
+                                </div>
                                 <div className="text-lg font-bold text-green-600">
-                                  Total: ₹{(Number(item.price) * item.quantity).toLocaleString()}
+                                  Total: ₹
+                                  {(
+                                    Number(item.price) * item.quantity
+                                  ).toLocaleString()}
                                 </div>
                               </div>
                             </div>
@@ -650,18 +803,33 @@ const AdminOrders = () => {
                       ) : (
                         <div className="text-center py-8">
                           <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                          <p className="text-gray-600">No materials found for this order</p>
+                          <p className="text-gray-600">
+                            No materials found for this order
+                          </p>
                         </div>
                       )}
-                      
+
                       <div className="border-t-2 border-gray-200 pt-4 mt-6">
                         <div className="flex justify-between items-center bg-green-50 p-4 rounded-lg">
                           <div>
-                            <p className="text-lg font-semibold text-green-900">Total Order Amount</p>
-                            <p className="text-sm text-green-700">{selectedOrder.order_items?.length || 0} item{(selectedOrder.order_items?.length || 0) !== 1 ? 's' : ''} ordered</p>
+                            <p className="text-lg font-semibold text-green-900">
+                              Total Order Amount
+                            </p>
+                            <p className="text-sm text-green-700">
+                              {selectedOrder.order_items?.length || 0} item
+                              {(selectedOrder.order_items?.length || 0) !== 1
+                                ? "s"
+                                : ""}{" "}
+                              ordered
+                            </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-green-600">₹{Number(selectedOrder.total_amount).toLocaleString()}</p>
+                            <p className="text-2xl font-bold text-green-600">
+                              ₹
+                              {Number(
+                                selectedOrder.total_amount
+                              ).toLocaleString()}
+                            </p>
                           </div>
                         </div>
                       </div>
@@ -678,5 +846,4 @@ const AdminOrders = () => {
     </div>
   );
 };
-
 export default AdminOrders;
