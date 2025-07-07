@@ -1,8 +1,13 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
@@ -33,26 +38,26 @@ const Login = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const { error } = await signIn(email, password);
-    
+
     if (!error) {
       navigate("/");
     }
-    
+
     setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     const { error } = await signUp(email, password, fullName);
-    
+
     if (!error) {
       // User will need to verify email first
     }
-    
+
     setIsLoading(false);
   };
 
@@ -60,19 +65,19 @@ const Login = () => {
     setIsGoogleLoading(true);
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider: "google",
         options: {
-          redirectTo: window.location.origin
-        }
+          redirectTo: window.location.origin,
+        },
       });
-      
+
       if (error) {
-        console.error('Google sign in error:', error);
-        toast.error('Failed to sign in with Google. Please try again.');
+        console.error("Google sign in error:", error);
+        toast.error("Failed to sign in with Google. Please try again.");
       }
     } catch (error) {
-      console.error('Google sign in error:', error);
-      toast.error('Failed to sign in with Google. Please try again.');
+      console.error("Google sign in error:", error);
+      toast.error("Failed to sign in with Google. Please try again.");
     } finally {
       setIsGoogleLoading(false);
     }
@@ -81,17 +86,21 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
+
       <div className="container mx-auto px-4 py-16">
         <div className="max-w-md mx-auto">
           <Card className="hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Welcome to JSN Academy</CardTitle>
-              <CardDescription>Sign in to your account or create a new one</CardDescription>
+              <CardTitle className="text-2xl font-bold">
+                Welcome to JSN Academy
+              </CardTitle>
+              <CardDescription>
+                Sign in to your account or create a new one
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {/* Google Sign In Button */}
-              <Button
+              {/* <Button
                 onClick={handleGoogleSignIn}
                 disabled={isGoogleLoading}
                 className="w-full mb-6 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 transition-all duration-200"
@@ -108,21 +117,22 @@ const Login = () => {
                     Continue with Google
                   </div>
                 )}
-              </Button>
-
+              </Button> 
               <div className="relative mb-6">
                 <Separator />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="bg-white px-2 text-sm text-gray-500">or</span>
+                  <span className="bg-white px-2 text-sm text-gray-500">
+                    or
+                  </span>
                 </div>
-              </div>
+              </div> */}
 
               <Tabs defaultValue="signin" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signin">Sign In</TabsTrigger>
                   <TabsTrigger value="signup">Sign Up</TabsTrigger>
                 </TabsList>
-                
+
                 <TabsContent value="signin">
                   <form onSubmit={handleSignIn} className="space-y-4">
                     <div className="space-y-2">
@@ -149,9 +159,9 @@ const Login = () => {
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full transition-all duration-200 hover:scale-105 active:scale-95" 
+                    <Button
+                      type="submit"
+                      className="w-full transition-all duration-200 hover:scale-105 active:scale-95"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -164,14 +174,18 @@ const Login = () => {
                       )}
                     </Button>
                   </form>
-                  
-                  <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
-                    <p className="text-sm text-blue-800 font-medium">Admin Login:</p>
-                    <p className="text-xs text-blue-600">Email: admin@jsnacademy.com</p>
+
+                  {/* <div className="mt-4 p-3 bg-blue-50 rounded border border-blue-200">
+                    <p className="text-sm text-blue-800 font-medium">
+                      Admin Login:
+                    </p>
+                    <p className="text-xs text-blue-600">
+                      Email: admin@jsnacademy.com
+                    </p>
                     <p className="text-xs text-blue-600">Password: admin123</p>
-                  </div>
+                  </div> */}
                 </TabsContent>
-                
+
                 <TabsContent value="signup">
                   <form onSubmit={handleSignUp} className="space-y-4">
                     <div className="space-y-2">
@@ -211,9 +225,9 @@ const Login = () => {
                         className="transition-all duration-200 focus:ring-2 focus:ring-blue-500"
                       />
                     </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full transition-all duration-200 hover:scale-105 active:scale-95" 
+                    <Button
+                      type="submit"
+                      className="w-full transition-all duration-200 hover:scale-105 active:scale-95"
                       disabled={isLoading}
                     >
                       {isLoading ? (
@@ -232,7 +246,7 @@ const Login = () => {
           </Card>
         </div>
       </div>
-      
+
       <Footer />
     </div>
   );
