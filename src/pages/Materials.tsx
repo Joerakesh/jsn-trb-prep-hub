@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen, Filter, Search, Star, Clock, FileText, Eye } from "lucide-react";
+import { BookOpen, Filter, Search, Star, FileText, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -16,7 +17,6 @@ interface Material {
   title: string;
   description: string;
   category: string;
-  price: number;
   pages: number;
   format: string;
   image_url: string;
@@ -184,7 +184,7 @@ const Materials = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold text-blue-600">₹{material.price}</span>
+                    <span className="text-sm text-gray-600">Contact admin for pricing</span>
                     <Button 
                       asChild 
                       variant="outline" 

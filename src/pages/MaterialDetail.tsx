@@ -1,3 +1,4 @@
+
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -12,22 +13,21 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   ArrowLeft,
-  CreditCard,
   FileText,
   BookOpen,
   Star,
   AlertCircle,
-  Download,
   Shield,
   Clock,
   Award,
+  Phone,
+  MessageCircle,
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
-import PaymentDialog from "@/components/PaymentDialog";
 import { supabase } from "@/integrations/supabase/client";
-import { usePayment, ShippingDetails } from "@/contexts/PaymentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 
@@ -36,7 +36,6 @@ interface Material {
   title: string;
   description: string;
   category: string;
-  price: number;
   pages: number;
   format: string;
   image_url: string;
@@ -47,7 +46,6 @@ interface Material {
 const MaterialDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { createPayment, loading: paymentLoading } = usePayment();
   const { user } = useAuth();
   const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
 
@@ -87,40 +85,13 @@ const MaterialDetail = () => {
     retry: 1,
   });
 
-  // Check if user has already purchased this material
-  const { data: hasPurchased } = useQuery({
-    queryKey: ["user-purchase", id, user?.id],
-    queryFn: async () => {
-      if (!user || !id) return false;
-
-      const { data } = await supabase
-        .from("payments")
-        .select("id")
-        .eq("user_id", user.id)
-        .eq("material_id", id)
-        .eq("status", "paid")
-        .maybeSingle();
-
-      return !!data;
-    },
-    enabled: !!user && !!id,
-  });
-
-  const handlePurchaseClick = () => {
+  const handleContactClick = () => {
     if (!user) {
-      toast.error("Please login to purchase");
+      toast.error("Please login to contact admin");
       navigate("/login");
       return;
     }
-
     setPaymentDialogOpen(true);
-  };
-
-  const handlePayment = async (shippingDetails: ShippingDetails) => {
-    if (!material) return;
-
-    await createPayment(material.id, material.price, shippingDetails);
-    setPaymentDialogOpen(false);
   };
 
   const getCategoryColor = (category: string) => {
@@ -365,35 +336,21 @@ const MaterialDetail = () => {
 
                   <div className="border-t pt-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">Price</p>
-                        <p className="text-3xl font-bold text-blue-600 animate-pulse">
-                          ₹{material.price}
-                        </p>
+                      <div className="text-sm text-gray-600">
+                        <p className="mb-2">To purchase this material:</p>
+                        <p>1. Contact admin via WhatsApp</p>
+                        <p>2. Pay via GPay QR code</p>
+                        <p>3. Share payment screenshot</p>
+                        <p>4. Receive material via courier</p>
                       </div>
-                      {hasPurchased ? (
-                        <Button
-                          size="lg"
-                          className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-200"
-                        >
-                          {/* <Download className="h-4 w-4 mr-2" /> */}
-                          Will Deliver Soon
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={handlePurchaseClick}
-                          size="lg"
-                          className="bg-blue-600 hover:bg-blue-700 hover:scale-105 transition-all duration-200 active:scale-95"
-                          disabled={paymentLoading}
-                        >
-                          <CreditCard className="h-4 w-4 mr-2" />
-                          {paymentLoading ? (
-                            <span className="animate-pulse">Processing...</span>
-                          ) : (
-                            "Buy Now"
-                          )}
-                        </Button>
-                      )}
+                      <Button
+                        onClick={handleContactClick}
+                        size="lg"
+                        className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-200 active:scale-95"
+                      >
+                        <MessageCircle className="h-4 w-4 mr-2" />
+                        Contact Admin
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -410,7 +367,7 @@ const MaterialDetail = () => {
                 <div className="text-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors duration-200">
                   <Clock className="h-6 w-6 text-green-600 mx-auto mb-2" />
                   <p className="text-xs font-medium text-green-800">
-                    Instant Access
+                    Fast Delivery
                   </p>
                 </div>
                 <div className="text-center p-3 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors duration-200">
@@ -431,8 +388,8 @@ const MaterialDetail = () => {
                       `High-quality ${material.format} format`,
                       `${material.pages || "Multiple"} pages of content`,
                       "Expert curated material",
-                      "Instant download after purchase",
-                      "Lifetime access",
+                      "Physical delivery via courier",
+                      "WhatsApp support",
                     ].map((item, index) => (
                       <li
                         key={index}
@@ -451,13 +408,57 @@ const MaterialDetail = () => {
         </div>
       </div>
 
-      <PaymentDialog
-        open={paymentDialogOpen}
-        onOpenChange={setPaymentDialogOpen}
-        material={material}
-        onPayment={handlePayment}
-        isProcessing={paymentLoading}
-      />
+      {/* Payment Dialog with GPay QR */}
+      <Dialog open={paymentDialogOpen} onOpenChange={setPaymentDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact Admin for Purchase</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <h3 className="font-semibold mb-2">Follow these steps:</h3>
+              <ol className="text-sm text-left space-y-2">
+                <li>1. Contact us on WhatsApp: <strong>+91 9876543210</strong></li>
+                <li>2. Mention the material: <strong>{material.title}</strong></li>
+                <li>3. Pay using the GPay QR code below</li>
+                <li>4. Share payment screenshot on WhatsApp</li>
+                <li>5. We'll deliver the material via courier</li>
+              </ol>
+            </div>
+            
+            <div className="text-center border-t pt-4">
+              <h4 className="font-semibold mb-2">GPay QR Code</h4>
+              <div className="bg-white p-4 rounded-lg border inline-block">
+                <img 
+                  src="/placeholder.svg" 
+                  alt="GPay QR Code" 
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Scan this QR code with any UPI app to pay
+              </p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                onClick={() => window.open('https://wa.me/919876543210?text=Hi, I want to purchase ' + material.title, '_blank')}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                WhatsApp Admin
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setPaymentDialogOpen(false)}
+                className="flex-1"
+              >
+                Close
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

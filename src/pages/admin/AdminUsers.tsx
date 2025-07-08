@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,25 +57,88 @@ const AdminUsers = () => {
   const { data: users = [], isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      console.log("Fetching all user profiles for admin...");
+      
+      // First get all auth users
+      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) {
+        console.error("Error fetching auth users:", authError);
+        // Fallback to profiles table only
+        const { data: profilesData, error: profilesError } = await supabase
+          .from("profiles")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (profilesError) throw profilesError;
+        return profilesData as UserProfile[];
+      }
+
+      // Get corresponding profiles
+      const userIds = authUsers.users.map(user => user.id);
+      const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
+        .in("id", userIds)
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      return data as UserProfile[];
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        // Create basic user data from auth users
+        return authUsers.users.map(user => ({
+          id: user.id,
+          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Unknown',
+          email: user.email || null,
+          phone: user.phone || null,
+          verification_status: 'pending',
+          created_at: user.created_at
+        })) as UserProfile[];
+      }
+
+      // Merge auth users with profiles
+      const mergedUsers = authUsers.users.map(authUser => {
+        const profile = profilesData.find(p => p.id === authUser.id);
+        return {
+          id: authUser.id,
+          full_name: profile?.full_name || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Unknown',
+          email: profile?.email || authUser.email || null,
+          phone: profile?.phone || authUser.phone || null,
+          verification_status: profile?.verification_status || 'pending',
+          created_at: profile?.created_at || authUser.created_at
+        };
+      });
+
+      console.log("Merged users data:", mergedUsers);
+      return mergedUsers as UserProfile[];
     },
     enabled: isAdmin,
   });
 
   const updateVerificationMutation = useMutation({
     mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
-      const { error } = await supabase
+      console.log("Updating verification status:", { userId, status });
+      
+      // First try to update existing profile
+      const { error: updateError } = await supabase
         .from("profiles")
         .update({ verification_status: status })
         .eq("id", userId);
 
-      if (error) throw error;
+      if (updateError) {
+        console.log("Update failed, trying to insert profile:", updateError);
+        // If update fails, try to insert a new profile
+        const { error: insertError } = await supabase
+          .from("profiles")
+          .insert({ 
+            id: userId, 
+            verification_status: status,
+            full_name: users.find(u => u.id === userId)?.full_name,
+            email: users.find(u => u.id === userId)?.email,
+            phone: users.find(u => u.id === userId)?.phone
+          });
+
+        if (insertError) throw insertError;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
