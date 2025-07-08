@@ -1,4 +1,3 @@
-
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -13,7 +12,8 @@ import {
   MessageCircle, 
   QrCode,
   Eye,
-  Download 
+  Download,
+  ExternalLink 
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -68,6 +68,14 @@ const MaterialDetail = () => {
     const message = `Hi, I'm interested in purchasing: ${material.title}`;
     const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleViewInGoogleDrive = () => {
+    if (material?.preview_url) {
+      window.open(material.preview_url, '_blank');
+    } else {
+      toast.info("Google Drive link not available");
+    }
   };
 
   const formatCategory = (category: string) => {
@@ -142,12 +150,26 @@ const MaterialDetail = () => {
               </CardHeader>
               <CardContent>
                 {material.preview_url ? (
-                  <div className="w-full h-96 border rounded-lg overflow-hidden">
-                    <iframe
-                      src={`${material.preview_url}#toolbar=0&navpanes=0&scrollbar=0`}
-                      className="w-full h-full"
-                      title="Material Preview"
-                    />
+                  <div className="space-y-4">
+                    {/* PDF Embed */}
+                    <div className="w-full h-96 border rounded-lg overflow-hidden">
+                      <embed
+                        src={material.preview_url}
+                        type="application/pdf"
+                        className="w-full h-full"
+                        title="Material Preview"
+                      />
+                    </div>
+                    
+                    {/* View in Google Drive Button */}
+                    <Button
+                      onClick={handleViewInGoogleDrive}
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      View in Google Drive
+                    </Button>
                   </div>
                 ) : (
                   <div className="w-full h-96 border rounded-lg flex items-center justify-center bg-gray-100">
@@ -243,7 +265,7 @@ const MaterialDetail = () => {
                           <div className="flex items-center justify-center p-6">
                             <div className="bg-white p-4 rounded-lg shadow-lg">
                               <img 
-                                src="/api/placeholder/200/200" 
+                                src="https://images.unsplash.com/photo-1607798748738-b15c40d33d57?w=200&h=200&fit=crop&crop=center" 
                                 alt="GPay QR Code"
                                 className="w-48 h-48 border"
                               />

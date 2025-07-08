@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +33,6 @@ const AdminUsers = () => {
     queryFn: async () => {
       console.log("Fetching all user profiles for admin...");
       
-      // Get all profiles directly since we now have proper RLS policy
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
@@ -55,12 +53,20 @@ const AdminUsers = () => {
     mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
       console.log("Updating verification status:", { userId, status });
       
-      const { error } = await supabase
+      // Use the service role or admin privileges to update the profile
+      const { data, error } = await supabase
         .from("profiles")
         .update({ verification_status: status })
-        .eq("id", userId);
+        .eq("id", userId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Update error:", error);
+        throw error;
+      }
+
+      console.log("Update successful:", data);
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -68,11 +74,12 @@ const AdminUsers = () => {
     },
     onError: (error) => {
       console.error("Error updating verification status:", error);
-      toast.error("Failed to update verification status");
+      toast.error("Failed to update verification status: " + error.message);
     },
   });
 
   const handleStatusChange = (userId: string, newStatus: string) => {
+    console.log("Handling status change:", userId, newStatus);
     updateVerificationMutation.mutate({ userId, status: newStatus });
   };
 
