@@ -1,37 +1,12 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import {
-  Users,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Search,
-  Filter,
-} from "lucide-react";
+import { Users, CheckCircle, XCircle, Clock, Search, Filter } from "lucide-react";
 import { useState } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -59,57 +34,19 @@ const AdminUsers = () => {
     queryFn: async () => {
       console.log("Fetching all user profiles for admin...");
       
-      // First get all auth users
-      const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) {
-        console.error("Error fetching auth users:", authError);
-        // Fallback to profiles table only
-        const { data: profilesData, error: profilesError } = await supabase
-          .from("profiles")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (profilesError) throw profilesError;
-        return profilesData as UserProfile[];
-      }
-
-      // Get corresponding profiles
-      const userIds = authUsers.users.map(user => user.id);
+      // Get all profiles directly since we now have proper RLS policy
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
         .select("*")
-        .in("id", userIds)
         .order("created_at", { ascending: false });
 
       if (profilesError) {
         console.error("Error fetching profiles:", profilesError);
-        // Create basic user data from auth users
-        return authUsers.users.map(user => ({
-          id: user.id,
-          full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Unknown',
-          email: user.email || null,
-          phone: user.phone || null,
-          verification_status: 'pending',
-          created_at: user.created_at
-        })) as UserProfile[];
+        throw profilesError;
       }
 
-      // Merge auth users with profiles
-      const mergedUsers = authUsers.users.map(authUser => {
-        const profile = profilesData.find(p => p.id === authUser.id);
-        return {
-          id: authUser.id,
-          full_name: profile?.full_name || authUser.user_metadata?.full_name || authUser.email?.split('@')[0] || 'Unknown',
-          email: profile?.email || authUser.email || null,
-          phone: profile?.phone || authUser.phone || null,
-          verification_status: profile?.verification_status || 'pending',
-          created_at: profile?.created_at || authUser.created_at
-        };
-      });
-
-      console.log("Merged users data:", mergedUsers);
-      return mergedUsers as UserProfile[];
+      console.log("User profiles fetched:", profilesData);
+      return profilesData as UserProfile[];
     },
     enabled: isAdmin,
   });
@@ -118,27 +55,12 @@ const AdminUsers = () => {
     mutationFn: async ({ userId, status }: { userId: string; status: string }) => {
       console.log("Updating verification status:", { userId, status });
       
-      // First try to update existing profile
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from("profiles")
         .update({ verification_status: status })
         .eq("id", userId);
 
-      if (updateError) {
-        console.log("Update failed, trying to insert profile:", updateError);
-        // If update fails, try to insert a new profile
-        const { error: insertError } = await supabase
-          .from("profiles")
-          .insert({ 
-            id: userId, 
-            verification_status: status,
-            full_name: users.find(u => u.id === userId)?.full_name,
-            email: users.find(u => u.id === userId)?.email,
-            phone: users.find(u => u.id === userId)?.phone
-          });
-
-        if (insertError) throw insertError;
-      }
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });

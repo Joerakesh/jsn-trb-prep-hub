@@ -6,8 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BookOpen, Filter, Search, Star, FileText, Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Filter, Search, Star, FileText, Eye, MessageCircle, Download } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,11 +25,23 @@ interface Material {
   image_url: string;
 }
 
+interface SampleMaterial {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  pages: number;
+  format: string;
+  download_url: string;
+}
+
 const Materials = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
-  const { data: materials = [], isLoading, error } = useQuery({
+  const { data: materials = [], isLoading: materialsLoading, error: materialsError } = useQuery({
     queryKey: ['materials'],
     queryFn: async () => {
       console.log('Fetching materials...');
@@ -46,10 +61,52 @@ const Materials = () => {
     }
   });
 
+  const { data: sampleMaterials = [], isLoading: samplesLoading } = useQuery({
+    queryKey: ['sample_materials'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('sample_materials')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      return data as SampleMaterial[];
+    }
+  });
+
+  const handleViewSample = (downloadUrl: string, title: string) => {
+    if (downloadUrl) {
+      window.open(downloadUrl, '_blank');
+      toast.success(`Opening sample: ${title}`);
+    } else {
+      toast.info("Sample preview will be available soon");
+    }
+  };
+
+  const handleContactAdmin = (materialTitle: string) => {
+    if (!user) {
+      toast.error("Please login to contact admin");
+      navigate('/login');
+      return;
+    }
+
+    const message = `Hi, I'm interested in purchasing: ${materialTitle}`;
+    const whatsappUrl = `https://wa.me/919876543210?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
   const filteredMaterials = materials.filter(material => {
     const matchesSearch = material.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          material.description?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === "all" || material.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  const filteredSamples = sampleMaterials.filter(sample => {
+    const matchesSearch = sample.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         sample.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === "all" || sample.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -66,7 +123,7 @@ const Materials = () => {
     return category.replace('_', ' ');
   };
 
-  if (error) {
+  if (materialsError) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
@@ -78,7 +135,7 @@ const Materials = () => {
     );
   }
 
-  if (isLoading) {
+  if (materialsLoading || samplesLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navigation />
@@ -131,77 +188,194 @@ const Materials = () => {
           </Select>
         </div>
 
-        {/* Results Count */}
-        <div className="mb-6">
-          <p className="text-gray-600">
-            Showing {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material' : 'materials'}
-          </p>
-        </div>
+        {/* Tabs for Materials and Samples */}
+        <Tabs defaultValue="materials" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-8">
+            <TabsTrigger value="materials">Full Materials</TabsTrigger>
+            <TabsTrigger value="samples">Free Samples</TabsTrigger>
+          </TabsList>
 
-        {filteredMaterials.length === 0 ? (
-          <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-600 mb-2">No materials found</h3>
-            <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMaterials.map((material) => (
-              <Card 
-                key={material.id} 
-                className="hover:shadow-lg transition-all group cursor-pointer"
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <Badge className={getCategoryColor(material.category)}>
-                      {formatCategory(material.category)}
-                    </Badge>
-                    <div className="flex items-center gap-1 text-yellow-500">
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
-                      <Star className="h-4 w-4 fill-current" />
+          <TabsContent value="materials">
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Showing {filteredMaterials.length} {filteredMaterials.length === 1 ? 'material' : 'materials'}
+              </p>
+            </div>
+
+            {filteredMaterials.length === 0 ? (
+              <div className="text-center py-16">
+                <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No materials found</h3>
+                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredMaterials.map((material) => (
+                  <Card 
+                    key={material.id} 
+                    className="hover:shadow-lg transition-all group cursor-pointer"
+                  >
+                    <CardHeader className="pb-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <Badge className={getCategoryColor(material.category)}>
+                          {formatCategory(material.category)}
+                        </Badge>
+                        <div className="flex items-center gap-1 text-yellow-500">
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                          <Star className="h-4 w-4 fill-current" />
+                        </div>
+                      </div>
+                      <CardTitle className="text-lg group-hover:text-blue-600 transition-colors line-clamp-2">
+                        {material.title}
+                      </CardTitle>
+                      <CardDescription className="line-clamp-2">
+                        {material.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <FileText className="h-4 w-4" />
+                          <span>{material.pages} pages</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="h-4 w-4" />
+                          <span>{material.format}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Button 
+                          asChild 
+                          variant="outline" 
+                          size="sm" 
+                          className="w-full group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                        >
+                          <Link to={`/material/${material.id}`}>
+                            <Eye className="h-4 w-4 mr-1" />
+                            View Details
+                          </Link>
+                        </Button>
+                        
+                        <Button 
+                          className="w-full bg-green-600 hover:bg-green-700"
+                          onClick={() => handleContactAdmin(material.title)}
+                        >
+                          <MessageCircle className="h-4 w-4 mr-2" />
+                          Contact Admin
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="samples">
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Showing {filteredSamples.length} free {filteredSamples.length === 1 ? 'sample' : 'samples'}
+              </p>
+            </div>
+
+            {/* How It Works Section */}
+            <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200 mb-8">
+              <CardContent className="py-6">
+                <h3 className="text-xl font-bold text-center mb-6">How It Works</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <div className="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Eye className="h-6 w-6 text-blue-600" />
                     </div>
+                    <h4 className="font-semibold mb-2">1. View Free Sample</h4>
+                    <p className="text-sm text-gray-600">Browse and view sample chapters completely free</p>
                   </div>
-                  <CardTitle className="text-lg group-hover:text-blue-600 transition-colors line-clamp-2">
-                    {material.title}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-2">
-                    {material.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="flex justify-between items-center mb-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <FileText className="h-4 w-4" />
-                      <span>{material.pages} pages</span>
+                  <div className="text-center">
+                    <div className="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <MessageCircle className="h-6 w-6 text-green-600" />
                     </div>
-                    <div className="flex items-center gap-1">
-                      <BookOpen className="h-4 w-4" />
-                      <span>{material.format}</span>
+                    <h4 className="font-semibold mb-2">2. Contact Admin</h4>
+                    <p className="text-sm text-gray-600">Message admin on WhatsApp for purchase</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                      <Download className="h-6 w-6 text-purple-600" />
                     </div>
+                    <h4 className="font-semibold mb-2">3. Get Delivery</h4>
+                    <p className="text-sm text-gray-600">Pay via GPay & receive material via courier</p>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600">Contact admin for pricing</span>
-                    <Button 
-                      asChild 
-                      variant="outline" 
-                      size="sm" 
-                      className="group-hover:bg-blue-600 group-hover:text-white transition-colors"
-                    >
-                      <Link to={`/material/${material.id}`}>
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Details
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {filteredSamples.length === 0 ? (
+              <div className="text-center py-16">
+                <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No samples found</h3>
+                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredSamples.map((sample) => (
+                  <Card key={sample.id} className="hover:shadow-lg transition-all duration-300 border-l-4 border-l-blue-500">
+                    <CardHeader>
+                      <div className="flex justify-between items-start mb-2">
+                        <Badge variant="secondary" className="bg-green-100 text-green-800">
+                          Free Sample
+                        </Badge>
+                        <Badge variant="outline">{formatCategory(sample.category)}</Badge>
+                      </div>
+                      <CardTitle className="text-lg">{sample.title}</CardTitle>
+                      <CardDescription className="text-sm">{sample.description}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="flex justify-between text-sm text-gray-600">
+                          <span className="flex items-center">
+                            <FileText className="h-4 w-4 mr-1" />
+                            {sample.pages} pages
+                          </span>
+                          <span className="flex items-center">
+                            <BookOpen className="h-4 w-4 mr-1" />
+                            {sample.format}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Button 
+                            variant="outline"
+                            className="w-full"
+                            onClick={() => handleViewSample(sample.download_url, sample.title)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Free Sample
+                          </Button>
+                          
+                          <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                            <p className="text-sm text-blue-800 mb-2">
+                              <strong>Interested in full version?</strong>
+                            </p>
+                            <Button 
+                              className="w-full bg-green-600 hover:bg-green-700"
+                              onClick={() => handleContactAdmin(sample.title)}
+                            >
+                              <MessageCircle className="h-4 w-4 mr-2" />
+                              Contact Admin
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <Footer />
