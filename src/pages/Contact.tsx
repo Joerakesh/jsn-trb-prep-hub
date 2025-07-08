@@ -244,8 +244,8 @@ const Contact = () => {
                       Get in Touch
                     </CardTitle>
                     <CardDescription>
-                      Reach out to Dr. Nathan for academic support and course
-                      inquiries
+                      Reach out to Dr. S. Jerald Sagaya Nathan for academic
+                      support and course inquiries
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">

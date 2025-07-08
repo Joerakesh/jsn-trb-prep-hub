@@ -80,7 +80,7 @@ const About = () => {
   const milestones = [
     {
       year: "2011",
-      title: "Teaching Career Began",
+      title: "Teaching Career",
       description:
         "Started teaching English at St. Joseph's College (Autonomous), Trichy",
     },
@@ -100,6 +100,11 @@ const About = () => {
       title: "JSN English Academy",
       description:
         "Established JSN English Academy for comprehensive TRB preparation",
+    },
+    {
+      year: "2024",
+      title: "JSN English Academy into",
+      description: "JSN English Learning YouTube Channel",
     },
     // {
     //   year: "2020",
