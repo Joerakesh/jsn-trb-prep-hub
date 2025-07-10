@@ -1,4 +1,3 @@
-
 import { AlertCircle, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,10 +14,11 @@ const AnnouncementBar = () => {
           <AlertCircle className="h-5 w-5 text-yellow-300 flex-shrink-0" />
           <div className="text-center flex-1">
             <p className="text-sm md:text-base font-medium">
-              🎉 <strong>New TRB Batch Starting Soon!</strong> Limited seats available. 
-              <span className="ml-2 inline-block bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold">
+              🎉 <strong>New TRB Batch Starting Soon!</strong> Limited seats
+              available.
+              {/* <span className="ml-2 inline-block bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold">
                 Early Bird Discount 30% OFF
-              </span>
+              </span> */}
             </p>
           </div>
         </div>
