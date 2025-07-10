@@ -1,6 +1,7 @@
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
+import AnnouncementBar from "@/components/AnnouncementBar";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -183,6 +184,9 @@ const Index = () => {
         {/* <div className="absolute top-20 left-10 w-20 h-20 bg-yellow-400 rounded-full opacity-20 animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-16 h-16 bg-white rounded-full opacity-10 animate-bounce"></div> */}
       </section>
+
+      {/* Announcement Bar */}
+      <AnnouncementBar />
 
       {/* Achievement Stats */}
       <section className="py-16 bg-gray-50">

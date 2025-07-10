@@ -85,7 +85,13 @@ const AdminTests = () => {
           const { error } = await supabase
             .from('tests')
             .update({
-              ...data,
+              title: data.title,
+              description: data.description,
+              category: data.category,
+              duration: data.duration,
+              difficulty: data.difficulty,
+              questions: data.questions,
+              google_form_url: data.google_form_url,
               updated_at: new Date().toISOString()
             })
             .eq('id', editingTest.id);
@@ -94,7 +100,13 @@ const AdminTests = () => {
           const { error } = await supabase
             .from('tests')
             .insert({
-              ...data,
+              title: data.title,
+              description: data.description,
+              category: data.category,
+              duration: data.duration,
+              difficulty: data.difficulty,
+              questions: data.questions,
+              google_form_url: data.google_form_url,
               participants_count: 0,
               is_active: true,
               created_at: new Date().toISOString(),
@@ -177,6 +189,7 @@ const AdminTests = () => {
       return;
     }
 
+    console.log('Submitting test data:', formData);
     saveTest.mutate(formData);
   };
 
