@@ -1,21 +1,66 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Edit, Trash2, Users, ExternalLink, AlertTriangle, CheckCircle, FileText } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Users,
+  ExternalLink,
+  AlertTriangle,
+  CheckCircle,
+  FileText,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Test {
   id: string;
@@ -43,7 +88,7 @@ const AdminTests = () => {
     duration: "",
     difficulty: "Medium",
     questions: "",
-    google_form_url: ""
+    google_form_url: "",
   });
 
   // Reset form data
@@ -55,26 +100,30 @@ const AdminTests = () => {
       duration: "",
       difficulty: "Medium",
       questions: "",
-      google_form_url: ""
+      google_form_url: "",
     });
     setEditingTest(null);
   };
 
-  const { data: tests = [], isLoading, refetch } = useQuery({
-    queryKey: ['admin_tests'],
+  const {
+    data: tests = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["admin_tests"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('tests')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+        .from("tests")
+        .select("*")
+        .order("created_at", { ascending: false });
+
       if (error) {
-        console.error('Error fetching tests:', error);
+        console.error("Error fetching tests:", error);
         throw error;
       }
       return data as Test[];
     },
-    enabled: isAdmin
+    enabled: isAdmin,
   });
 
   const saveTest = useMutation({
@@ -83,7 +132,7 @@ const AdminTests = () => {
       try {
         if (editingTest) {
           const { error } = await supabase
-            .from('tests')
+            .from("tests")
             .update({
               title: data.title,
               description: data.description,
@@ -92,26 +141,24 @@ const AdminTests = () => {
               difficulty: data.difficulty,
               questions: data.questions,
               google_form_url: data.google_form_url,
-              updated_at: new Date().toISOString()
+              updated_at: new Date().toISOString(),
             })
-            .eq('id', editingTest.id);
+            .eq("id", editingTest.id);
           if (error) throw error;
         } else {
-          const { error } = await supabase
-            .from('tests')
-            .insert({
-              title: data.title,
-              description: data.description,
-              category: data.category,
-              duration: data.duration,
-              difficulty: data.difficulty,
-              questions: data.questions,
-              google_form_url: data.google_form_url,
-              participants_count: 0,
-              is_active: true,
-              created_at: new Date().toISOString(),
-              updated_at: new Date().toISOString()
-            });
+          const { error } = await supabase.from("tests").insert({
+            title: data.title,
+            description: data.description,
+            category: data.category,
+            duration: data.duration,
+            difficulty: data.difficulty,
+            questions: data.questions,
+            google_form_url: data.google_form_url,
+            participants_count: 0,
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          });
           if (error) throw error;
         }
       } finally {
@@ -119,77 +166,84 @@ const AdminTests = () => {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin_tests'] });
-      queryClient.invalidateQueries({ queryKey: ['tests'] });
+      queryClient.invalidateQueries({ queryKey: ["admin_tests"] });
+      queryClient.invalidateQueries({ queryKey: ["tests"] });
       setIsDialogOpen(false);
       resetForm();
       toast.success(
-        editingTest ? "Test updated successfully!" : "Test created successfully!",
+        editingTest
+          ? "Test updated successfully!"
+          : "Test created successfully!",
         {
           icon: <CheckCircle className="h-4 w-4" />,
-          duration: 3000
+          duration: 3000,
         }
       );
       refetch();
     },
     onError: (error: any) => {
-      console.error('Error saving test:', error);
+      console.error("Error saving test:", error);
       toast.error(
-        `Failed to ${editingTest ? 'update' : 'create'} test: ${error.message || 'Unknown error'}`,
+        `Failed to ${editingTest ? "update" : "create"} test: ${
+          error.message || "Unknown error"
+        }`,
         {
           icon: <AlertTriangle className="h-4 w-4" />,
-          duration: 5000
+          duration: 5000,
         }
       );
       setIsSubmitting(false);
-    }
+    },
   });
 
   const deleteTest = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from('tests')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from("tests").delete().eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin_tests'] });
-      queryClient.invalidateQueries({ queryKey: ['tests'] });
+      queryClient.invalidateQueries({ queryKey: ["admin_tests"] });
+      queryClient.invalidateQueries({ queryKey: ["tests"] });
       toast.success("Test deleted successfully!", {
-        icon: <CheckCircle className="h-4 w-4" />
+        icon: <CheckCircle className="h-4 w-4" />,
       });
       refetch();
     },
     onError: (error: any) => {
-      console.error('Error deleting test:', error);
-      toast.error(`Failed to delete test: ${error.message || 'Unknown error'}`, {
-        icon: <AlertTriangle className="h-4 w-4" />
-      });
-    }
+      console.error("Error deleting test:", error);
+      toast.error(
+        `Failed to delete test: ${error.message || "Unknown error"}`,
+        {
+          icon: <AlertTriangle className="h-4 w-4" />,
+        }
+      );
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (!formData.title.trim()) {
       toast.error("Please enter a test title");
       return;
     }
-    
+
     if (!formData.google_form_url.trim()) {
       toast.error("Please enter a Google Form URL");
       return;
     }
 
     // Validate Google Form URL
-    if (!formData.google_form_url.includes('forms.gle') && !formData.google_form_url.includes('docs.google.com/forms')) {
+    if (
+      !formData.google_form_url.includes("forms.gle") &&
+      !formData.google_form_url.includes("docs.google.com/forms")
+    ) {
       toast.error("Please enter a valid Google Form URL");
       return;
     }
 
-    console.log('Submitting test data:', formData);
+    console.log("Submitting test data:", formData);
     saveTest.mutate(formData);
   };
 
@@ -202,7 +256,7 @@ const AdminTests = () => {
       duration: test.duration || "",
       difficulty: test.difficulty || "Medium",
       questions: test.questions || "",
-      google_form_url: test.google_form_url || ""
+      google_form_url: test.google_form_url || "",
     });
     setIsDialogOpen(true);
   };
@@ -221,8 +275,12 @@ const AdminTests = () => {
       <div className="min-h-screen bg-gray-50">
         <Navigation />
         <div className="container mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p className="text-gray-600 mb-8">You don't have permission to access this page.</p>
+          <h1 className="text-2xl font-bold text-red-600 mb-4">
+            Access Denied
+          </h1>
+          <p className="text-gray-600 mb-8">
+            You don't have permission to access this page.
+          </p>
           <Button asChild>
             <Link to="/">Go Home</Link>
           </Button>
@@ -235,18 +293,27 @@ const AdminTests = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      
+
       {/* Header Section */}
       <section className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-12">
         <div className="container mx-auto px-4 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold mb-2">Online Tests Management</h1>
-            <p className="text-purple-100">Create and manage tests and assessments for students</p>
+            <p className="text-purple-100">
+              Create and manage tests and assessments for students
+            </p>
           </div>
-          
-          <Dialog open={isDialogOpen} onOpenChange={handleDialogClose}>
+
+          <Dialog
+            open={isDialogOpen}
+            onOpenChange={(open) => setIsDialogOpen(open)}
+          >
             <DialogTrigger asChild>
-              <Button variant="secondary" size="lg" className="bg-white text-purple-600 hover:bg-gray-100">
+              <Button
+                variant="secondary"
+                size="lg"
+                className="bg-white text-purple-600 hover:bg-gray-100"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Create New Test
               </Button>
@@ -257,37 +324,57 @@ const AdminTests = () => {
                   {editingTest ? "Edit Test" : "Create New Test"}
                 </DialogTitle>
                 <DialogDescription>
-                  {editingTest ? "Update the test details below" : "Fill in the details to create a new online test"}
+                  {editingTest
+                    ? "Update the test details below"
+                    : "Fill in the details to create a new online test"}
                 </DialogDescription>
               </DialogHeader>
-              
+
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Test Title *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Test Title *
+                    </label>
                     <Input
                       placeholder="Enter test title"
                       value={formData.title}
-                      onChange={(e) => setFormData({...formData, title: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
                       required
                       className="w-full"
                     />
                   </div>
-                  
+
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Description</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Description
+                    </label>
                     <Textarea
                       placeholder="Enter test description"
                       value={formData.description}
-                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                       rows={3}
                       className="w-full"
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Category</label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                    <label className="block text-sm font-medium mb-2">
+                      Category
+                    </label>
+                    <Select
+                      value={formData.category}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, category: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select category" />
                       </SelectTrigger>
@@ -298,10 +385,17 @@ const AdminTests = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Difficulty</label>
-                    <Select value={formData.difficulty} onValueChange={(value) => setFormData({...formData, difficulty: value})}>
+                    <label className="block text-sm font-medium mb-2">
+                      Difficulty
+                    </label>
+                    <Select
+                      value={formData.difficulty}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, difficulty: value })
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
@@ -312,31 +406,46 @@ const AdminTests = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Duration</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Duration
+                    </label>
                     <Input
                       placeholder="e.g., 2 hours, 90 minutes"
                       value={formData.duration}
-                      onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, duration: e.target.value })
+                      }
                     />
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium mb-2">Questions Info</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Questions Info
+                    </label>
                     <Input
                       placeholder="e.g., 100 questions, Multiple choice"
                       value={formData.questions}
-                      onChange={(e) => setFormData({...formData, questions: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({ ...formData, questions: e.target.value })
+                      }
                     />
                   </div>
-                  
+
                   <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">Google Form URL *</label>
+                    <label className="block text-sm font-medium mb-2">
+                      Google Form URL *
+                    </label>
                     <Input
                       placeholder="https://forms.gle/... or https://docs.google.com/forms/..."
                       value={formData.google_form_url}
-                      onChange={(e) => setFormData({...formData, google_form_url: e.target.value})}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          google_form_url: e.target.value,
+                        })
+                      }
                       required
                       type="url"
                     />
@@ -345,18 +454,22 @@ const AdminTests = () => {
                     </p>
                   </div>
                 </div>
-                
+
                 <div className="flex gap-3 pt-4">
-                  <Button 
-                    type="submit" 
-                    className="flex-1 bg-purple-600 hover:bg-purple-700" 
+                  <Button
+                    type="submit"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700"
                     disabled={isSubmitting}
                   >
-                    {isSubmitting ? "Saving..." : editingTest ? "Update Test" : "Create Test"}
+                    {isSubmitting
+                      ? "Saving..."
+                      : editingTest
+                      ? "Update Test"
+                      : "Create Test"}
                   </Button>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={handleDialogClose}
                     disabled={isSubmitting}
                   >
@@ -384,7 +497,9 @@ const AdminTests = () => {
                 {isLoading ? "Loading..." : "Refresh"}
               </Button>
             </CardTitle>
-            <CardDescription>Manage all online tests and assessments</CardDescription>
+            <CardDescription>
+              Manage all online tests and assessments
+            </CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -420,33 +535,50 @@ const AdminTests = () => {
                       <TableRow key={test.id} className="hover:bg-gray-50">
                         <TableCell>
                           <div className="max-w-xs">
-                            <p className="font-medium text-gray-900 truncate">{test.title}</p>
-                            <p className="text-sm text-gray-500 truncate">{test.description}</p>
+                            <p className="font-medium text-gray-900 truncate">
+                              {test.title}
+                            </p>
+                            <p className="text-sm text-gray-500 truncate">
+                              {test.description}
+                            </p>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="whitespace-nowrap">
-                            {test.category.replace('_', ' ')}
+                          <Badge
+                            variant="outline"
+                            className="whitespace-nowrap"
+                          >
+                            {test.category.replace("_", " ")}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm">{test.duration || 'Not set'}</TableCell>
+                        <TableCell className="text-sm">
+                          {test.duration || "Not set"}
+                        </TableCell>
                         <TableCell>
-                          <Badge variant={
-                            test.difficulty === 'Easy' ? 'default' : 
-                            test.difficulty === 'Medium' ? 'secondary' : 
-                            'destructive'
-                          }>
+                          <Badge
+                            variant={
+                              test.difficulty === "Easy"
+                                ? "default"
+                                : test.difficulty === "Medium"
+                                ? "secondary"
+                                : "destructive"
+                            }
+                          >
                             {test.difficulty}
                           </Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-1">
                             <Users className="h-3 w-3" />
-                            <span className="text-sm">{test.participants_count}</span>
+                            <span className="text-sm">
+                              {test.participants_count}
+                            </span>
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Badge variant={test.is_active ? "default" : "secondary"}>
+                          <Badge
+                            variant={test.is_active ? "default" : "secondary"}
+                          >
                             {test.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
@@ -454,9 +586,9 @@ const AdminTests = () => {
                           <div className="flex gap-2 justify-end">
                             {test.google_form_url && (
                               <Button variant="outline" size="sm" asChild>
-                                <a 
-                                  href={test.google_form_url} 
-                                  target="_blank" 
+                                <a
+                                  href={test.google_form_url}
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   title="Open test"
                                 >
@@ -464,9 +596,9 @@ const AdminTests = () => {
                                 </a>
                               </Button>
                             )}
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
+                            <Button
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEdit(test)}
                               title="Edit test"
                             >
@@ -474,7 +606,11 @@ const AdminTests = () => {
                             </Button>
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="outline" size="sm" title="Delete test">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  title="Delete test"
+                                >
                                   <Trash2 className="h-3 w-3" />
                                 </Button>
                               </AlertDialogTrigger>
@@ -485,12 +621,14 @@ const AdminTests = () => {
                                     Delete Test
                                   </AlertDialogTitle>
                                   <AlertDialogDescription>
-                                    Are you sure you want to delete "{test.title}"? This action cannot be undone and will remove all associated data.
+                                    Are you sure you want to delete "
+                                    {test.title}"? This action cannot be undone
+                                    and will remove all associated data.
                                   </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
                                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                  <AlertDialogAction 
+                                  <AlertDialogAction
                                     onClick={() => handleDelete(test.id)}
                                     className="bg-red-600 hover:bg-red-700"
                                   >

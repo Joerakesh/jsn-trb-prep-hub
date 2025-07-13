@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -69,11 +68,11 @@ const Navigation = () => {
       icon: <BookOpen className="h-4 w-4" />,
     },
     { name: "Tests", path: "/admin/tests", icon: <Play className="h-4 w-4" /> },
-    {
-      name: "Orders",
-      path: "/admin/orders",
-      icon: <FileText className="h-4 w-4" />,
-    },
+    // {
+    //   name: "Orders",
+    //   path: "/admin/orders",
+    //   icon: <FileText className="h-4 w-4" />,
+    // },
     {
       name: "Videos",
       path: "/admin/videos",
@@ -268,7 +267,7 @@ const Navigation = () => {
                       to="/login"
                       onClick={() => setIsOpen(false)}
                       className="flex items-center gap-3 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-    >
+                    >
                       Login
                     </Link>
                   )}

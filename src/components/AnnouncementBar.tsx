@@ -14,8 +14,10 @@ const AnnouncementBar = () => {
           <AlertCircle className="h-5 w-5 text-yellow-300 flex-shrink-0" />
           <div className="text-center flex-1">
             <p className="text-sm md:text-base font-medium">
-              🎉 <strong>New TRB Batch Starting Soon!</strong> Limited seats
-              available.
+              <a href="">
+                🎉 <strong>New TRB Batch Starting Soon!</strong> Limited seats
+                available.
+              </a>
               {/* <span className="ml-2 inline-block bg-yellow-500 text-black px-2 py-1 rounded text-xs font-semibold">
                 Early Bird Discount 30% OFF
               </span> */}
