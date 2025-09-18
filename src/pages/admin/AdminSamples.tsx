@@ -46,12 +46,12 @@ const AdminSamples = () => {
     queryKey: ['admin_samples'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('sample_materials')
+        .from('materials')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as SampleMaterial[];
+      return data as any;
     },
     enabled: isAdmin
   });
@@ -60,13 +60,13 @@ const AdminSamples = () => {
     mutationFn: async (data: any) => {
       if (editingSample) {
         const { error } = await supabase
-          .from('sample_materials')
+          .from('materials')
           .update(data)
           .eq('id', editingSample.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
-          .from('sample_materials')
+          .from('materials')
           .insert(data);
         if (error) throw error;
       }
@@ -94,7 +94,7 @@ const AdminSamples = () => {
   const deleteSample = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('sample_materials')
+        .from('materials')
         .delete()
         .eq('id', id);
       if (error) throw error;

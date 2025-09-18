@@ -33,7 +33,7 @@ const YouTube = () => {
     queryKey: ["youtube-videos"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("youtube_videos")
+        .from("videos")
         .select("*")
         .order("created_at", { ascending: false });
 

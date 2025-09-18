@@ -65,11 +65,10 @@ const Tests = () => {
       const { data, error } = await supabase
         .from("tests")
         .select("*")
-        .eq("is_active", true)
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as Test[];
+      return data as any;
     },
   });
 

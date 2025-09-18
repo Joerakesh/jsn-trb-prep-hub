@@ -59,7 +59,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import type { Database } from "@/integrations/supabase/types";
 
-type OrderStatus = Database["public"]["Enums"]["order_status"];
+type OrderStatus = string;
 
 interface Order {
   id: string;
@@ -137,7 +137,7 @@ const AdminOrders = () => {
       }
 
       console.log("Orders fetched:", data);
-      return data as Order[];
+      return data as any;
     },
     enabled: isAdmin,
   });

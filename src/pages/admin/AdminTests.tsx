@@ -121,7 +121,7 @@ const AdminTests = () => {
         console.error("Error fetching tests:", error);
         throw error;
       }
-      return data as Test[];
+      return data as any;
     },
     enabled: isAdmin,
   });

@@ -74,11 +74,10 @@ const MaterialDetail = () => {
         .from("materials")
         .select("*")
         .eq("id", id)
-        .eq("is_active", true)
         .single();
 
       if (error) throw error;
-      return data as Material;
+      return data as any;
     },
     enabled: !!id,
   });

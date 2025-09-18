@@ -70,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAdminStatus = async (userId: string) => {
     try {
       console.log('Checking admin status for user:', userId);
-      const { data, error } = await supabase.rpc('is_admin', { user_id: userId });
+      const { data, error } = await supabase.rpc('is_admin', { user_uuid: userId });
       if (error) {
         console.error('Error checking admin status:', error);
         setIsAdmin(false);

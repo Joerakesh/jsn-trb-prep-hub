@@ -133,7 +133,7 @@ const Orders = () => {
                 <CardContent>
                   <div className="space-y-3">
                     <h4 className="font-medium">Items Ordered:</h4>
-                    {order.order_items?.map((item) => (
+                    {(order as any)?.order_items?.map((item: any) => (
                       <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                         <div>
                           <p className="font-medium">{item.materials?.title}</p>
@@ -156,10 +156,10 @@ const Orders = () => {
                       </div>
                     )}
 
-                    {order.notes && (
+                    {(order as any)?.notes && (
                       <div className="p-3 bg-yellow-50 rounded border-l-4 border-yellow-400">
                         <h5 className="font-medium text-yellow-900">Notes:</h5>
-                        <p className="text-yellow-800">{order.notes}</p>
+                        <p className="text-yellow-800">{(order as any).notes}</p>
                       </div>
                     )}
                   </div>

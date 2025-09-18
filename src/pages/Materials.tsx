@@ -48,7 +48,6 @@ const Materials = () => {
       const { data, error } = await supabase
         .from('materials')
         .select('*')
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -57,7 +56,7 @@ const Materials = () => {
       }
       
       console.log('Materials fetched:', data);
-      return data as Material[];
+      return data as any;
     }
   });
 
@@ -65,13 +64,13 @@ const Materials = () => {
     queryKey: ['sample_materials'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('sample_materials')
+        .from('materials')
         .select('*')
-        .eq('is_active', true)
+        .eq('category', 'UG_TRB')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as SampleMaterial[];
+      return data as any;
     }
   });
 

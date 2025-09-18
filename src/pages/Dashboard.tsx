@@ -200,9 +200,9 @@ const Dashboard = () => {
                       >
                         <div className="flex items-center space-x-4">
                           <div className="flex-shrink-0">
-                            {order.order_items && order.order_items[0]?.materials?.image_url ? (
+                            {(order as any)?.order_items && (order as any)?.order_items[0]?.materials?.image_url ? (
                               <img
-                                src={order.order_items[0].materials.image_url}
+                                src={(order as any).order_items[0].materials.image_url}
                                 alt="Material"
                                 className="h-12 w-12 object-cover rounded"
                               />

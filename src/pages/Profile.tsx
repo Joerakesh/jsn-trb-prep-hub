@@ -64,7 +64,7 @@ const Profile = () => {
       const { error } = await supabase
         .from('profiles')
         .upsert({
-          id: user?.id,
+          user_id: user?.id,
           ...profileData,
           updated_at: new Date().toISOString()
         });

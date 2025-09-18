@@ -14,7 +14,7 @@ const AdminDashboard = () => {
       const [materialsRes, ordersRes, videosRes, testsRes] = await Promise.all([
         supabase.from('materials').select('*', { count: 'exact' }),
         supabase.from('orders').select('*', { count: 'exact' }),
-        supabase.from('youtube_videos').select('*', { count: 'exact' }),
+        supabase.from('videos').select('*', { count: 'exact' }),
         supabase.from('tests').select('*', { count: 'exact' })
       ]);
 
@@ -237,7 +237,7 @@ const AdminDashboard = () => {
                     <div>
                       <p className="font-medium">Order #{order.id.slice(0, 8)}</p>
                       <p className="text-sm text-gray-600">
-                        {order.profiles?.full_name || 'Unknown Customer'} • ₹{order.total_amount}
+                        {(order as any)?.profiles?.full_name || 'Unknown Customer'} • ₹{order.total_amount}
                       </p>
                       <Badge 
                         variant={order.status === 'delivered' ? 'default' : 'secondary'}

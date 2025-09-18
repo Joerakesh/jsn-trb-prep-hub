@@ -37,19 +37,19 @@ const AdminVideos = () => {
     queryKey: ['admin-youtube-videos'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('youtube_videos')
+        .from('videos')
         .select('*')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as Video[];
+      return data as any;
     },
   });
 
   const addVideoMutation = useMutation({
     mutationFn: async (videoData: { title: string; description: string; youtube_url: string }) => {
       const { data, error } = await supabase
-        .from('youtube_videos')
+        .from('videos')
         .insert([videoData])
         .select()
         .single();
@@ -72,7 +72,7 @@ const AdminVideos = () => {
   const updateVideoMutation = useMutation({
     mutationFn: async ({ id, ...videoData }: { id: string; title: string; description: string; youtube_url: string }) => {
       const { data, error } = await supabase
-        .from('youtube_videos')
+        .from('videos')
         .update(videoData)
         .eq('id', id)
         .select()
@@ -97,7 +97,7 @@ const AdminVideos = () => {
   const deleteVideoMutation = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('youtube_videos')
+        .from('videos')
         .delete()
         .eq('id', id);
       
