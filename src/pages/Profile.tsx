@@ -31,8 +31,8 @@ const Profile = () => {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user?.id)
-        .single();
+        .eq('user_id', user?.id)
+        .maybeSingle();
       
       if (error) throw error;
       
@@ -63,11 +63,11 @@ const Profile = () => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .upsert({
-          user_id: user?.id,
-          ...profileData,
-          updated_at: new Date().toISOString()
-        });
+        .update({
+          full_name: profileData.full_name,
+          phone: profileData.phone
+        })
+        .eq('user_id', user?.id);
 
       if (error) throw error;
 

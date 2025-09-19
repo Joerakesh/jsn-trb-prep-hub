@@ -35,7 +35,7 @@ const AdminUsers = () => {
       
       const { data: profilesData, error: profilesError } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, full_name, email, phone, verification_status, created_at")
         .order("created_at", { ascending: false });
 
       if (profilesError) {
