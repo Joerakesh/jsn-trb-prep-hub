@@ -19,34 +19,49 @@ export type Database = {
           category: string | null
           created_at: string
           description: string | null
+          format: string | null
           id: string
           image_url: string | null
+          pages: number | null
           pdf_url: string | null
+          preview_pages: number | null
+          preview_url: string | null
           price: number
           title: string
           updated_at: string
+          user_id: string
         }
         Insert: {
           category?: string | null
           created_at?: string
           description?: string | null
+          format?: string | null
           id?: string
           image_url?: string | null
+          pages?: number | null
           pdf_url?: string | null
+          preview_pages?: number | null
+          preview_url?: string | null
           price: number
           title: string
           updated_at?: string
+          user_id?: string
         }
         Update: {
           category?: string | null
           created_at?: string
           description?: string | null
+          format?: string | null
           id?: string
           image_url?: string | null
+          pages?: number | null
           pdf_url?: string | null
+          preview_pages?: number | null
+          preview_url?: string | null
           price?: number
           title?: string
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -132,34 +147,37 @@ export type Database = {
       }
       profiles: {
         Row: {
-          created_at: string
+          avatar_url: string | null
+          created_at: string | null
           email: string | null
           full_name: string | null
           id: string
-          phone: string | null
-          updated_at: string
+          status: string | null
+          updated_at: string | null
           user_id: string
-          verification_status: string
+          verification_status: string | null
         }
         Insert: {
-          created_at?: string
+          avatar_url?: string | null
+          created_at?: string | null
           email?: string | null
           full_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string
+          id: string
+          status?: string | null
+          updated_at?: string | null
           user_id: string
-          verification_status?: string
+          verification_status?: string | null
         }
         Update: {
-          created_at?: string
+          avatar_url?: string | null
+          created_at?: string | null
           email?: string | null
           full_name?: string | null
           id?: string
-          phone?: string | null
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
           user_id?: string
-          verification_status?: string
+          verification_status?: string | null
         }
         Relationships: []
       }
@@ -193,6 +211,27 @@ export type Database = {
           title?: string
           total_marks?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: string
+          user_id?: string
         }
         Relationships: []
       }
