@@ -21,8 +21,8 @@ const VerificationStatus = () => {
       const { data, error } = await supabase
         .from("profiles")
         .select("verification_status")
-        .eq("id", user.id)
-        .single();
+        .eq("user_id", user.id)
+        .maybeSingle();
 
       if (error) throw error;
       return data as UserProfile;
