@@ -18,13 +18,7 @@ const Orders = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('orders')
-        .select(`
-          *,
-          order_items (
-            *,
-            materials (title, price, category)
-          )
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .order('created_at', { ascending: false });
       
@@ -132,26 +126,21 @@ const Orders = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <h4 className="font-medium">Items Ordered:</h4>
-                    {(order as any)?.order_items?.map((item: any) => (
-                      <div key={item.id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <div>
-                          <p className="font-medium">{item.materials?.title}</p>
-                          <p className="text-sm text-gray-600">
-                            Category: {item.materials?.category?.replace('_', ' ')} • 
-                            Quantity: {item.quantity}
-                          </p>
-                        </div>
-                        <p className="font-semibold">₹{item.price}</p>
-                      </div>
-                    ))}
+                    <h4 className="font-medium">Order Details:</h4>
+                    <div className="p-3 bg-gray-50 rounded">
+                      <p className="font-medium">Order Total: ₹{order.total_amount}</p>
+                      <p className="text-sm text-gray-600">
+                        Status: {order.status} • 
+                        Phone: {order.phone}
+                      </p>
+                    </div>
                     
-                    {order.shipping_address && (
+                    {(order as any)?.shipping_address && (
                       <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-blue-400">
                         <h5 className="font-medium text-blue-900">Shipping Address:</h5>
-                        <p className="text-blue-800">{order.shipping_address}</p>
-                        {order.phone && (
-                          <p className="text-blue-800">Phone: {order.phone}</p>
+                        <p className="text-blue-800">{(order as any).shipping_address}</p>
+                        {(order as any).phone && (
+                          <p className="text-blue-800">Phone: {(order as any).phone}</p>
                         )}
                       </div>
                     )}

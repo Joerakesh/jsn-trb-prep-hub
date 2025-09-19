@@ -25,7 +25,6 @@ interface Material {
   price: number;
   pages: number;
   format: string;
-  is_active: boolean;
   preview_url: string | null;
   preview_pages: number | null;
 }
@@ -51,7 +50,7 @@ const AdminMaterials = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('materials')
-        .select('id, title, description, category, price, pages, format, is_active, preview_url, preview_pages')
+        .select('id, title, description, category, price, pages, format, preview_url, preview_pages')
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -278,8 +277,8 @@ const AdminMaterials = () => {
                   <Card key={material.id} className="relative">
                     <CardHeader>
                       <div className="flex justify-between items-start mb-2">
-                        <Badge variant={material.is_active ? "default" : "secondary"}>
-                          {material.is_active ? "Active" : "Inactive"}
+                        <Badge variant="default">
+                          Active
                         </Badge>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" onClick={() => handleEdit(material)}>
